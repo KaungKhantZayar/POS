@@ -27,52 +27,37 @@
     border-radius:200px;
   }
 
-  .dropbtn {
-    border:none;
-    background:none;
-    color:white;
-    margin-left:20px;
-    margin-top:10px;
-
+.dropdown:hover>.dropdown-menu {
+  display: block;
 }
 
-
-.dropdown-content {
-  display: none;
-  z-index: 1;
+.dropdown>.dropdown-toggle:active {
+  /*Without this, clicking will make it sticky*/
+    pointer-events: none;
 }
-
-.dropdown-content a {
-  color: black;
-  padding: 8px 16px;
+.a_href{
   text-decoration: none;
-  display: block;
+}
+.drome{
+  width:234px;
   background-color:gray;
-  border-radius:10px;
 }
-
-.dropdown-content a:hover {background-color: #f1f1f1}
-
-.dropdown:hover .dropdown-content {
-  display: block;
-}
-
-.dropdown:hover .dropbtn {
-
-}
+/* .parchase_btn:hover{
+  color:gra;
+} */
 </style>
 <body class="hold-transition sidebar-mini">
+
+  <?php
+    if (isset($_POST['parchase'])) {
+      header('Location: parchase.php');
+    }
+   ?>
 <div class="wrapper">
 
   <!-- Navbar -->
   <nav class="main-header navbar navbar-expand navbar-white navbar-light">
-    <!-- Left navbar links -->
-    <ul class="navbar-nav">
-      <li class="nav-item">
-        <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
-      </li>
 
-    </ul>
 
     <!-- SEARCH FORM -->
          <!-- <input name="_token" type="hidden" value="<?php //echo $_SESSION['_token'];//?>"> -->
@@ -87,26 +72,44 @@
     <a href="index3.html" class="brand-link">
       <!-- <img src="dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
            style="opacity: .8"> -->
-      <span class="brand-text font-weight-light ms-5">SHOOPING</span>
+      <p class="brand-text font-weight-light ms-5"></p>
     </a>
 
     <!-- Sidebar -->
     <div class="sidebar">
       <!-- Sidebar user panel (optional) -->
       <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-        <div class="image">
-          <img src="dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
+        <div class="image d-flex">
+          <p style="color:white; margin-left:5px;" class="mt-2">KAUNG KHANT ZAYAR POS</p>
         </div>
         <div class="info">
           <a href="#" class="d-block"></a>
         </div>
       </div>
-
       <!-- Sidebar Menu -->
       <nav class="mt-2">
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+
           <!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
+               <form class="" action="" method="post">
+               <li class="nav-item dropdown">
+                 <button  name="parchase" class="btn parchase_btn" style="margin-left:-11px;"><a href="parchase.php" class="nav-link dropdown-toggle a_href" data-mdb-button-initdata-mdb-ripple-init data-mdb-dropdown-init id="dropdownMenuButton"data-mdb-toggle="dropdown">
+                   <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="currentColor" class="bi bi-calendar-minus-fill ms-1" viewBox="0 0 16 16">
+                     <path d="M4 .5a.5.5 0 0 0-1 0V1H2a2 2 0 0 0-2 2v1h16V3a2 2 0 0 0-2-2h-1V.5a.5.5 0 0 0-1 0V1H4zM16 14V5H0v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2M6 10h4a.5.5 0 0 1 0 1H6a.5.5 0 0 1 0-1"/>
+                   </svg>
+                   <p style="margin-left:8px;">
+                     Parchase
+                   </p>
+                 </a></button>
+                 <ul class="dropdown-menu drome" aria-labelledby="dropdownMenuButton">
+                   <!-- text-decoration: none; -->
+                   <a href="temp.php" style="margin-left:54px; text-decoration:none;">
+                     Add_Parchase
+                   </a>
+                 </ul>
+               </li>
+             </form>
 
                <li class="nav-item">
                  <a href="customer.php" class="nav-link">
@@ -151,61 +154,20 @@
               </p>
             </a>
           </li>
-
-          <!-- <li class="nav-item">
-            <a href="order_list.php" class="nav-link">
-              <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="currentColor" class="bi bi-table ms-2" viewBox="0 0 16 16">
-                <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm15 2h-4v3h4zm0 4h-4v3h4zm0 4h-4v3h3a1 1 0 0 0 1-1zm-5 3v-3H6v3zm-5 0v-3H1v2a1 1 0 0 0 1 1zm-4-4h4V8H1zm0-4h4V4H1zm5-3v3h4V4zm4 4H6v3h4z"/>
-              </svg>
-              <p style="margin-left:8px;">
-                Order
-              </p>
-            </a>
-          </li> -->
-
-          <!-- <div class="dropdown">
-              <div class="">
-                <a class="dropbtn d-flex">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="currentColor" class="bi bi-calendar-minus-fill ms-1" viewBox="0 0 16 16">
-                    <path d="M4 .5a.5.5 0 0 0-1 0V1H2a2 2 0 0 0-2 2v1h16V3a2 2 0 0 0-2-2h-1V.5a.5.5 0 0 0-1 0V1H4zM16 14V5H0v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2M6 10h4a.5.5 0 0 1 0 1H6a.5.5 0 0 1 0-1"/>
-                  </svg>
-                  <p class="ms-3">Reports</p>
-                </a>
-              </div>
-            <div class="dropdown-content">
-            <a href="weekly_report.php">
-              <p>Weekly Reports</p>
-            </a>
-            <a href="monthly_report.php" class="mt-2">
-              <p>Monthly Reports</p>
-            </a>
-            </a>
-            <a href="royal_user.php" class="mt-2">
-              <p>Royal Customers</p>
-            </a>
-            <a href="best_seller.php" class="mt-2">
-              <p>Best Seller Item</p>
-            </a>
-           </div>
-          </div> -->
-
         </ul>
       </nav>
-      <!-- /.sidebar-menu -->
     </div>
-    <!-- /.sidebar -->
   </aside>
 
-  <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
-    <!-- Content Header (Page header) -->
+
     <div class="content-header">
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
             <h1 class="m-0 text-dark"></h1>
-          </div><!-- /.col -->
+          </div>
 
-        </div><!-- /.row -->
-      </div><!-- /.container-fluid -->
+        </div>
+      </div>
     </div>

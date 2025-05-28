@@ -77,10 +77,7 @@ require '../Config/common.php';
             <input type="text" class="form-control" placeholder="Categories_Name" name="categories_name" value="<?php echo $result[0]['categories_name'];?>">
             <p style="color:red;"><?php echo empty($categoriescodeError) ? '' : '*'.$categoriescodeError;?></p>
 
-            <div class="d-flex">
-              <button type="submit" name="button" class="add_btn form-control mt-3">Update</button>
-              <a href="index.php" style="width:450px;"><button type="button" name="button" class="add_btn form-control mt-3">Back</button></a>
-            </div>
+          
           </form>
         </div>
       </div>

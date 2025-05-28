@@ -28,13 +28,13 @@ require '../Config/common.php';
       $result = $stmt->fetchAll();
     }else {
       $search = $_POST['search'];
-      $stmt = $pdo->prepare("SELECT * FROM categories WHERE categories_name LIKE '%$searchKey%' ORDER BY id  DESC");
+      $stmt = $pdo->prepare("SELECT * FROM categories WHERE categories_name LIKE '%$search%' ORDER BY id  DESC");
       $stmt->execute();
       $rawResult = $stmt->fetchAll();
 
       $total_pages = ceil(count($rawResult) / $numOfrecs);
 
-      $stmt = $pdo->prepare("SELECT * FROM categories WHERE categories_name LIKE '%$searchKey%' ORDER BY id DESC LIMIT $offset,$numOfrecs");
+      $stmt = $pdo->prepare("SELECT * FROM categories WHERE categories_name LIKE '%$search%' ORDER BY id DESC LIMIT $offset,$numOfrecs");
       $stmt->execute();
       $result = $stmt->fetchAll();
     }

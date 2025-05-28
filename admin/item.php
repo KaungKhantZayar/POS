@@ -6,6 +6,25 @@ require '../Config/common.php';
   ?>
  <?php include 'header.php';?>
 
+ <style media="screen">
+ .outer {
+ overflow-y: auto;
+ height: 300px;
+ }
+
+ .outer {
+ width: 100%;
+ -layout: fixed;
+ }
+
+ .outer th {
+ text-align: left;
+ top: 0;
+ position: sticky;
+ background-color: white;
+ }
+ </style>
+
   <?php
     if (!empty($_GET['pageno'])) {
       $pageno = $_GET['pageno'];
@@ -27,13 +46,13 @@ require '../Config/common.php';
       $result = $stmt->fetchAll();
     }else {
       $search = $_POST['search'];
-      $stmt = $pdo->prepare("SELECT * FROM item WHERE item_name LIKE '%$searchKey%' ORDER BY id  DESC");
+      $stmt = $pdo->prepare("SELECT * FROM item WHERE item_name LIKE '%$search%' ORDER BY id  DESC");
       $stmt->execute();
       $rawResult = $stmt->fetchAll();
 
       $total_pages = ceil(count($rawResult) / $numOfrecs);
 
-      $stmt = $pdo->prepare("SELECT * FROM item WHERE item_name LIKE '%$searchKey%' ORDER BY id DESC LIMIT $offset,$numOfrecs");
+      $stmt = $pdo->prepare("SELECT * FROM item WHERE item_name LIKE '%$search%' ORDER BY id DESC LIMIT $offset,$numOfrecs");
       $stmt->execute();
       $result = $stmt->fetchAll();
     }
@@ -65,6 +84,8 @@ require '../Config/common.php';
           <div class="" style="margin-left:1080px; margin-top:-35px;">
             <a href="item_add.php" type="button" class="btn btn-success">Create New Item</a>
           </div>
+
+<div class="outer">
 
           <table class="table table-bordered mt-4 table-hover">
             <thead>
@@ -122,6 +143,7 @@ require '../Config/common.php';
                ?>
             </tbody>
           </table>
+        </div>
             <br>
             <nav aria-lable="Page navigation example" style="float:right;">
             <ul class="pagination">
