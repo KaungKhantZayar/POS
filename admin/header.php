@@ -80,7 +80,7 @@
       <!-- Sidebar user panel (optional) -->
       <div class="user-panel mt-3 pb-3 mb-3 d-flex">
         <div class="image d-flex">
-          <p style="color:white; margin-left:5px;" class="mt-2">KAUNG KHANT ZAYAR POS</p>
+          <h3 style="color:white; margin-left:5px;" class="mt-2">ProTech - POS</h3>
         </div>
         <div class="info">
           <a href="#" class="d-block"></a>
@@ -92,28 +92,34 @@
 
           <!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
-               <form class="" action="" method="post">
-               <li class="nav-item dropdown">
-                 <button  name="parchase" class="btn parchase_btn" style="margin-left:-11px;"><a href="parchase.php" class="nav-link dropdown-toggle a_href" data-mdb-button-initdata-mdb-ripple-init data-mdb-dropdown-init id="dropdownMenuButton"data-mdb-toggle="dropdown">
-                   <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="currentColor" class="bi bi-calendar-minus-fill ms-1" viewBox="0 0 16 16">
-                     <path d="M4 .5a.5.5 0 0 0-1 0V1H2a2 2 0 0 0-2 2v1h16V3a2 2 0 0 0-2-2h-1V.5a.5.5 0 0 0-1 0V1H4zM16 14V5H0v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2M6 10h4a.5.5 0 0 1 0 1H6a.5.5 0 0 1 0-1"/>
-                   </svg>
-                   <p style="margin-left:8px;">
-                     Parchase
-                   </p>
-                 </a></button>
-                 <ul class="dropdown-menu drome" aria-labelledby="dropdownMenuButton">
-                   <!-- text-decoration: none; -->
-                   <a href="temp.php" style="margin-left:54px; text-decoration:none;">
-                     Add_Parchase
-                   </a>
-                 </ul>
-               </li>
-             </form>
+
+
+             <li class="nav-item">
+               <a href="purchase.php" class="nav-link">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-bag-fill ms-2" viewBox="0 0 16 16">
+                    <path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1m3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4z"/>
+                  </svg>
+                 <p style="margin-left:8px;">
+                  purchase
+                 </p>
+               </a>
+             </li>
+
+             <li class="nav-item">
+               <a href="chose_report.php" class="nav-link">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-calendar-plus ms-2" viewBox="0 0 16 16">
+                    <path d="M8 7a.5.5 0 0 1 .5.5V9H10a.5.5 0 0 1 0 1H8.5v1.5a.5.5 0 0 1-1 0V10H6a.5.5 0 0 1 0-1h1.5V7.5A.5.5 0 0 1 8 7"/>
+                    <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z"/>
+                  </svg>
+                 <p style="margin-left:8px;">
+                  Report
+                 </p>
+               </a>
+             </li>
 
                <li class="nav-item">
                  <a href="customer.php" class="nav-link">
-                   <svg style="margin-left:6px;" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
+                   <svg style="margin-left:6px;" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-person-circle ms-2" viewBox="0 0 16 16">
                      <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
                      <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
                    </svg>
@@ -124,7 +130,7 @@
                </li>
                <li class="nav-item">
                  <a href="supplier.php" class="nav-link">
-                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-people-fill ms-1" viewBox="0 0 16 16">
+                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-people-fill  ms-2" viewBox="0 0 16 16">
                      <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5.784 6A2.24 2.24 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.3 6.3 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1zM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5"/>
                    </svg>
                    <p style="margin-left:8px;">
@@ -135,7 +141,7 @@
 
                <li class="nav-item">
                  <a href="index.php" class="nav-link">
-                   <svg style="margin-left:6px;" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-card-list" viewBox="0 0 16 16">
+                   <svg style="margin-left:6px;" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-card-list  ms-2" viewBox="0 0 16 16">
                      <path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2z"/>
                      <path d="M5 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 5 8m0-2.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m0 5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m-1-5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0M4 8a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0m0 2.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0"/>
                    </svg>
@@ -148,7 +154,7 @@
 
           <li class="nav-item">
             <a href="item.php" class="nav-link">
-              <i class="nav-icon fas fa-th"></i>
+              <i class="nav-icon fas fa-th  ms-2"></i>
               <p>
                 Item
               </p>
@@ -160,7 +166,6 @@
   </aside>
 
   <div class="content-wrapper">
-
     <div class="content-header">
       <div class="container-fluid">
         <div class="row mb-2">

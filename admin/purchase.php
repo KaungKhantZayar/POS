@@ -28,12 +28,14 @@ require '../Config/common.php';
  .cb{
    box-shadow:0px 4px 4px gray;
  }
+
+
  .outer {
  overflow-y: auto;
  height: 300px;
  }
 
- .outer {
+ .outer{
  width: 100%;
  -layout: fixed;
  }
@@ -157,7 +159,7 @@ require '../Config/common.php';
     <div class="col-md-12" style="margin-top:-30px;">
       <div class="card">
         <div class="card-body cb" style="background-color:lightblue; border-radius:5px; ">
-          <h3>Add Parchase</h3>
+          <h3>Purchase</h3>
           <form class="" action="" method="post">
             <div class="row">
               <div class="col-3">
@@ -177,34 +179,38 @@ require '../Config/common.php';
                 <p style="color:red;"><?php echo empty($supplier_idError) ? '' : '*'.$supplier_idError;?></p>
               </div>
               <div class="col-3">
+                <label for="" class="mt-4"><b>Supplier_Name</b></label>
+                <input type="text" class="form-control" placeholder="Supplier_Name" name="">
+              </div>
+              <div class="col-3" style="margin-top:-20px;">
                 <label for="" class="mt-4"><b>Item_Id</b></label>
-                <input type="text" class="form-control" placeholder="Item_Id" name="item_id">
+                <input type="number" class="form-control" placeholder="Item_Id" name="item_id">
                 <p style="color:red;"><?php echo empty($item_idError) ? '' : '*'.$item_idError;?></p>
               </div>
-            </div>
-            <div class="row mb-2" style="margin-top:-30px;">
-              <div class="col-3">
+              <div class="col-3" style="margin-top:-20px;">
+                <label for="" class="mt-4"><b>Item_Name</b></label>
+                <input type="text" class="form-control" placeholder="Item_Name" name="">
+              </div>
+              <div class="col-3 ms-3" style="margin-top:-20px;">
                 <label for="" class="mt-4"><b>Price</b></label>
-                <input type="number" class="form-control" placeholder="Price" name="price">
+                <input type="number" class="form-control" placeholder="Price" name="price" style="width:120px;">
                 <p style="color:red;"><?php echo empty($priceError) ? '' : '*'.$priceError;?></p>
               </div>
-              <div class="col-3">
+              <div class="col-3" style="margin-left:-170px; margin-top:-20px;">
                 <label for="" class="mt-4"><b>Qty</b></label>
-                <input type="number" class="form-control" placeholder="Qty" name="qty">
+                <input type="number" class="form-control" placeholder="Qty" name="qty" style="width:120px;">
                 <p style="color:red;"><?php echo empty($qtyError) ? '' : '*'.$qtyError;?></p>
               </div>
-              <div class="col-3" style="margin-top:39px;">
-                <button type="submit" name="add_btn" class="add_btn form-control mt-3">Add</button>
+              <div class="col-3 ms-5" style="margin-top:-70px;">
+                <button type="submit" name="add_btn" class="add_btn form-control mt-3" style="width:290px; margin-left:900px;">Add</button>
               </div>
             </div>
-            <div class="col-3 ms-5" style="margin-top:-60px;">
-              <form class="" action="" method="post">
-                <div class="" style="margin-left:1100px;">
-                  <button type="submit" class="btn btn-success" name="save_btn">Save</button>
-                </div>
-              </form>
-            </div>
           </div>
+        </div>
+      </form>
+      <form class="" action="" method="post">
+        <div class="mt-3 mb-2" style="margin-left:1200px;">
+          <button type="submit" class="btn btn-success" name="save_btn">Save</button>
         </div>
       </form>
         <!-- /.card-header -->
@@ -284,6 +290,8 @@ require '../Config/common.php';
             </tbody>
           </table>
         </div>
+        <br><br><br><br><br><br><br>
+        <br><br><br><br><br><br><br>
             <br>
             <!-- <nav aria-lable="Page navigation example" style="float:right;">
             <ul class="pagination">
