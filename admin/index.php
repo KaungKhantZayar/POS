@@ -6,24 +6,33 @@ require '../Config/common.php';
   ?>
  <?php include 'header.php';?>
 
+ <style media="screen">
+ .outer {
+ overflow-y: auto;
+ height: 300px;
+ }
+
+ .outer {
+ width: 100%;
+ -layout: fixed;
+ }
+
+ .outer th {
+ text-align: left;
+ top: 0;
+ position: sticky;
+ background-color: white;
+ }
+ </style>
+
 
   <?php
-    if (!empty($_GET['pageno'])) {
-      $pageno = $_GET['pageno'];
-    }else {
-      $pageno = 1;
-    }
-    $numOfrecs = 5;
-    $offset = ($pageno - 1) * $numOfrecs;
-
     if (empty($_POST['search'])) {
       $stmt = $pdo->prepare("SELECT * FROM categories ORDER BY id  DESC");
       $stmt->execute();
       $rawResult = $stmt->fetchAll();
 
-      $total_pages = ceil(count($rawResult) / $numOfrecs);
-
-      $stmt = $pdo->prepare("SELECT * FROM categories ORDER BY id DESC LIMIT $offset,$numOfrecs");
+      $stmt = $pdo->prepare("SELECT * FROM categories ORDER BY id DESC");
       $stmt->execute();
       $result = $stmt->fetchAll();
     }else {
@@ -32,9 +41,7 @@ require '../Config/common.php';
       $stmt->execute();
       $rawResult = $stmt->fetchAll();
 
-      $total_pages = ceil(count($rawResult) / $numOfrecs);
-
-      $stmt = $pdo->prepare("SELECT * FROM categories WHERE categories_name LIKE '%$search%' ORDER BY id DESC LIMIT $offset,$numOfrecs");
+      $stmt = $pdo->prepare("SELECT * FROM categories WHERE categories_name LIKE '%$search%' ORDER BY id DESC");
       $stmt->execute();
       $result = $stmt->fetchAll();
     }
@@ -68,6 +75,7 @@ require '../Config/common.php';
             <a href="category_add.php" type="button" class="btn btn-success">Create New Category</a>
           </div>
 
+        <div class="outer">
           <table class="table table-bordered mt-4 table-hover">
             <thead>
               <tr>
@@ -114,20 +122,10 @@ require '../Config/common.php';
                ?>
             </tbody>
           </table>
-            <br>
-            <nav aria-lable="Page navigation example" style="float:right;">
-            <ul class="pagination">
-            <li class="page-item"><a class="page-link" href="?pageno=1">First</a></li>
-            <li class="page-item <?php if($pageno <= 1){echo 'disabled';}?>">
-            <a class="page-link" href="<?php if($pageno <= 1){echo '#';}else{echo "?pageno=".($pageno-1);}?>">Previonus</a>
-            </li>
-            <li class="page-item"><a class="page-link" href="#"><?php echo $pageno;?></a></li>
-            <li class="page-item <?php if($pageno >= $total_pages){echo 'disabled';}?>">
-            <a class="page-link" href="<?php if($pageno >= $total_pages){echo '#';}else{echo "?pageno=".($pageno+1);}?>">Next</a>
-            </li>
-            <li class="page-item"><a class="page-link" href="?pagenp=<?php echo $total_pages;?>">Last</a></li>
-            </ul>
-            </nav>
+        </div>
+          <br><br><br><br><br><br><br>
+          <br><br><br><br>
+          <!-- <br><br><br><br><br><br><br> -->
       </div>
 
       </div>

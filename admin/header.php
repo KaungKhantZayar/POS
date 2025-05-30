@@ -55,25 +55,10 @@
    ?>
 <div class="wrapper">
 
-  <!-- Navbar -->
-  <nav class="main-header navbar navbar-expand navbar-white navbar-light">
-
-
-    <!-- SEARCH FORM -->
-         <!-- <input name="_token" type="hidden" value="<?php //echo $_SESSION['_token'];//?>"> -->
-
-
-  </nav>
   <!-- /.navbar -->
 
   <!-- Main Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
-    <!-- Brand Logo -->
-    <a href="index3.html" class="brand-link">
-      <!-- <img src="dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
-           style="opacity: .8"> -->
-      <p class="brand-text font-weight-light ms-5"></p>
-    </a>
 
     <!-- Sidebar -->
     <div class="sidebar">
@@ -87,12 +72,43 @@
         </div>
       </div>
       <!-- Sidebar Menu -->
-      <nav class="mt-2">
+      <nav class="mt-5">
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+               <li class="nav-item">
+                 <a href="index.php" class="nav-link">
+                   <svg style="margin-left:6px;" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-card-list  ms-2" viewBox="0 0 16 16">
+                     <path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2z"/>
+                     <path d="M5 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 5 8m0-2.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m0 5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m-1-5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0M4 8a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0m0 2.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0"/>
+                   </svg>
+                 </svg>
+                 <p style="margin-left:8px;">
+                   Category
+                 </p>
+               </a>
+              </li>
 
-          <!-- Add icons to the links using the .nav-icon class
-               with font-awesome or any other icon font library -->
+              <li class="nav-item">
+                <a href="customer.php" class="nav-link">
+                  <svg style="margin-left:6px;" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-person-circle ms-2" viewBox="0 0 16 16">
+                    <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
+                    <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
+                  </svg>
+                  <p style="margin-left:8px;">
+                    Customers
+                  </p>
+                </a>
+              </li>
 
+              <li class="nav-item">
+                <a href="supplier.php" class="nav-link">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-people-fill  ms-2" viewBox="0 0 16 16">
+                    <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5.784 6A2.24 2.24 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.3 6.3 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1zM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5"/>
+                  </svg>
+                  <p style="margin-left:8px;">
+                    Supplier
+                  </p>
+                </a>
+              </li>
 
              <li class="nav-item">
                <a href="purchase.php" class="nav-link">
@@ -106,8 +122,17 @@
              </li>
 
              <li class="nav-item">
+               <a href="item.php" class="nav-link">
+                 <i class="nav-icon fas fa-th  ms-2"></i>
+                 <p>
+                   Item
+                 </p>
+               </a>
+             </li>
+
+             <li class="nav-item">
                <a href="chose_report.php" class="nav-link">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-calendar-plus ms-2" viewBox="0 0 16 16">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-calendar-plus" viewBox="0 0 16 16" style="margin-left:13px;">
                     <path d="M8 7a.5.5 0 0 1 .5.5V9H10a.5.5 0 0 1 0 1H8.5v1.5a.5.5 0 0 1-1 0V10H6a.5.5 0 0 1 0-1h1.5V7.5A.5.5 0 0 1 8 7"/>
                     <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z"/>
                   </svg>
@@ -117,52 +142,13 @@
                </a>
              </li>
 
-               <li class="nav-item">
-                 <a href="customer.php" class="nav-link">
-                   <svg style="margin-left:6px;" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-person-circle ms-2" viewBox="0 0 16 16">
-                     <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
-                     <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
-                   </svg>
-                   <p style="margin-left:8px;">
-                     Customers
-                   </p>
-                 </a>
-               </li>
-               <li class="nav-item">
-                 <a href="supplier.php" class="nav-link">
-                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-people-fill  ms-2" viewBox="0 0 16 16">
-                     <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5.784 6A2.24 2.24 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.3 6.3 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1zM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5"/>
-                   </svg>
-                   <p style="margin-left:8px;">
-                     Supplier
-                   </p>
-                 </a>
-               </li>
-
-               <li class="nav-item">
-                 <a href="index.php" class="nav-link">
-                   <svg style="margin-left:6px;" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-card-list  ms-2" viewBox="0 0 16 16">
-                     <path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2z"/>
-                     <path d="M5 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 5 8m0-2.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m0 5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m-1-5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0M4 8a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0m0 2.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0"/>
-                   </svg>
-                 </svg>
-                 <p style="margin-left:8px;">
-                   Category
-                 </p>
-               </a>
-             </li>
-
-          <li class="nav-item">
-            <a href="item.php" class="nav-link">
-              <i class="nav-icon fas fa-th  ms-2"></i>
-              <p>
-                Item
-              </p>
-            </a>
-          </li>
         </ul>
       </nav>
     </div>
+
+    <div class="user-panel pb-3 mb-3 d-flex" style="margin-top:300px;">
+    </div>
+
   </aside>
 
   <div class="content-wrapper">

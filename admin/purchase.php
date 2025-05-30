@@ -46,6 +46,18 @@ require '../Config/common.php';
  position: sticky;
  background-color: white;
  }
+ .text{
+   background-color:white;
+   width:130px;
+   margin-left:-15px;
+   margin-top:-16px;
+   padding-left:6px;
+   padding-top:5px;
+   padding-bottom:5px;
+   border-top-left-radius:5px;
+   border-bottom-right-radius:100px;
+
+ }
  </style>
 
 
@@ -112,13 +124,14 @@ require '../Config/common.php';
       $item_id = $_POST['item_id'];
       $price = $_POST['price'];
       $qty = $_POST['qty'];
+      $type = $_POST['type'];
 
-      $addstmt = $pdo->prepare("INSERT INTO temp (date,vr_no,supplier_id,item_id,price,qty) VALUES (:date,:vr_no,:supplier_id,:item_id,:price,:qty)");
+      $addstmt = $pdo->prepare("INSERT INTO temp (date,vr_no,supplier_id,item_id,price,qty,type) VALUES (:date,:vr_no,:supplier_id,:item_id,:price,:qty,:type)");
       $addResult = $addstmt->execute(
-        array(':date'=>$date, ':vr_no'=>$vr_no, ':supplier_id'=>$supplier_id, ':item_id'=>$item_id, ':price'=>$price, ':qty'=>$qty)
+        array(':date'=>$date, ':vr_no'=>$vr_no, ':supplier_id'=>$supplier_id, ':item_id'=>$item_id, ':price'=>$price, ':qty'=>$qty, ':type'=>$type)
       );
       if ($addResult) {
-        echo "<script>alert('Sussessfully added');window.location.href='temp.php';</script>";
+        echo "<script>alert('Sussessfully added');window.location.href='purchase.php';</script>";
       }
     }
    }
@@ -135,11 +148,20 @@ require '../Config/common.php';
       $item_id = $value['item_id'];
       $price = $value['price'];
       $qty = $value['qty'];
+      $type = $value['type'];
 
-      $parstmt = $pdo->prepare("INSERT INTO parchase (date,vr_no,supplier_id,item_id,price,qty) VALUES (:date,:vr_no,:supplier_id,:item_id,:price,:qty)");
-      $parResult = $parstmt->execute(
-        array(':date'=>$date, ':vr_no'=>$vr_no, ':supplier_id'=>$supplier_id, ':item_id'=>$item_id, ':price'=>$price, ':qty'=>$qty)
-      );
+      if ($type == "credit") {
+        $parstmt = $pdo->prepare("INSERT INTO credit_purchase (date,vr_no,supplier_id,item_id,price,qty) VALUES (:date,:vr_no,:supplier_id,:item_id,:price,:qty)");
+        $parResult = $parstmt->execute(
+          array(':date'=>$date, ':vr_no'=>$vr_no, ':supplier_id'=>$supplier_id, ':item_id'=>$item_id, ':price'=>$price, ':qty'=>$qty)
+        );
+      }else {
+        $cashstmt = $pdo->prepare("INSERT INTO cash_purchase (date,vr_no,supplier_id,item_id,price,qty) VALUES (:date,:vr_no,:supplier_id,:item_id,:price,:qty)");
+        $cashResult = $cashstmt->execute(
+          array(':date'=>$date, ':vr_no'=>$vr_no, ':supplier_id'=>$supplier_id, ':item_id'=>$item_id, ':price'=>$price, ':qty'=>$qty)
+        );
+      }
+
 
       $id = $value['id'];
       $deletestmt = $pdo->prepare("DELETE FROM temp WHERE id='$id'");
@@ -158,9 +180,11 @@ require '../Config/common.php';
 
     <div class="col-md-12" style="margin-top:-30px;">
       <div class="card">
-        <div class="card-body cb" style="background-color:lightblue; border-radius:5px; ">
-          <h3>Purchase</h3>
-          <form class="" action="" method="post">
+        <div class="card-body cb" style="background-color:lightgray; border-radius:5px; ">
+          <div class="text">
+            <h4><b>Purchase</b></h4>
+          </div>
+          <form class="" action="" method="post" style="margin-top:-25px;">
             <div class="row">
               <div class="col-3">
                 <label for="" class="mt-4"><b>Date</b></label>
@@ -175,21 +199,21 @@ require '../Config/common.php';
               </div>
               <div class="col-3">
                 <label for="" class="mt-4"><b>Supplier_Id</b></label>
-                <input type="number" class="form-control" placeholder="Supplier_Id" name="supplier_id">
+                <input type="text" id="supplier_id" oninput="fetchSupplierNameFromId()" class="form-control" placeholder="Supplier_Id" name="supplier_id" >
                 <p style="color:red;"><?php echo empty($supplier_idError) ? '' : '*'.$supplier_idError;?></p>
               </div>
               <div class="col-3">
                 <label for="" class="mt-4"><b>Supplier_Name</b></label>
-                <input type="text" class="form-control" placeholder="Supplier_Name" name="">
+                <input type="text" id="supplier_name" class="form-control" placeholder="Supplier_Name" name="supplier_name" oninput="fetchSupplierIdFromName()">
               </div>
               <div class="col-3" style="margin-top:-20px;">
                 <label for="" class="mt-4"><b>Item_Id</b></label>
-                <input type="number" class="form-control" placeholder="Item_Id" name="item_id">
+                <input type="text" id="item_id" class="form-control" placeholder="Item_Id" name="item_id" oninput="fetchitemNameFromId()" >
                 <p style="color:red;"><?php echo empty($item_idError) ? '' : '*'.$item_idError;?></p>
               </div>
               <div class="col-3" style="margin-top:-20px;">
                 <label for="" class="mt-4"><b>Item_Name</b></label>
-                <input type="text" class="form-control" placeholder="Item_Name" name="">
+                <input type="text" id="item_name" class="form-control" placeholder="Item_Name" name="item_name" oninput="fetchitemIdFromName()">
               </div>
               <div class="col-3 ms-3" style="margin-top:-20px;">
                 <label for="" class="mt-4"><b>Price</b></label>
@@ -201,23 +225,25 @@ require '../Config/common.php';
                 <input type="number" class="form-control" placeholder="Qty" name="qty" style="width:120px;">
                 <p style="color:red;"><?php echo empty($qtyError) ? '' : '*'.$qtyError;?></p>
               </div>
-              <div class="col-3 ms-5" style="margin-top:-70px;">
-                <button type="submit" name="add_btn" class="add_btn form-control mt-3" style="width:290px; margin-left:900px;">Add</button>
+
+              <div class="col-3" style="margin-top:-110px; margin-left:940px;">
+                <label for="" class="mt-4"><b>Payment Type</b></label>
+                <select name="type" class="form-control" style="width:100px;">
+                    <option value="cash">Cash</option>
+                    <option value="credit">Credit</option>
+                </select>
+                <button type="submit" name="add_btn" class="add_btn form-control" style="width:120px; margin-left:140px; margin-top:-39px;">Add</button>
               </div>
+
             </div>
+
           </div>
-        </div>
-      </form>
-      <form class="" action="" method="post">
-        <div class="mt-3 mb-2" style="margin-left:1200px;">
-          <button type="submit" class="btn btn-success" name="save_btn">Save</button>
         </div>
       </form>
         <!-- /.card-header -->
         <div class="card-body mt-4">
 
           <div class="col-3" style="margin-left:50px; margin-top:-30px;">
-
           </div>
 
         <div class="outer">
@@ -290,25 +316,111 @@ require '../Config/common.php';
             </tbody>
           </table>
         </div>
+      <form class="" action="" method="post">
+        <div class="fixed-top" style="margin-left:1370px; margin-top:700px;">
+          <button type="submit" class="add_btn" name="save_btn" style="padding-bottom:7px;padding-top:5px; padding-left:20px; padding-right:20px;width:120px;">Save</button>
+        </div>
+      </form>
         <br><br><br><br><br><br><br>
         <br><br><br><br><br><br><br>
             <br>
-            <!-- <nav aria-lable="Page navigation example" style="float:right;">
-            <ul class="pagination">
-            <li class="page-item"><a class="page-link" href="?pageno=1">First</a></li>
-            <li class="page-item <?php if($pageno <= 1){echo 'disabled';}?>">
-            <a class="page-link" href="<?php if($pageno <= 1){echo '#';}else{echo "?pageno=".($pageno-1);}?>">Previonus</a>
-            </li>
-            <li class="page-item"><a class="page-link" href="#"><?php echo $pageno;?></a></li>
-            <li class="page-item <?php if($pageno >= $total_pages){echo 'disabled';}?>">
-            <a class="page-link" href="<?php if($pageno >= $total_pages){echo '#';}else{echo "?pageno=".($pageno+1);}?>">Next</a>
-            </li>
-            <li class="page-item"><a class="page-link" href="?pagenp=<?php echo $total_pages;?>">Last</a></li>
-            </ul>
-            </nav> -->
       </div>
       </div>
 
     <!-- Main content -->
+    <script>
+    function fetchSupplierNameFromId() {
+      const supplierId = document.getElementById('supplier_id').value;
+
+      if (supplierId.trim() === "") {
+        document.getElementById('supplier_name').value = "";
+        return;
+      }
+
+      fetch('get_supplier_by_id.php?supplier_id=' + supplierId)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            document.getElementById('supplier_name').value = data.supplier_name;
+          } else {
+            document.getElementById('supplier_name').value = "Not found";
+          }
+        })
+        .catch(err => {
+          console.error("Fetch error:", err);
+        });
+    }
+
+    function fetchSupplierIdFromName() {
+      const supplierName = document.getElementById('supplier_name').value;
+
+      if (supplierName.trim() === "") {
+        document.getElementById('supplier_id').value = "";
+        return;
+      }
+
+      fetch('get_supplier_by_name.php?supplier_name=' + encodeURIComponent(supplierName))
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            document.getElementById('supplier_id').value = data.supplier_id;
+          } else {
+            document.getElementById('supplier_id').value = "Not found";
+          }
+        })
+        .catch(err => {
+          console.error("Fetch error:", err);
+        });
+    }
+    </script>
+
+    <!-- next_script -->
+
+    <script>
+    function fetchitemNameFromId() {
+  const itemId = document.getElementById('item_id').value;
+
+  if (itemId.trim() === "") {
+    document.getElementById('item_name').value = "";
+    return;
+  }
+
+  fetch('get_item_by_id.php?item_id=' + itemId)
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        document.getElementById('item_name').value = data.item_name;
+      } else {
+        document.getElementById('item_name').value = "Not found";
+      }
+    })
+    .catch(err => {
+      console.error("Fetch error:", err);
+    });
+}
+
+
+    function fetchitemIdFromName() {
+      const itemName = document.getElementById('item_name').value;
+
+      if (itemName.trim() === "") {
+        document.getElementById('item_id').value = "";
+        return;
+      }
+
+      fetch('get_item_by_name.php?item_name=' + encodeURIComponent(itemName))
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            document.getElementById('item_id').value = data.item_id;
+          } else {
+            document.getElementById('item_id').value = "Not found";
+          }
+        })
+        .catch(err => {
+          console.error("Fetch error:", err);
+        });
+    }
+    </script>
 
 <?php include 'footer.html'; ?>
