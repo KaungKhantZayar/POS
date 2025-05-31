@@ -71,24 +71,24 @@ require '../Config/common.php';
     $offset = ($pageno - 1) * $numOfrecs;
 
     if (empty($_POST['search'])) {
-      $stmt = $pdo->prepare("SELECT * FROM temp_purchase ORDER BY id  DESC");
+      $stmt = $pdo->prepare("SELECT * FROM temp_sale ORDER BY id  DESC");
       $stmt->execute();
       $rawResult = $stmt->fetchAll();
 
       $total_pages = ceil(count($rawResult) / $numOfrecs);
 
-      $stmt = $pdo->prepare("SELECT * FROM temp_purchase ORDER BY id DESC LIMIT $offset,$numOfrecs");
+      $stmt = $pdo->prepare("SELECT * FROM temp_sale ORDER BY id DESC LIMIT $offset,$numOfrecs");
       $stmt->execute();
       $result = $stmt->fetchAll();
     }else {
       $search = $_POST['search'];
-      $stmt = $pdo->prepare("SELECT * FROM temp_purchase WHERE date LIKE '%$search%' ORDER BY id  DESC");
+      $stmt = $pdo->prepare("SELECT * FROM temp_sale WHERE date LIKE '%$search%' ORDER BY id  DESC");
       $stmt->execute();
       $rawResult = $stmt->fetchAll();
 
       $total_pages = ceil(count($rawResult) / $numOfrecs);
 
-      $stmt = $pdo->prepare("SELECT * FROM temp_purchase WHERE date LIKE '%$search%' ORDER BY id DESC LIMIT $offset,$numOfrecs");
+      $stmt = $pdo->prepare("SELECT * FROM temp_sale WHERE date LIKE '%$search%' ORDER BY id DESC LIMIT $offset,$numOfrecs");
       $stmt->execute();
       $result = $stmt->fetchAll();
     }
@@ -98,7 +98,7 @@ require '../Config/common.php';
    <?php
 
    if (isset($_POST['add_btn'])) {
-    if (empty($_POST['date']) || empty($_POST['vr_no']) || empty($_POST['supplier_id']) || empty($_POST['item_id']) || empty($_POST['price']) || empty($_POST['qty'])) {
+    if (empty($_POST['date']) || empty($_POST['vr_no']) || empty($_POST['supplier_id']) || empty($_POST['item_id']) || empty($_POST['qty'])) {
       if (empty($_POST['date'])) {
         $dateError = 'Date is required';
       }
@@ -111,36 +111,20 @@ require '../Config/common.php';
       if (empty($_POST['item_id'])) {
         $item_idError = 'Item_Id is required';
       }
-      if (empty($_POST['price'])) {
-        $priceError = 'Price is required';
-      }
       if (empty($_POST['qty'])) {
         $qtyError = 'Qty is required';
       }
     }else {
       $date = $_POST['date'];
       $vr_no = $_POST['vr_no'];
-      $supplier_id = $_POST['supplier_id'];
+      $customer_id = $_POST['customer_id'];
       $item_id = $_POST['item_id'];
-      $price = $_POST['price'];
       $qty = $_POST['qty'];
       $type = $_POST['type'];
-      $foc = $_POST['foc'];
 
-
-      if (!empty($_POST['discount'])) {
-        $discount_percentage = $_POST['discount'];
-        $amount = $price * $qty;
-
-        $percentsge_amount = ($amount/100) * $discount_percentage;
-        $amount = $amount - $percentsge_amount;
-      }else {
-        $amount = $price * $qty;
-      }
-
-      $addstmt = $pdo->prepare("INSERT INTO temp_purchase (date,vr_no,supplier_id,item_id,price,qty,type,percentsge,percentsge_amount,stock_foc,amount) VALUES (:date,:vr_no,:supplier_id,:item_id,:price,:qty,:type,:percentsge,:percentsge_amount,:stock_foc,:amount)");
+      $addstmt = $pdo->prepare("INSERT INTO temp_sale (date,vr_no,customer_id,item_id,qty,type) VALUES (:date,:vr_no,:customer_id,:item_id,:qty,:type)");
       $addResult = $addstmt->execute(
-        array(':date'=>$date, ':vr_no'=>$vr_no, ':supplier_id'=>$supplier_id, ':item_id'=>$item_id, ':price'=>$price, ':qty'=>$qty, ':type'=>$type, ':percentsge'=>$discount_percentage, ':percentsge_amount'=>$percentsge_amount, ':stock_foc'=>$foc, ':amount'=>$amount)
+        array(':date'=>$date, ':vr_no'=>$vr_no, ':customer_id'=>$customer_id, ':item_id'=>$item_id, ':qty'=>$qty, ':type'=>$type)
       );
       if ($addResult) {
         echo "<script>alert('Sussessfully added');window.location.href='purchase.php';</script>";
@@ -149,7 +133,7 @@ require '../Config/common.php';
    }
 
    if (isset($_POST['save_btn'])) {
-    $stmt = $pdo->prepare("SELECT * FROM temp_purchase");
+    $stmt = $pdo->prepare("SELECT * FROM temp_sale");
     $stmt->execute();
     $result = $stmt->fetchAll();
 
@@ -199,13 +183,13 @@ require '../Config/common.php';
 
 
       $id = $value['id'];
-      $deletestmt = $pdo->prepare("DELETE FROM temp_purchase WHERE id='$id'");
+      $deletestmt = $pdo->prepare("DELETE FROM temp_sale WHERE id='$id'");
       $deletestmt->execute();
     }
    }
 
 
-     $selestmt = $pdo->prepare("SELECT * FROM temp_purchase ORDER BY id DESC");
+     $selestmt = $pdo->prepare("SELECT * FROM temp_sale ORDER BY id DESC");
      $selestmt->execute();
      $seleResult = $selestmt->fetch(PDO::FETCH_ASSOC);
 
@@ -217,7 +201,7 @@ require '../Config/common.php';
       <div class="card">
         <div class="card-body cb" style="background-color:lightgray; border-radius:5px; ">
           <div class="text">
-            <h4><b>Purchase</b></h4>
+            <h4 class="ms-4"><b>Sale</b></h4>
           </div>
           <form class="" action="" method="post" style="margin-top:-25px;">
             <div class="row">
@@ -233,59 +217,39 @@ require '../Config/common.php';
                 <p style="color:red;"><?php echo empty($vr_noError) ? '' : '*'.$vr_noError;?></p>
               </div>
               <div class="col-3">
-                <label for="" class="mt-4"><b>Supplier_Id</b></label>
-                <input type="text" id="supplier_id" oninput="fetchSupplierNameFromId()" class="form-control" placeholder="Supplier_Id" name="supplier_id" >
+                <label for="" class="mt-4"><b>Customer_Id</b></label>
+                <input type="text" id="customer_id" oninput="fetchSaleNameFromId()" class="form-control" placeholder="Customer_Id" name="customer_id" >
                 <p style="color:red;"><?php echo empty($supplier_idError) ? '' : '*'.$supplier_idError;?></p>
               </div>
               <div class="col-3">
-                <label for="" class="mt-4"><b>Supplier_Name</b></label>
-                <input type="text" id="supplier_name" class="form-control" placeholder="Supplier_Name" name="supplier_name" oninput="fetchSupplierIdFromName()">
+                <label for="" class="mt-4"><b>Customer_Name</b></label>
+                <input type="text" id="customer_name" class="form-control" placeholder="Customer_Name" name="customer_Name" oninput="fetchSaleIdFromName()">
               </div>
               <div class="col-3" style="margin-top:-20px;">
                 <label for="" class="mt-4"><b>Item_Id</b></label>
-                <input type="text" id="item_id" class="form-control" placeholder="Item_Id" name="item_id" oninput="fetchitemNameFromId()" style="width:130px;">
+                <input type="text" id="item_id" class="form-control" placeholder="Item_Id" name="item_id" oninput="fetchitemNameFromId()" >
                 <p style="color:red;"><?php echo empty($item_idError) ? '' : '*'.$item_idError;?></p>
               </div>
-              <div class="col-3" style="margin-top:-20px;margin-left:-160px;">
+              <div class="col-3" style="margin-top:-20px;">
                 <label for="" class="mt-4"><b>Item_Name</b></label>
-                <input type="text" id="item_name" class="form-control" placeholder="Item_Name" name="item_name" oninput="fetchitemIdFromName()" style="width:130px;">
+                <input type="text" id="item_name" class="form-control" placeholder="Item_Name" name="item_name" oninput="fetchitemIdFromName()">
               </div>
-              <div class="col-3" style="margin-top:-20px; margin-left:-160px;">
-                <label for="" class="mt-4"><b>Price</b></label>
-                <input type="number" class="form-control" placeholder="Price" name="price" style="width:130px;">
-                <p style="color:red;"><?php echo empty($priceError) ? '' : '*'.$priceError;?></p>
+              <div class="col-3 ms-3" style="margin-top:-20px;">
+                <label for="" class="mt-4"><b>Payment Type</b></label>
+                <select name="type" class="form-control" style="width:100px;">
+                    <option value="cash">Cash</option>
+                    <option value="credit">Credit</option>
+                </select>
               </div>
-              <div class="col-3" style="margin-left:-160px; margin-top:-20px;">
+              <div class="col-3" style="margin-left:-170px; margin-top:-20px;">
                 <label for="" class="mt-4"><b>Qty</b></label>
-                <input type="number" class="form-control" placeholder="Qty" name="qty" style="width:130px;">
+                <input type="number" class="form-control" placeholder="Qty" name="qty" style="width:120px;">
                 <p style="color:red;"><?php echo empty($qtyError) ? '' : '*'.$qtyError;?></p>
               </div>
 
-              <div class="col-3" style="margin-top:-110px; margin-left:600px;">
-
-                <div class="" style="margin-left:10px; margin-top:24px;">
-                  <label for="" class=""><b>Discount</b></label>
-                  <input type="number" class="form-control" placeholder="Discount" name="discount" style="width:130px;">
-                  <p style="color:red;"></p>
-                </div>
-                <div class="" style="margin-left:165px; margin-top:-86px;">
-                  <label for="" class=""><b>Foc</b></label>
-                  <input type="number" class="form-control" placeholder="Foc" name="foc" style="width:130px;">
-                  <p style="color:red;"></p>
-                </div>
-
-                <div class="" style="margin-left:320px; margin-top:-111px;">
-                  <label for="" class="mt-4"><b>Payment</b></label>
-                  <select name="type" class="form-control" style="width:130px;">
-                      <option value="cash">Cash</option>
-                      <option value="credit">Credit</option>
-                    </select>
-                </div>
+              <div class="col-3" style="margin-top:-55px; margin-left:800px;">
+                <button type="submit" name="add_btn" class="add_btn form-control" style="width:280px; margin-left:140px; margin-top:px;">Add</button>
               </div>
-
-            </div>
-            <div class="" style="margin-top:-54px;">
-              <button type="submit" name="add_btn" class="add_btn form-control" style="width:150px; margin-left:1070px;">Add</button>
             </div>
 
           </div>
@@ -307,11 +271,7 @@ require '../Config/common.php';
                 <th>Vr_No</th>
                 <th>Supplier_Name</th>
                 <th>Item_Name</th>
-                <th>Price</th>
                 <th>Qty</th>
-                <th>Amount</th>
-                <th>Percentsge_amount</th>
-                <th>Foc</th>
                 <th>Total</th>
                 <th style="width:40px;">Actions</th>
               </tr>
@@ -338,12 +298,8 @@ require '../Config/common.php';
                 <td><?php echo $value['vr_no'];?></td>
                 <td><?php echo $supplierIdResult['supplier_name'];?></td>
                 <td><?php echo $itemResult['item_name']; ?></td>
-                <td><?php echo $value['price'];?></td>
                 <td><?php echo $value['qty']; ?></td>
                 <td><?php echo $value['price'] * $value['qty']; ?></td>
-                <td><?php echo $value['percentsge_amount'];?></td>
-                <td><?php echo $value['stock_foc'];?></td>
-                <td><?php echo $value['amount']; ?></td>
 
                 <td>
                   <div class="btn-group">
@@ -386,21 +342,21 @@ require '../Config/common.php';
 
     <!-- Main content -->
     <script>
-    function fetchSupplierNameFromId() {
-      const supplierId = document.getElementById('supplier_id').value;
+    function fetchSaleNameFromId() {
+      const customerId = document.getElementById('customer_id').value;
 
-      if (supplierId.trim() === "") {
-        document.getElementById('supplier_name').value = "";
+      if (customerId.trim() === "") {
+        document.getElementById('customer_name').value = "";
         return;
       }
 
-      fetch('get_supplier_by_id.php?supplier_id=' + supplierId)
+      fetch('get_sale_by_id.php?customer_id=' + customerId)
         .then(res => res.json())
         .then(data => {
           if (data.success) {
-            document.getElementById('supplier_name').value = data.supplier_name;
+            document.getElementById('customer_name').value = data.customer_name;
           } else {
-            document.getElementById('supplier_name').value = "Not found";
+            document.getElementById('customer_name').value = "Not found";
           }
         })
         .catch(err => {
@@ -408,21 +364,21 @@ require '../Config/common.php';
         });
     }
 
-    function fetchSupplierIdFromName() {
-      const supplierName = document.getElementById('supplier_name').value;
+    function fetchSaleIdFromName() {
+      const customerName = document.getElementById('customer_name').value;
 
       if (supplierName.trim() === "") {
-        document.getElementById('supplier_id').value = "";
+        document.getElementById('customer_id').value = "";
         return;
       }
 
-      fetch('get_supplier_by_name.php?supplier_name=' + encodeURIComponent(supplierName))
+      fetch('get_sale_by_name.php?customer_name=' + encodeURIComponent(customerName))
         .then(res => res.json())
         .then(data => {
           if (data.success) {
-            document.getElementById('supplier_id').value = data.supplier_id;
+            document.getElementById('customer_id').value = data.customer_id;
           } else {
-            document.getElementById('supplier_id').value = "Not found";
+            document.getElementById('customer_id').value = "Not found";
           }
         })
         .catch(err => {

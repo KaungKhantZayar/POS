@@ -78,7 +78,7 @@ require '../Config/common.php';
                 <h5>Cash_Purchase</h5>
                 <div class="mt-3">
                   <ul>
-                    <li><a href="report.php?report_name=date&type=cash" class="parchase_report"><p>Date အလိုက်ကြည့်ရန် (Date Between)</p></a></li>
+                    <li><a href="report.php?report_name=date&type=cash" class="parchase_report"><p>Date အလိုက်ကြည့်ရန်</p></a></li>
                     <li><a href="report.php?report_name=vr_no&type=cash" class="parchase_report" style="margin-top:-10px;"><p>Vouecher No အလိုက်ကြည့်ရန်</p></a></li>
                     <li><a href="report.php?report_name=item&type=cash" class="parchase_report"><p>Item အလိုက်ကြည့်ရန်</p></a></li>
                   </ul>
@@ -89,7 +89,7 @@ require '../Config/common.php';
                 <h5>Credit_Purchase</h5>
                 <div class="mt-3">
                   <ul>
-                    <li><a href="report.php?report_name=date&type=credit" class="parchase_report"><p>Date အလိုက်ကြည့်ရန် (Date Between)</p></a></li>
+                    <li><a href="report.php?report_name=date&type=credit" class="parchase_report"><p>Date အလိုက်ကြည့်ရန်</p></a></li>
                     <li><a href="report.php?report_name=vr_no&type=credit" class="parchase_report" style="margin-top:-10px;"><p>Vouecher No အလိုက်ကြည့်ရန်</p></a></li>
                     <li><a href="report.php?report_name=item&type=credit" class="parchase_report"><p>Item အလိုက်ကြည့်ရန်</p></a></li>
                   </ul>
