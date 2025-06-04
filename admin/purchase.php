@@ -98,7 +98,7 @@ require '../Config/common.php';
    <?php
 
    if (isset($_POST['add_btn'])) {
-    if (empty($_POST['date']) || empty($_POST['vr_no']) || empty($_POST['supplier_id']) || empty($_POST['item_id']) || empty($_POST['price']) || empty($_POST['qty'])) {
+    if (empty($_POST['date']) || empty($_POST['vr_no']) || empty($_POST['supplier_id']) || empty($_POST['item_id']) || empty($_POST['qty'])) {
       if (empty($_POST['date'])) {
         $dateError = 'Date is required';
       }
@@ -111,9 +111,6 @@ require '../Config/common.php';
       if (empty($_POST['item_id'])) {
         $item_idError = 'Item_Id is required';
       }
-      if (empty($_POST['price'])) {
-        $priceError = 'Price is required';
-      }
       if (empty($_POST['qty'])) {
         $qtyError = 'Qty is required';
       }
@@ -122,11 +119,15 @@ require '../Config/common.php';
       $vr_no = $_POST['vr_no'];
       $supplier_id = $_POST['supplier_id'];
       $item_id = $_POST['item_id'];
-      $price = $_POST['price'];
       $qty = $_POST['qty'];
       $type = $_POST['type'];
       $foc = $_POST['foc'];
 
+      $stmt = $pdo->prepare("SELECT * FROM item WHERE item_id=$item_id");
+      $stmt->execute();
+      $totalResult = $stmt->fetch(PDO::FETCH_ASSOC);
+
+      $price = $totalResult['original_price'];
 
       if (!empty($_POST['discount'])) {
         $discount_percentage = $_POST['discount'];
@@ -250,24 +251,19 @@ require '../Config/common.php';
                 <label for="" class="mt-4"><b>Item_Name</b></label>
                 <input type="text" id="item_name" class="form-control" placeholder="Item_Name" name="item_name" oninput="fetchitemIdFromName()" style="width:130px;">
               </div>
-              <div class="col-3" style="margin-top:-20px; margin-left:-160px;">
-                <label for="" class="mt-4"><b>Price</b></label>
-                <input type="number" class="form-control" placeholder="Price" name="price" style="width:130px;">
-                <p style="color:red;"><?php echo empty($priceError) ? '' : '*'.$priceError;?></p>
-              </div>
-              <div class="col-3" style="margin-left:-160px; margin-top:-20px;">
+              <div class="col-3" style="margin-left:-150px; margin-top:-20px;">
                 <label for="" class="mt-4"><b>Qty</b></label>
                 <input type="number" class="form-control" placeholder="Qty" name="qty" style="width:130px;">
                 <p style="color:red;"><?php echo empty($qtyError) ? '' : '*'.$qtyError;?></p>
               </div>
 
-              <div class="col-3" style="margin-top:-110px; margin-left:600px;">
-
+              <div class="col-3" style="margin-top:-110px; margin-left:460px;">
                 <div class="" style="margin-left:10px; margin-top:24px;">
                   <label for="" class=""><b>Discount</b></label>
                   <input type="number" class="form-control" placeholder="Discount" name="discount" style="width:130px;">
                   <p style="color:red;"></p>
                 </div>
+
                 <div class="" style="margin-left:165px; margin-top:-86px;">
                   <label for="" class=""><b>Foc</b></label>
                   <input type="number" class="form-control" placeholder="Foc" name="foc" style="width:130px;">
@@ -284,8 +280,8 @@ require '../Config/common.php';
               </div>
 
             </div>
-            <div class="" style="margin-top:-54px;">
-              <button type="submit" name="add_btn" class="add_btn form-control" style="width:150px; margin-left:1070px;">Add</button>
+            <div class="" style="margin-top:-55px;">
+              <button type="submit" name="add_btn" class="add_btn form-control" style="width:280px; margin-left:940px;">Add</button>
             </div>
 
           </div>

@@ -2,8 +2,6 @@
 session_start();
 require '../config/config.php';
 require '../config/common.php';
-
-
   ?>
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
@@ -11,26 +9,7 @@ require '../config/common.php';
     <meta charset="utf-8">
     <title></title>
   </head>
-  <style media="screen">
-  .add_btn{
-    background-color:#1c1c1c;
-    color:white;
-    transition:0.5s;
-    border-radius:10px;
-    padding:7px;
-  }
-  .add_btn:hover{
-    border:2px solid #1c1c1c;
-    background:none;
-    color:#1c1c1c;
-    transition:0.5s;
-    border-radius:10px;
-    box-shadow:2px 8px 16px gray;
-  }
-  .crd{
-    width:500px;
-  }
-  </style>
+
 
   <body>
     <?php include 'header.php';?>

@@ -34,7 +34,7 @@ require '../Config/common.php';
 
     <?php
       if ($_POST) {
-        if (empty($_POST['item_id']) || empty($_POST['item_name']) || empty($_POST['categories_id'])) {
+        if (empty($_POST['item_id']) || empty($_POST['item_name']) || empty($_POST['categories_id']) || empty($_POST['original_price']) || empty($_POST['selling_price'])) {
           if (empty($_POST['item_id'])) {
             $itemidError = 'Item_Id is required';
           }
@@ -44,14 +44,22 @@ require '../Config/common.php';
           if (empty($_POST['categories_id'])) {
             $categoriesidError = 'Categories_Id is required';
           }
+          if (empty($_POST['original_price'])) {
+            $original_priceError = 'Original_Price is required';
+          }
+          if (empty($_POST['selling_price'])) {
+            $selling_priceError = 'Selling_Price is required';
+          }
         }else {
           $item_id = $_POST['item_id'];
           $item_name = $_POST['item_name'];
           $categories_id = $_POST['categories_id'];
+          $original_price = $_POST['original_price'];
+          $selling_price = $_POST['selling_price'];
 
-          $stmt = $pdo->prepare("INSERT INTO item (item_id,item_name,categories_id) VALUES (:item_id,:item_name,:categories_id)");
+          $stmt = $pdo->prepare("INSERT INTO item (item_id,item_name,categories_id,original_price,selling_price) VALUES (:item_id,:item_name,:categories_id,:original_price,:selling_price)");
           $result = $stmt->execute(
-            array(':item_id'=>$item_id,':item_name'=>$item_name,':categories_id'=>$categories_id)
+            array(':item_id'=>$item_id,':item_name'=>$item_name,':categories_id'=>$categories_id, ':original_price'=>$original_price, ':selling_price'=>$selling_price)
           );
           if ($result) {
             echo "<script>alert('Sussessfully added');window.location.href='item.php';</script>";
@@ -88,9 +96,27 @@ require '../Config/common.php';
               </select>
               <p style="color:red;"><?php echo empty($categoriesidError) ? '' : '*'.$categoriesidError;?></p>
 
-            <div class="d-flex mt-3">
-              <button type="submit" name="button" class="add_btn form-control mt-3">Add</button>
-              <a href="item.php" style="width:450px;"><button type="button" name="button" class="add_btn form-control mt-3">Back</button></a>
+              <div class="row">
+                <div class="col-6">
+                  <label for="" class="mt-4"><b>Original_Price</b></label>
+                  <input type="number" class="form-control" placeholder="Original_Price" name="original_price">
+                  <p style="color:red;"><?php echo empty($original_priceError) ? '' : '*'.$original_priceError;?></p>
+
+                </div>
+                <div class="col-6">
+                  <label for="" class="mt-4"><b>Selling_Price</b></label>
+                  <input type="number" class="form-control" placeholder="Selling_Price" name="selling_price">
+                  <p style="color:red;"><?php echo empty($selling_priceError) ? '' : '*'.$selling_priceError;?></p>
+                </div>
+              </div>
+
+            <div class="row mt-3">
+              <div class="col-6">
+                <button type="submit" name="button" class="add_btn form-control mt-3">Add</button>
+              </div>
+              <div class="col-6">
+                <a href="item.php" style="width:450px;"><button type="button" name="button" class="add_btn form-control mt-3">Back</button></a>
+              </div>
             </div>
           </form>
         </div>

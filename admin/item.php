@@ -9,7 +9,7 @@ require '../Config/common.php';
  <style media="screen">
  .outer {
  overflow-y: scroll;
- height: 300px;
+ height: 550px;
  }
 
  .outer {
@@ -85,7 +85,7 @@ require '../Config/common.php';
             <a href="item_add.php" type="button" class="btn btn-success">Create New Item</a>
           </div>
 
-<div class="outer">
+        <div class="outer">
 
           <table class="table table-bordered mt-4 table-hover">
             <thead>
@@ -94,6 +94,8 @@ require '../Config/common.php';
                 <th>Item_id</th>
                 <th>Item_name</th>
                 <th>Category_id</th>
+                <th>Original_Price</th>
+                <th>Selling_Price</th>
                 <th style="width:40px;">Actions</th>
               </tr>
             </thead>
@@ -116,6 +118,8 @@ require '../Config/common.php';
                 <td><?php echo $value['item_id'];?></td>
                 <td><?php echo $value['item_name'];?></td>
                 <td><?php echo $catResult['categories_name']; ?></td>
+                <td><?php echo $value['original_price']; ?></td>
+                <td><?php echo $value['selling_price']; ?></td>
                 <td>
                   <div class="btn-group">
                     <div class="container">
@@ -143,16 +147,11 @@ require '../Config/common.php';
                ?>
             </tbody>
           </table>
-
         </div>
-            <br>
       </div>
 
       </div>
     </div>
-    <br><br><br><br><br><br><br>
-    <br><br><br><br><br><br><br>
-    <br><br><br><br><br><br><br>
     <!-- Main content -->
 
 <?php include 'footer.html'; ?>

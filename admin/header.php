@@ -65,7 +65,7 @@
       <!-- Sidebar user panel (optional) -->
       <div class="user-panel mt-3 pb-3 mb-3 d-flex">
         <div class="image d-flex">
-          <h3 style="color:white; margin-left:5px;" class="mt-2">ProTech - POS</h3>
+          <h3 style="color:white; margin-left:5px;" class="mt-2">ProTech - SBM</h3>
         </div>
         <div class="info">
           <a href="#" class="d-block"></a>
