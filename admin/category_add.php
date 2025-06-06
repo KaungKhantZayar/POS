@@ -51,7 +51,7 @@ require '../Config/common.php';
             array(':categories_code'=>$categories_code,':categories_name'=>$categories_name)
           );
           if ($result) {
-            echo "<script>alert('Sussessfully added');window.location.href='index.php';</script>";
+            echo "<script>alert('Sussessfully added');window.location.href='category.php';</script>";
           }
         }
       }
@@ -72,7 +72,7 @@ require '../Config/common.php';
 
             <div class="d-flex">
               <button type="submit" name="button" class="add_btn form-control mt-3">Add</button>
-              <a href="index.php" style="width:450px;"><button type="button" name="button" class="add_btn form-control mt-3">Back</button></a>
+              <a href="category.php" style="width:450px;"><button type="button" name="button" class="add_btn form-control mt-3">Back</button></a>
             </div>
           </form>
         </div>

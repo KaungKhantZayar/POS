@@ -2,135 +2,173 @@
 session_start();
 require '../Config/config.php';
 require '../Config/common.php';
-
-  ?>
- <?php include 'header.php';?>
-
- <style media="screen">
- .outer {
- overflow-y: auto;
- height: 300px;
- }
-
- .outer {
- width: 100%;
- -layout: fixed;
- }
-
- .outer th {
- text-align: left;
- top: 0;
- position: sticky;
- background-color: white;
- }
- </style>
-
-
-  <?php
-    if (empty($_POST['search'])) {
-      $stmt = $pdo->prepare("SELECT * FROM categories ORDER BY id  DESC");
-      $stmt->execute();
-      $rawResult = $stmt->fetchAll();
-
-      $stmt = $pdo->prepare("SELECT * FROM categories ORDER BY id DESC");
-      $stmt->execute();
-      $result = $stmt->fetchAll();
-    }else {
-      $search = $_POST['search'];
-      $stmt = $pdo->prepare("SELECT * FROM categories WHERE categories_name LIKE '%$search%' ORDER BY id  DESC");
-      $stmt->execute();
-      $rawResult = $stmt->fetchAll();
-
-      $stmt = $pdo->prepare("SELECT * FROM categories WHERE categories_name LIKE '%$search%' ORDER BY id DESC");
-      $stmt->execute();
-      $result = $stmt->fetchAll();
+include 'header.php';
+?>
+<!-- Dashboard Styles -->
+<style>
+  /* Fade-in + Slide-up Animation */
+  @keyframes fadeSlideUp {
+    0% {
+      opacity: 0;
+      transform: translateY(30px);
     }
-   ?>
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 
-    <div class="col-md-12">
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title">Category Listings</h3>
-        </div>
+  /* Card animation */
+  .animated-card {
+    opacity: 0;
+    animation: fadeSlideUp 0.8s ease forwards;
+  }
 
-        <!-- /.card-header -->
+  /* Delay for staggered load effect */
+  .animated-delay-1 { animation-delay: 0.1s; }
+  .animated-delay-2 { animation-delay: 0.2s; }
+  .animated-delay-3 { animation-delay: 0.3s; }
+  .animated-delay-4 { animation-delay: 0.4s; }
+
+  /* Hover effect */
+  .card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+  }
+</style>
+
+<!-- Begin Dashboard Container -->
+<div class="container pb-5">
+  <h2 class="fw-bold mb-5" style="margin-top: -15px;">📊 Business Dashboard</h2>
+
+  <!-- Metric Cards Row -->
+  <div class="row g-4">
+    <div class="col-md-3 animated-card animated-delay-1">
+      <div class="card border-0 shadow-sm rounded-3 h-100">
         <div class="card-body">
-
-          <div class="col-3" style="">
-            <form class="" action="" method="post">
-              <div class="input-group" style="margin-top:20px;">
-                <input type="text" class="form-control" placeholder="Search Category_Name" name="search">
-                <button type="submit" class="input-group-text" id="basic-addon2">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search-heart" viewBox="0 0 16 16">
-                    <path d="M6.5 4.482c1.664-1.673 5.825 1.254 0 5.018-5.825-3.764-1.664-6.69 0-5.018"/>
-                    <path d="M13 6.5a6.47 6.47 0 0 1-1.258 3.844q.06.044.115.098l3.85 3.85a1 1 0 0 1-1.414 1.415l-3.85-3.85a1 1 0 0 1-.1-.115h.002A6.5 6.5 0 1 1 13 6.5M6.5 12a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11"/>
-                  </svg>
-                </button>
-              </div>
-            </form>
-          </div>
-
-
-          <div class="" style="margin-left:1040px; margin-top:-40px;">
-            <a href="category_add.php" type="button" class="btn btn-success">Create New Category</a>
-          </div>
-
-        <div class="outer">
-          <table class="table table-bordered mt-4 table-hover">
-            <thead>
-              <tr>
-                <th style="width: 10px">#</th>
-                <th>Category_Id</th>
-                <th>Category_Name</th>
-                <th style="width:40px;">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <?php
-                if ($result) {
-                  $id = 1;
-                  foreach ($result as $value) {
-               ?>
-              <tr>
-                <td><?php echo $id; ?></td>
-                <td><?php echo $value['categories_code'];?></td>
-                <td><?php echo $value['categories_name'];?></td>
-                <td>
-                  <div class="btn-group">
-                    <div class="container">
-                    <a href="category_edit.php?id=<?php echo $value['id'];?>" type="button" class="btn btn-warning">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-                        <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
-                        <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
-                      </svg>
-                    </a>
-                    </div>
-                    <div class="contaienr">
-                    <a href="category_delete.php?id=<?php echo $value['id'];?>" type="button" class="btn btn-danger"  onclick="return confirm('Are you sure you want to Delete?');">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
-                        <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5"/>
-                      </svg>
-                    </a>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-              <?php
-                $id++;
-                  }
-                }
-               ?>
-            </tbody>
-          </table>
+          <div class="text-muted small mb-1">Total Sales</div>
+          <h4 class="fw-semibold text-primary">₹1,20,000</h4>
         </div>
-          <br><br><br><br><br><br><br>
-          <br><br><br><br>
-          <!-- <br><br><br><br><br><br><br> -->
-      </div>
-
       </div>
     </div>
 
-    <!-- Main content -->
+    <div class="col-md-3 animated-card animated-delay-2">
+      <div class="card border-0 shadow-sm rounded-3 h-100">
+        <div class="card-body">
+          <div class="text-muted small mb-1">Customers</div>
+          <h4 class="fw-semibold text-success">320</h4>
+        </div>
+      </div>
+    </div>
 
-<?php include 'footer.html'; ?>
+    <div class="col-md-3 animated-card animated-delay-3">
+      <div class="card border-0 shadow-sm rounded-3 h-100">
+        <div class="card-body">
+          <div class="text-muted small mb-1">Pending Orders</div>
+          <h4 class="fw-semibold text-warning">18</h4>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 animated-card animated-delay-4">
+      <div class="card border-0 shadow-sm rounded-3 h-100">
+        <div class="card-body">
+          <div class="text-muted small mb-1">Items in Stock</div>
+          <h4 class="fw-semibold text-danger">145</h4>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Insights Section -->
+  <div class="row g-4 mt-4">
+    <div class="col-md-3 animated-card animated-delay-1">
+      <div class="card border-0 shadow-sm rounded-3 h-100 bg-light">
+        <div class="card-body">
+          <div class="text-muted small mb-1">Top Product</div>
+          <div class="fw-semibold">A4 Paper</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 animated-card animated-delay-2">
+      <div class="card border-0 shadow-sm rounded-3 h-100 bg-light">
+        <div class="card-body">
+          <div class="text-muted small mb-1">Best Customer</div>
+          <div class="fw-semibold">John D.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 animated-card animated-delay-3">
+      <div class="card border-0 shadow-sm rounded-3 h-100 bg-light">
+        <div class="card-body">
+          <div class="text-muted small mb-1">Monthly Growth</div>
+          <div class="fw-semibold text-success">+12.5%</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 animated-card animated-delay-4">
+      <div class="card border-0 shadow-sm rounded-3 h-100 bg-light">
+        <div class="card-body">
+          <div class="text-muted small mb-1">Total Profit</div>
+          <div class="fw-semibold text-primary">₹35,000</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Links Row -->
+  <div class="row g-4 mt-4">
+    <div class="col-md-6 animated-card animated-delay-3">
+      <div class="card border-0 shadow-sm rounded-3 p-3 d-flex justify-content-between align-items-center">
+        <div>
+          <h6 class="fw-semibold mb-1">📥 Add New Entry</h6>
+          <div class="small text-muted">Purchases / Customers</div>
+        </div>
+        <a href="add_purchase.php" class="btn btn-sm btn-outline-primary rounded-pill">Add</a>
+      </div>
+    </div>
+    <div class="col-md-6 animated-card animated-delay-4">
+        <div class="card border-0 shadow-sm rounded-3 p-3 d-flex justify-content-between align-items-center">
+            <div>
+            <h6 class="fw-semibold mb-1">📄 View Reports</h6>
+            <div class="small text-muted">Performance & stats</div>
+            </div>
+            <a href="reports.php" class="btn btn-sm btn-outline-success rounded-pill">Open</a>
+        </div>
+    </div>
+  </div>
+
+  <div class="row g-4 mt-2">
+  <div class="col-md-6 animated-card animated-delay-1">
+    <div class="card border-0 shadow-sm rounded-3 p-3 d-flex justify-content-between align-items-center">
+      <div>
+        <h6 class="fw-semibold mb-1">🛒 Manage Products</h6>
+        <div class="small text-muted">Add, edit, or remove items</div>
+      </div>
+      <a href="products.php" class="btn btn-sm btn-outline-warning rounded-pill">Manage</a>
+    </div>
+  </div>
+
+  <div class="col-md-6 animated-card animated-delay-2 mb-5">
+    <div class="card border-0 shadow-sm rounded-3 p-3 d-flex justify-content-between align-items-center">
+      <div>
+        <h6 class="fw-semibold mb-1">⚙️ Settings</h6>
+        <div class="small text-muted">Customize your system</div>
+      </div>
+      <a href="settings.php" class="btn btn-sm btn-outline-secondary rounded-pill">Open</a>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<?php
+include 'footer.html';
+?>
