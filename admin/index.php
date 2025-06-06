@@ -39,11 +39,74 @@ include 'header.php';
     transform: translateY(-6px);
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
   }
+/* Container for clock + time */
+  #current-time {
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
+    color: #6c757d; /* bootstrap text-muted */
+    gap: 0.3rem;
+    font-weight: 500;
+  }
+
+  /* Clock emoji styling */
+  #current-time .clock-icon {
+    font-size: 2.2rem;
+    animation: pulseGlow 2.5s infinite ease-in-out;
+  }
+
+  /* Time text animation: subtle bounce + fade */
+  #current-time .time-text {
+    animation: bounceFade 1s infinite;
+  }
+
+  @keyframes pulseGlow {
+    0%, 100% {
+      opacity: 1;
+      text-shadow: 0 0 5px rgba(0, 123, 255, 0.7);
+    }
+    50% {
+      opacity: 0.7;
+      text-shadow: 0 0 15px rgba(0, 123, 255, 1);
+    }
+  }
+
+  @keyframes bounceFade {
+    0%, 100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    50% {
+      transform: translateY(-3px);
+      opacity: 0.7;
+    }
+  }
+
 </style>
 
 <!-- Begin Dashboard Container -->
 <div class="container pb-5">
-  <h2 class="fw-bold mb-5" style="margin-top: -15px;">📊 Business Dashboard</h2>
+    <div class="d-flex mb-3">
+        <h2 class="fw-bold mb-4 d-flex align-items-center col-10">
+          📊 Business Dashboard
+        </h2>
+        <h2>
+            <span id="current-time" class="ms-3">
+                <span class="clock-icon">🕒</span>
+                <span class="time-text">00:00:00</span>
+            </span>
+        </h2>
+    </div>
+
+<script>
+  function updateTime() {
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    document.querySelector('#current-time .time-text').textContent = timeStr;
+  }
+  updateTime();
+  setInterval(updateTime, 1000);
+</script>
 
   <!-- Metric Cards Row -->
   <div class="row g-4">

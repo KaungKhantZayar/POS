@@ -53,14 +53,82 @@ background-color: white;
     $supplierIdstmt = $pdo->prepare("SELECT * FROM supplier WHERE supplier_id='$supplier_id'");
     $supplierIdstmt->execute();
     $supplierIdResult = $supplierIdstmt->fetch(PDO::FETCH_ASSOC);
- ?>
+ 
+    // Add Payment
+    if(isset($_POST['save'])){
+      $date = $_POST['date'];
+      $vr_no = $_POST['vr_no'];
+      $supplier_id = $_POST['supplier_id'];
+      $amount = $_POST['amount'];
 
- <!-- <form class="" action="" method="post">
-   <div class="d-flex" style="margin-left:950px; margin-top:-15px;">
-     <input type="date" name="" value="" class="form-control" placeholder="Search Supplier_Name" style="width:200px;">
-     <button type="submit" name="search" class="search_btn ms-3">Search</button>
-  </div>
- </form> -->
+      // Payable Last Balance
+      $payabl_balancestmt = $pdo->prepare("SELECT * FROM payable WHERE supplier_id='$supplier_id' AND vr_no='$vr_no'");
+      $payabl_balancestmt->execute();
+      $payabl_balancedata = $payabl_balancestmt->fetch(PDO::FETCH_ASSOC);
+      $last_id = $payabl_balancedata['id'];
+      $last_asc_id = $payabl_balancedata['asc_id'];
+      $last_balance = $payabl_balancedata['balance'];
+      // echo "<script>alert($current_balance);</script>";
+      // exit();
+      // Update asc_id
+      // $asc_idupdate = $pdo->prepare("UPDATE payable SET asc_id='$last_asc_id' WHERE id='$last_id'");
+      // $asc_idupdate->execute();
+  
+      // Update Status
+      $status_update = $pdo->prepare("UPDATE payable SET status='paid' WHERE supplier_id='$supplier_id' AND id<'$last_id'");
+      $status_update->execute();
+
+      // Add Paid Amount And Asc_id
+      $balance = $last_balance - $amount;
+      $paymentvr_no =  52 . rand(0,999999);
+      $asc_id = $last_asc_id + 1;
+      $payablstmt = $pdo->prepare("INSERT INTO payable (date,vr_no,supplier_id,paid,balance,asc_id,group_id,status) VALUES (:date,:paymentvr_no,:supplier_id,:paid,:balance,:asc_id,:group_id,'Pending')");
+      $payabldata = $payablstmt->execute(
+        array(':date'=>$date, ':paymentvr_no'=>$paymentvr_no, ':supplier_id'=>$supplier_id, ':paid'=>$amount, ':asc_id' => $asc_id, ':group_id' => $vr_no, ':balance'=>$balance)
+      );
+
+      // Current Id
+      $current_idstmt = $pdo->prepare("SELECT * FROM payable WHERE supplier_id='$supplier_id' ORDER BY id DESC");
+      $current_idstmt->execute();
+      $current_iddata = $current_idstmt->fetch(PDO::FETCH_ASSOC);
+      $current_id = $current_iddata['id'];
+      $current_ascid = $current_iddata['asc_id'];
+      $current_balance = $current_iddata['balance'];
+
+      // For Update Others row
+      // Check How Many Line to update
+      $other_rowstmt = $pdo->prepare("SELECT * FROM payable WHERE supplier_id='$supplier_id' AND id!='$current_id' AND asc_id!='$last_asc_id'");
+      $other_rowstmt->execute();
+      $other_rowdatas = $other_rowstmt->fetchAll();
+      $i = 1;
+      // print "<pre>";
+      // print_r($other_rowdatas);
+      foreach ($other_rowdatas as $other_rowdata) {
+      // echo "<script>alert('Hello');</script>";
+
+        $id = $other_rowdata['id'];
+        $supplier_id = $other_rowdata['supplier_id'];
+        $amount = $other_rowdata['amount'];
+        $paid = $other_rowdata['paid'];
+        $updatea_ascid = $current_ascid + $i;
+
+        if($i == 1){
+            $newbalance = $current_balance + $amount - $paid;
+        }else{
+            $balancestmt = $pdo->prepare("SELECT * FROM payable WHERE supplier_id='$supplier_id' AND id<'$id' ORDER BY id DESC");
+            $balancestmt->execute();
+            $balancedata = $balancestmt->fetch(PDO::FETCH_ASSOC);
+
+            $newbalance = $balancedata['balance'] + $amount - $paid;
+        }
+        
+
+        $updateupdate = $pdo->prepare("UPDATE payable SET balance='$newbalance', asc_id='$updatea_ascid' WHERE id='$id' AND supplier_id='$supplier_id'");
+        $updateupdate->execute();
+        $i++;
+      }
+    }
+ ?>
 
 <div class="container">
   <div class="d-flex" style="margin-top:-17px;">
@@ -77,6 +145,7 @@ background-color: white;
           <th>Amount</th>
           <th>Paid</th>
           <th>Balance</th>
+          <th>Status</th>
         </tr>
       </thead>
       <tbody>
@@ -86,14 +155,48 @@ background-color: white;
             foreach ($payapledata as $value) {
               $supplier_id = $value['supplier_id'];
          ?>
-        <tr>
+        <tr data-bs-toggle="modal" data-bs-target="#myModal<?php echo $value['id']; ?>">
           <td><?php echo $id; ?></td>
           <td><?php echo $value['date'];?></td>
           <td><?php echo $value['vr_no'];?></td>
           <td><?php echo $value['amount'];?></td>
           <td><?php echo $value['paid'];?></td>
           <td><?php echo $value['balance'];?></td>
+          <td></td>
         </tr>
+        <!-- modal -->
+        <div id="myModal<?php echo $value['id']; ?>" class="modal fade" role="dialog">
+          <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+              <div class="modal-header">
+                <h4 class="modal-title">Add Paid Amount</h4>
+              </div>
+              <div class="modal-body">
+                <form action="" method="post">
+                  <input type="hidden" name="vr_no" value="<?php echo $value['vr_no'];?>">
+                  <input type="hidden" name="supplier_id" value="<?php echo $value['supplier_id'];?>">
+                    <div class="row mb-2">
+                      <div class="col">
+                        <label for="">Date</label>
+                        <input type="date" class="border border-dark form-control" name="date">
+                    </div>
+                    <div class="col">
+                      <label for="">Amount</label>
+                      <input type="number" class="form-control border border-dark" name="amount">
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="submit" name="save">Save</button>
+                  <button type="button" data-bs-dismiss="modal">Close</button>
+                </div>
+              </form>
+            </div>
+
+          </div>
+        </div>
         <?php
           $id++;
             }
@@ -103,9 +206,4 @@ background-color: white;
     </table>
   </div>
 </div>
-  <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-  <!-- <br><br><br><br><br><br><br><br><br><br><br> -->
-  <!-- <br><br><br><br><br><br><br><br><br><br><br> -->
-
-
   <?php include 'footer.html'; ?>

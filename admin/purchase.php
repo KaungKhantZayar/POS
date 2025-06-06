@@ -200,7 +200,7 @@ require '../Config/common.php';
           $balance = $amount;
         }
 
-        $payablstmt = $pdo->prepare("INSERT INTO payable (date,vr_no,supplier_id,amount,purchase_id,balance) VALUES (:date,:vr_no,:supplier_id,:amount,:purchase_id,:balance)");
+        $payablstmt = $pdo->prepare("INSERT INTO payable (date,vr_no,supplier_id,amount,purchase_id,asc_id,group_id,balance) VALUES (:date,:vr_no,:supplier_id,:amount,:purchase_id,:purchase_id,:vr_no,:balance)");
         $payabldata = $payablstmt->execute(
           array(':date'=>$date, ':vr_no'=>$vr_no, ':supplier_id'=>$supplier_id, ':amount'=>$amount, ':purchase_id'=>$purchase_id, ':balance'=>$balance)
         );
