@@ -97,6 +97,7 @@ require '../Config/common.php';
 
    <?php
 
+  // Add Purchase
    if (isset($_POST['add_btn'])) {
     if (empty($_POST['date']) || empty($_POST['vr_no']) || empty($_POST['supplier_id']) || empty($_POST['item_id']) || empty($_POST['qty'])) {
       if (empty($_POST['date'])) {
@@ -133,22 +134,31 @@ require '../Config/common.php';
         $discount_percentage = $_POST['discount'];
         $amount = $price * $qty;
 
-        $percentsge_amount = ($amount/100) * $discount_percentage;
-        $amount = $amount - $percentsge_amount;
+        $percentage_amount = ($amount/100) * $discount_percentage;
+        $amount = $amount - $percentage_amount;
+        $addstmt = $pdo->prepare("INSERT INTO temp_purchase (date,vr_no,supplier_id,item_id,price,qty,type,percentage,percentage_amount,stock_foc,amount) VALUES (:date,:vr_no,:supplier_id,:item_id,:price,:qty,:type,:percentage,:percentage_amount,:stock_foc,:amount)");
+        $addResult = $addstmt->execute(
+          array(':date'=>$date, ':vr_no'=>$vr_no, ':supplier_id'=>$supplier_id, ':item_id'=>$item_id, ':price'=>$price, ':qty'=>$qty, ':type'=>$type, ':percentage'=>$discount_percentage, ':percentage_amount'=>$percentage_amount, ':stock_foc'=>$foc, ':amount'=>$amount)
+        );
+
       }else {
         $amount = $price * $qty;
+  
+        $addstmt = $pdo->prepare("INSERT INTO temp_purchase (date,vr_no,supplier_id,item_id,price,qty,type,stock_foc,amount) VALUES (:date,:vr_no,:supplier_id,:item_id,:price,:qty,:type,:stock_foc,:amount)");
+        $addResult = $addstmt->execute(
+          array(':date'=>$date, ':vr_no'=>$vr_no, ':supplier_id'=>$supplier_id, ':item_id'=>$item_id, ':price'=>$price, ':qty'=>$qty, ':type'=>$type, ':stock_foc'=>$foc, ':amount'=>$amount)
+        );
+  
       }
 
-      $addstmt = $pdo->prepare("INSERT INTO temp_purchase (date,vr_no,supplier_id,item_id,price,qty,type,percentsge,percentsge_amount,stock_foc,amount) VALUES (:date,:vr_no,:supplier_id,:item_id,:price,:qty,:type,:percentsge,:percentsge_amount,:stock_foc,:amount)");
-      $addResult = $addstmt->execute(
-        array(':date'=>$date, ':vr_no'=>$vr_no, ':supplier_id'=>$supplier_id, ':item_id'=>$item_id, ':price'=>$price, ':qty'=>$qty, ':type'=>$type, ':percentsge'=>$discount_percentage, ':percentsge_amount'=>$percentsge_amount, ':stock_foc'=>$foc, ':amount'=>$amount)
-      );
       if ($addResult) {
         echo "<script>alert('Sussessfully added');window.location.href='purchase.php';</script>";
       }
     }
    }
 
+
+  //  Save Purchase
    if (isset($_POST['save_btn'])) {
     $stmt = $pdo->prepare("SELECT * FROM temp_purchase");
     $stmt->execute();
@@ -162,13 +172,16 @@ require '../Config/common.php';
       $price = $value['price'];
       $qty = $value['qty'];
       $type = $value['type'];
+      $foc = $value['stock_foc'];
 
+      // Add Credit Purchase
       if ($type == "credit") {
         $parstmt = $pdo->prepare("INSERT INTO credit_purchase (date,vr_no,supplier_id,item_id,price,qty) VALUES (:date,:vr_no,:supplier_id,:item_id,:price,:qty)");
         $parResult = $parstmt->execute(
           array(':date'=>$date, ':vr_no'=>$vr_no, ':supplier_id'=>$supplier_id, ':item_id'=>$item_id, ':price'=>$price, ':qty'=>$qty)
         );
 
+        // Purchase Id
         $purchase_idstmt = $pdo->prepare("SELECT * FROM credit_purchase ORDER BY id DESC");
         $purchase_idstmt->execute();
         $purchase_data = $purchase_idstmt->fetch(PDO::FETCH_ASSOC);
@@ -176,7 +189,8 @@ require '../Config/common.php';
         $purchase_id = $purchase_data['id'];
         $amount = $value['price'] * $value['qty'];
 
-        $payabl_balancestmt = $pdo->prepare("SELECT * FROM payaple WHERE supplier_id='$supplier_id' ORDER BY id DESC");
+        // Payable Balance
+        $payabl_balancestmt = $pdo->prepare("SELECT * FROM payable WHERE supplier_id='$supplier_id' ORDER BY id DESC");
         $payabl_balancestmt->execute();
         $payabl_balancedata = $payabl_balancestmt->fetch(PDO::FETCH_ASSOC);
 
@@ -186,17 +200,44 @@ require '../Config/common.php';
           $balance = $amount;
         }
 
-        $payablstmt = $pdo->prepare("INSERT INTO payaple (date,vr_no,supplier_id,amount,purchase_id,balance) VALUES (:date,:vr_no,:supplier_id,:amount,:purchase_id,:balance)");
+        $payablstmt = $pdo->prepare("INSERT INTO payable (date,vr_no,supplier_id,amount,purchase_id,balance) VALUES (:date,:vr_no,:supplier_id,:amount,:purchase_id,:balance)");
         $payabldata = $payablstmt->execute(
           array(':date'=>$date, ':vr_no'=>$vr_no, ':supplier_id'=>$supplier_id, ':amount'=>$amount, ':purchase_id'=>$purchase_id, ':balance'=>$balance)
         );
 
       }else {
+      // Add Cash Purchase
         $cashstmt = $pdo->prepare("INSERT INTO cash_purchase (date,vr_no,supplier_id,item_id,price,qty) VALUES (:date,:vr_no,:supplier_id,:item_id,:price,:qty)");
         $cashResult = $cashstmt->execute(
           array(':date'=>$date, ':vr_no'=>$vr_no, ':supplier_id'=>$supplier_id, ':item_id'=>$item_id, ':price'=>$price, ':qty'=>$qty)
         );
       }
+
+      // Add Stock
+
+      // Stock Balance
+      $stock_balancestmt = $pdo->prepare("SELECT * FROM stock WHERE item_id='$item_id' ORDER BY id DESC");
+      $stock_balancestmt->execute();
+      $stock_balancedata = $stock_balancestmt->fetch(PDO::FETCH_ASSOC);
+
+      if (!empty($stock_balancedata)) {
+        $oldbalance = $stock_balancedata['balance'];
+      }else{
+        $oldbalance = 0;
+      }
+      $stockbalance = $oldbalance + $qty + $foc;
+
+      // Foc Check
+      if($foc != 0){
+        $in_qty = $qty + $foc;
+      }else{
+        $in_qty = $qty;
+      }
+
+      $stockstmt = $pdo->prepare("INSERT INTO stock (date,item_id,vr_no,to_from,in_qty,foc_qty,balance) VALUES (:date,:item_id,:vr_no,'purchase',:in_qty,:foc_qty,:balance)");
+      $stockdata = $stockstmt->execute(
+        array(':date'=>$date, ':vr_no'=>$vr_no, ':item_id'=>$item_id, ':in_qty'=>$in_qty, ':foc_qty'=>$foc, ':balance'=>$stockbalance)
+      );
 
 
       $id = $value['id'];
@@ -229,8 +270,8 @@ require '../Config/common.php';
               </div>
               <div class="col-3">
                 <label for="" class="mt-4"><b>Vr_No</b></label>
-                <input type="text" class="form-control" placeholder="Vr_No" name="" value="<?php if(!empty($seleResult)){ echo $seleResult['vr_no'] + 1; }else{ echo "25001"; } ?>" disabled>
-                <input type="hidden" class="form-control" placeholder="Vr_No" name="vr_no" value="<?php if(!empty($seleResult)){ echo $seleResult['vr_no'] + 1; }else{ echo "25001"; } ?>">
+                <input type="text" class="form-control" placeholder="Vr_No" name="" value="<?php echo 25 . rand(1,999999) ?>" disabled>
+                <input type="hidden" class="form-control" placeholder="Vr_No" name="vr_no" value="<?php echo 25 . rand(1,999999) ?>">
                 <p style="color:red;"><?php echo empty($vr_noError) ? '' : '*'.$vr_noError;?></p>
               </div>
               <div class="col-3">
@@ -306,7 +347,7 @@ require '../Config/common.php';
                 <th>Price</th>
                 <th>Qty</th>
                 <th>Amount</th>
-                <th>Percentsge_amount</th>
+                <th>percentage_amount</th>
                 <th>Foc</th>
                 <th>Total</th>
                 <th style="width:40px;">Actions</th>
@@ -337,7 +378,7 @@ require '../Config/common.php';
                 <td><?php echo $value['price'];?></td>
                 <td><?php echo $value['qty']; ?></td>
                 <td><?php echo $value['price'] * $value['qty']; ?></td>
-                <td><?php echo $value['percentsge_amount'];?></td>
+                <td><?php echo $value['percentage_amount'];?></td>
                 <td><?php echo $value['stock_foc'];?></td>
                 <td><?php echo $value['amount']; ?></td>
 

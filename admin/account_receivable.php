@@ -44,9 +44,9 @@ background-color: white;
 
 
 <?php
-    $supplierstmt = $pdo->prepare("SELECT DISTINCT supplier_id FROM payable");
-    $supplierstmt->execute();
-    $supplierdata = $supplierstmt->fetchAll();
+    $customerstmt = $pdo->prepare("SELECT DISTINCT customer_id FROM receivable");
+    $customerstmt->execute();
+    $customerdata = $customerstmt->fetchAll();
  ?>
 
  <!-- <form class="" action="" method="post">
@@ -57,13 +57,13 @@ background-color: white;
  </form> -->
 
 <div class="container">
-  <h4 style="margin-top:-17px;"><b>Account Payable</b></h4>
+  <h4 style="margin-top:-17px;"><b>Account Receivable</b></h4>
   <div class="outer" style="margin-top:-10px;">
     <table class="table table-bordered mt-4 table-hover">
       <thead>
         <tr>
-          <th style="width: 10px">No</th>
-          <th>Supplier_Name</th>
+          <th>No</th>
+          <th>Customer Name</th>
           <th>Amount</th>
           <th>Paid</th>
           <th>Balance</th>
@@ -72,23 +72,23 @@ background-color: white;
       </thead>
       <tbody>
         <?php
-          if ($supplierdata) {
+          if ($customerdata) {
             $id = 1;
-            foreach ($supplierdata as $value) {
-              $supplier_id = $value['supplier_id'];
+            foreach ($customerdata as $value) {
+              $customer_id = $value['customer_id'];
 
-              // Supplier Name
-              $supplierIdstmt = $pdo->prepare("SELECT * FROM supplier WHERE supplier_id='$supplier_id'");
-              $supplierIdstmt->execute();
-              $supplierIdResult = $supplierIdstmt->fetch(PDO::FETCH_ASSOC);
+              // Customer Name
+              $customerstmt = $pdo->prepare("SELECT * FROM customer WHERE customer_id='$customer_id'");
+              $customerstmt->execute();
+              $customer = $customerstmt->fetch(PDO::FETCH_ASSOC);
 
               // Total Receivable Amount
-              $total_amtstmt = $pdo->prepare("SELECT SUM(amount) AS total_amt FROM payable WHERE supplier_id='$supplier_id'");
+              $total_amtstmt = $pdo->prepare("SELECT SUM(amount) AS total_amt FROM receivable WHERE customer_id='$customer_id'");
               $total_amtstmt->execute();
               $total_amtdata = $total_amtstmt->fetch(PDO::FETCH_ASSOC);
               
               // Total Paid Amount
-              $total_paidstmt = $pdo->prepare("SELECT SUM(paid) AS total_paid FROM payable WHERE supplier_id='$supplier_id'");
+              $total_paidstmt = $pdo->prepare("SELECT SUM(paid) AS total_paid FROM receivable WHERE customer_id='$customer_id'");
               $total_paidstmt->execute();
               $total_paiddata = $total_paidstmt->fetch(PDO::FETCH_ASSOC);
 
@@ -96,12 +96,12 @@ background-color: white;
          ?>
         <tr>
           <td><?php echo $id; ?></td>
-          <td><?php echo $supplierIdResult['supplier_name'];?></td>
+          <td><?php echo $customer['customer_name'];?></td>
           <td><?php echo $total_amtdata['total_amt'];?></td>
           <td><?php echo $total_paiddata['total_paid'];?></td>
           <td><?php echo $balance;?></td>
           <td>
-            <a href="account_payable_detail.php?supplier_id=<?php echo $value['supplier_id'];?>"><button>View Detail</button></a>
+            <a href="account_receivable_detail.php?customer_id=<?php echo $value['customer_id'];?>"><button>View Detail</button></a>
           </td>
         </tr>
         <?php
@@ -113,5 +113,9 @@ background-color: white;
     </table>
   </div>
 </div>
+  <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+  <!-- <br><br><br><br><br><br><br><br><br><br><br> -->
+  <!-- <br><br><br><br><br><br><br><br><br><br><br> -->
+
 
   <?php include 'footer.html'; ?>
