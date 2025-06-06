@@ -42,7 +42,27 @@ background-color: white;
 }
 </style>
 
+<?php
 
+if(isset($_POST['save'])){
+  $date = $_POST['date'];
+  $vr_no = $_POST['vr_no'];
+  $item_id = $_POST['item_id'];
+  $qty = $_POST['qty'];
+
+  // receivable Balance
+  $stock_balancestmt = $pdo->prepare("SELECT * FROM stock WHERE item_id='$item_id' ORDER BY id DESC");
+  $stock_balancestmt->execute();
+  $stock_balancedata = $stock_balancestmt->fetch(PDO::FETCH_ASSOC);
+  $balance = $stock_balancedata['balance'] - $qty;  
+
+  $receivablestmt = $pdo->prepare("INSERT INTO stock (date,vr_no,item_id,to_from,out_qty,balance) VALUES (:date,:vr_no,:item_id,'damage',:out_qty,:balance)");
+  $receivabledata = $receivablestmt->execute(
+    array(':date'=>$date, ':vr_no'=>$vr_no, ':item_id'=>$item_id, ':out_qty'=>$qty, ':balance'=>$balance)
+  );
+}
+
+?>
 <?php
     $stockstmt = $pdo->prepare("SELECT DISTINCT item_id FROM stock");
     $stockstmt->execute();
@@ -57,7 +77,10 @@ background-color: white;
  </form> -->
 
 <div class="container">
-  <h4 style="margin-top:-17px;"><b>Stock Control</b></h4>
+  <div class="d-flex" style="margin-top:-17px;">
+    <h4 class="col-10 me-5"><b>Stock Control</b></h4>
+    <button class="ms-3" data-bs-toggle="modal" data-bs-target="#myModal">Damage Stock</button>
+  </div>
   <div class="outer" style="margin-top:-10px;">
     <table class="table table-bordered mt-4 table-hover">
       <thead>
@@ -113,9 +136,59 @@ background-color: white;
     </table>
   </div>
 </div>
-  <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-  <!-- <br><br><br><br><br><br><br><br><br><br><br> -->
-  <!-- <br><br><br><br><br><br><br><br><br><br><br> -->
+<div id="myModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
 
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Add Damage Stock</h4>
+      </div>
+      <div class="modal-body">
+        <form action="" method="post">
+          <div class="row">
+            <div class="col">
+              <label for="">Date</label>
+              <input type="date" class="border border-dark form-control" name="date">
+            </div>
+            <div class="col">
+              <label for="">Vr_no</label>
+              <input type="text" class="form-control border border-dark" name="vr_no">
+            </div>
+          </div>
+          <div class="row mt-2">
+            <div class="col">
+              <label for="">Item Name</label>
+              <select name="item_id" id="" class="form-control border border-dark">
+                <?php
+                  $itemstmt = $pdo->prepare("SELECT DISTINCT item_id FROM stock ORDER BY id DESC");
+                  $itemstmt->execute();
+                  $itemdata = $itemstmt->fetchAll();
+                  foreach ($itemdata as $item) {
+                    $item_id = $item['item_id'];
+                    $namestmt = $pdo->prepare("SELECT * FROM item WHERE item_id='$item_id'");
+                    $namestmt->execute();
+                    $name = $namestmt->fetch(PDO::FETCH_ASSOC);
+                    ?>                
+                    <option value="<?php echo $item['item_id']; ?>"><?php echo $name['item_name']; ?></option>
+                    <?php
+                  }
+                ?>
+              </select>
+            </div>
+            <div class="col">
+              <label for="">Qty</label>
+              <input type="number" class="form-control border border-dark" name="qty">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" name="save">Save</button>
+          <button type="button" data-bs-dismiss="modal">Close</button>
+        </div>
+      </form>
+    </div>
 
+  </div>
+</div>
   <?php include 'footer.html'; ?>
