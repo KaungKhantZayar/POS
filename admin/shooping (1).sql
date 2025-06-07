@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 06, 2025 at 08:20 AM
+-- Generation Time: Jun 07, 2025 at 06:46 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -47,7 +47,8 @@ INSERT INTO `cash_purchase` (`id`, `date`, `vr_no`, `supplier_id`, `item_id`, `p
 (24, '2025-06-06', 25536557, '4001', '2001', 100000, 10),
 (25, '2025-06-06', 25378778, '4003', '2001', 100000, 10),
 (26, '2025-06-06', 25310267, '4001', '2001', 100000, 20),
-(27, '2025-06-06', 2529156, '4001', '2001', 100000, 10);
+(27, '2025-06-06', 2529156, '4001', '2001', 100000, 10),
+(28, '2025-06-06', 25873809, '4003', '4001', 5000000, 1);
 
 -- --------------------------------------------------------
 
@@ -122,7 +123,11 @@ INSERT INTO `credit_purchase` (`id`, `date`, `vr_no`, `supplier_id`, `item_id`, 
 (14, '2025-06-05', 2586403, '4003', '5002', 200000, 5),
 (15, '2025-06-05', 25637307, '4002', '2002', 3000000, 3),
 (16, '2025-06-06', 25308312, '4003', '2001', 100000, 2),
-(17, '2025-06-06', 25240583, '4003', '2001', 100000, 20);
+(17, '2025-06-06', 25240583, '4003', '2001', 100000, 20),
+(18, '2025-06-06', 25141511, '4003', '2001', 100000, 1),
+(19, '2025-06-06', 25385756, '4003', '2001', 100000, 10),
+(20, '2025-06-06', 25208051, '4003', '4001', 5000000, 3),
+(21, '2025-06-06', 25956646, '4003', '5003', 2000000, 2);
 
 -- --------------------------------------------------------
 
@@ -148,7 +153,8 @@ INSERT INTO `credit_sale` (`id`, `date`, `vr_no`, `customer_id`, `item_id`, `qty
 (2, '2025-06-06', 3521701, '3002', '5003', 2),
 (3, '2025-06-06', 35274254, '3002', '5002', 5),
 (4, '2025-06-06', 3521701, '3002', '5003', 2),
-(5, '2025-06-06', 35274254, '3002', '5002', 5);
+(5, '2025-06-06', 35274254, '3002', '5002', 5),
+(6, '2025-06-06', 35993343, '3001', '2001', 3);
 
 -- --------------------------------------------------------
 
@@ -215,18 +221,24 @@ CREATE TABLE `payable` (
   `amount` int(11) NOT NULL,
   `paid` int(11) NOT NULL,
   `balance` int(11) NOT NULL,
-  `purchase_id` int(11) NOT NULL
+  `purchase_id` int(11) NOT NULL,
+  `asc_id` int(11) NOT NULL,
+  `group_id` int(11) NOT NULL,
+  `status` varchar(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `payable`
 --
 
-INSERT INTO `payable` (`id`, `date`, `vr_no`, `supplier_id`, `amount`, `paid`, `balance`, `purchase_id`) VALUES
-(12, '2025-06-05', '2586403', '4003', 1000000, 0, 1000000, 14),
-(13, '2025-06-05', '25637307', '4002', 9000000, 0, 9000000, 15),
-(14, '2025-06-06', '25308312', '4003', 200000, 0, 1200000, 16),
-(15, '2025-06-06', '25240583', '4003', 2000000, 0, 3200000, 17);
+INSERT INTO `payable` (`id`, `date`, `vr_no`, `supplier_id`, `amount`, `paid`, `balance`, `purchase_id`, `asc_id`, `group_id`, `status`) VALUES
+(13, '2025-06-05', '25637307', '4002', 9000000, 0, 9000000, 15, 0, 0, ''),
+(17, '2025-06-06', '25001', '4002', 0, 100000, 8900000, 0, 0, 0, ''),
+(24, '2025-06-06', '25385756', '4003', 1000000, 0, 1000000, 19, 19, 25385756, 'paid'),
+(25, '2025-06-06', '25208051', '4003', 15000000, 0, 16000000, 20, 20, 25208051, 'paid'),
+(26, '2025-06-06', '25956646', '4003', 4000000, 0, 14000000, 21, 23, 25956646, ''),
+(49, '2025-06-07', '52443979', '4003', 0, 5000000, 11000000, 0, 21, 25208051, 'pending'),
+(50, '2025-06-07', '52789823', '4003', 0, 1000000, 10000000, 0, 22, 52443979, 'pending');
 
 -- --------------------------------------------------------
 
@@ -253,7 +265,9 @@ INSERT INTO `receivable` (`id`, `date`, `vr_no`, `customer_id`, `amount`, `paid`
 (1, '2025-06-06', '3521701', '3002', 4400000, 0, 4400000, 2),
 (2, '2025-06-06', '35274254', '3002', 1100000, 0, 5500000, 3),
 (3, '2025-06-06', '3521701', '3002', 4400000, 0, 9900000, 4),
-(4, '2025-06-06', '35274254', '3002', 1100000, 0, 11000000, 5);
+(4, '2025-06-06', '35274254', '3002', 1100000, 0, 11000000, 5),
+(5, '2025-06-06', '25001', '3002', 0, 100000, 10900000, 0),
+(6, '2025-06-06', '35993343', '3001', 450000, 0, 450000, 6);
 
 -- --------------------------------------------------------
 
@@ -280,7 +294,14 @@ CREATE TABLE `stock` (
 INSERT INTO `stock` (`id`, `date`, `item_id`, `vr_no`, `to_from`, `in_qty`, `out_qty`, `foc_qty`, `balance`) VALUES
 (14, '2025-06-06', 2001, 25310267, 'purchase', 22, 0, 2, 22),
 (15, '2025-06-06', 2001, 35588102, 'sale', 0, 2, 0, 20),
-(16, '2025-06-06', 2001, 2529156, 'purchase', 10, 0, 0, 30);
+(16, '2025-06-06', 2001, 2529156, 'purchase', 10, 0, 0, 30),
+(17, '2025-06-06', 2001, 25001, 'damage', 0, 1, 0, 29),
+(18, '2025-06-06', 2001, 35993343, 'sale', 0, 3, 0, 26),
+(19, '2025-06-06', 4001, 25873809, 'purchase', 1, 0, 0, 1),
+(20, '2025-06-06', 2001, 25141511, 'purchase', 1, 0, 0, 27),
+(21, '2025-06-06', 2001, 25385756, 'purchase', 10, 0, 0, 37),
+(22, '2025-06-06', 4001, 25208051, 'purchase', 3, 0, 0, 4),
+(23, '2025-06-06', 5003, 25956646, 'purchase', 2, 0, 0, 2);
 
 -- --------------------------------------------------------
 
@@ -437,7 +458,7 @@ ALTER TABLE `temp_sale`
 -- AUTO_INCREMENT for table `cash_purchase`
 --
 ALTER TABLE `cash_purchase`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT for table `cash_sale`
@@ -455,13 +476,13 @@ ALTER TABLE `categories`
 -- AUTO_INCREMENT for table `credit_purchase`
 --
 ALTER TABLE `credit_purchase`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `credit_sale`
 --
 ALTER TABLE `credit_sale`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `customer`
@@ -479,19 +500,19 @@ ALTER TABLE `item`
 -- AUTO_INCREMENT for table `payable`
 --
 ALTER TABLE `payable`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
 
 --
 -- AUTO_INCREMENT for table `receivable`
 --
 ALTER TABLE `receivable`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `stock`
 --
 ALTER TABLE `stock`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `supplier`
@@ -503,13 +524,13 @@ ALTER TABLE `supplier`
 -- AUTO_INCREMENT for table `temp_purchase`
 --
 ALTER TABLE `temp_purchase`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
 
 --
 -- AUTO_INCREMENT for table `temp_sale`
 --
 ALTER TABLE `temp_sale`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

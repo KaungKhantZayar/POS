@@ -45,7 +45,7 @@ background-color: white;
 
 <?php
     $supplier_id = $_GET['supplier_id'];
-    $payaplestmt = $pdo->prepare("SELECT * FROM payable WHERE supplier_id='$supplier_id'");
+    $payaplestmt = $pdo->prepare("SELECT * FROM payable WHERE supplier_id='$supplier_id' ORDER BY asc_id");
     $payaplestmt->execute();
     $payapledata = $payaplestmt->fetchAll();
 
@@ -74,15 +74,26 @@ background-color: white;
       // $asc_idupdate = $pdo->prepare("UPDATE payable SET asc_id='$last_asc_id' WHERE id='$last_id'");
       // $asc_idupdate->execute();
   
-      // Update Status
-      $status_update = $pdo->prepare("UPDATE payable SET status='paid' WHERE supplier_id='$supplier_id' AND id<'$last_id'");
-      $status_update->execute();
+      // Update Row above last_row Paid Status
+      $paidstatus_update = $pdo->prepare("UPDATE payable SET status='paid' WHERE supplier_id='$supplier_id' AND asc_id<'$last_asc_id'");
+      $paidstatus_update->execute();
+
+      $balance = $last_balance - $amount;
+      
+      if($balance == 0){
+        // Update last_row Paid Status
+        $pendingstatus_update = $pdo->prepare("UPDATE payable SET status='paid' WHERE supplier_id='$supplier_id' AND id='$last_id'");
+        $pendingstatus_update->execute();        
+      }else{
+        // Update last_row Pending Status
+        $pendingstatus_update = $pdo->prepare("UPDATE payable SET status='pending' WHERE supplier_id='$supplier_id' AND id='$last_id'");
+        $pendingstatus_update->execute();
+      }
 
       // Add Paid Amount And Asc_id
-      $balance = $last_balance - $amount;
       $paymentvr_no =  52 . rand(0,999999);
       $asc_id = $last_asc_id + 1;
-      $payablstmt = $pdo->prepare("INSERT INTO payable (date,vr_no,supplier_id,paid,balance,asc_id,group_id,status) VALUES (:date,:paymentvr_no,:supplier_id,:paid,:balance,:asc_id,:group_id,'Pending')");
+      $payablstmt = $pdo->prepare("INSERT INTO payable (date,vr_no,supplier_id,paid,balance,asc_id,group_id,status) VALUES (:date,:paymentvr_no,:supplier_id,:paid,:balance,:asc_id,:group_id,'pending')");
       $payabldata = $payablstmt->execute(
         array(':date'=>$date, ':paymentvr_no'=>$paymentvr_no, ':supplier_id'=>$supplier_id, ':paid'=>$amount, ':asc_id' => $asc_id, ':group_id' => $vr_no, ':balance'=>$balance)
       );
@@ -97,7 +108,7 @@ background-color: white;
 
       // For Update Others row
       // Check How Many Line to update
-      $other_rowstmt = $pdo->prepare("SELECT * FROM payable WHERE supplier_id='$supplier_id' AND id!='$current_id' AND asc_id!='$last_asc_id'");
+      $other_rowstmt = $pdo->prepare("SELECT * FROM payable WHERE supplier_id='$supplier_id' AND id!='$current_id' AND asc_id!='$last_asc_id' AND asc_id>$last_asc_id");
       $other_rowstmt->execute();
       $other_rowdatas = $other_rowstmt->fetchAll();
       $i = 1;
@@ -162,7 +173,7 @@ background-color: white;
           <td><?php echo $value['amount'];?></td>
           <td><?php echo $value['paid'];?></td>
           <td><?php echo $value['balance'];?></td>
-          <td></td>
+          <td><?php echo $value['status'];?></td>
         </tr>
         <!-- modal -->
         <div id="myModal<?php echo $value['id']; ?>" class="modal fade" role="dialog">
