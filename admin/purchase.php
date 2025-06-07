@@ -328,14 +328,6 @@ require '../Config/common.php';
           </div>
         </div>
       </form>
-        <!-- /.card-header -->
-        <div class="card-body mt-4">
-
-          <div class="col-3" style="margin-left:50px; margin-top:-30px;">
-          </div>
-
-        <div class="outer">
-
           <table class="table table-bordered mt-4 table-hover">
             <thead>
               <tr>

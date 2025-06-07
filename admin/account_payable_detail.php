@@ -84,16 +84,17 @@ background-color: white;
         // Update last_row Paid Status
         $pendingstatus_update = $pdo->prepare("UPDATE payable SET status='paid' WHERE supplier_id='$supplier_id' AND id='$last_id'");
         $pendingstatus_update->execute();        
+        $payablstmt = $pdo->prepare("INSERT INTO payable (date,vr_no,supplier_id,paid,balance,asc_id,group_id,status) VALUES (:date,:paymentvr_no,:supplier_id,:paid,:balance,:asc_id,:group_id,'paid')");
       }else{
         // Update last_row Pending Status
         $pendingstatus_update = $pdo->prepare("UPDATE payable SET status='pending' WHERE supplier_id='$supplier_id' AND id='$last_id'");
         $pendingstatus_update->execute();
+        $payablstmt = $pdo->prepare("INSERT INTO payable (date,vr_no,supplier_id,paid,balance,asc_id,group_id,status) VALUES (:date,:paymentvr_no,:supplier_id,:paid,:balance,:asc_id,:group_id,'pending')");
       }
 
       // Add Paid Amount And Asc_id
       $paymentvr_no =  52 . rand(0,999999);
       $asc_id = $last_asc_id + 1;
-      $payablstmt = $pdo->prepare("INSERT INTO payable (date,vr_no,supplier_id,paid,balance,asc_id,group_id,status) VALUES (:date,:paymentvr_no,:supplier_id,:paid,:balance,:asc_id,:group_id,'pending')");
       $payabldata = $payablstmt->execute(
         array(':date'=>$date, ':paymentvr_no'=>$paymentvr_no, ':supplier_id'=>$supplier_id, ':paid'=>$amount, ':asc_id' => $asc_id, ':group_id' => $vr_no, ':balance'=>$balance)
       );
@@ -146,7 +147,7 @@ background-color: white;
     <h4 class="col-11"><b>Account Payable ( <?php echo $supplierIdResult['supplier_name']; ?> )</b></h4>
     <a href="account_payable.php"><button class="">Back</button></a>
   </div>
-  <div class="outer" style="margin-top:-10px;">
+  <div class="" style="margin-top:-10px;">
     <table class="table table-bordered mt-4 table-hover">
       <thead>
         <tr>
@@ -173,7 +174,7 @@ background-color: white;
           <td><?php echo $value['amount'];?></td>
           <td><?php echo $value['paid'];?></td>
           <td><?php echo $value['balance'];?></td>
-          <td><?php echo $value['status'];?></td>
+          <td><span class="badge <?php if($value['status'] == 'paid'){ echo "badge-success"; }elseif($value['status'] == 'pending'){ echo "badge-primary"; } ?>"><?php echo $value['status'];?></span></td>
         </tr>
         <!-- modal -->
         <div id="myModal<?php echo $value['id']; ?>" class="modal fade" role="dialog">

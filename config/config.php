@@ -2,7 +2,7 @@
 define('MYSQL_USER', 'root');
 define('MYSQL_PASSWORD', '');
 define('MYSQL_HOST', 'localhost');
-define('MYSQL_DATABASE', 'shooping');
+define('MYSQL_DATABASE', 'protech_sbm');
 $options = array(
   PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
 );

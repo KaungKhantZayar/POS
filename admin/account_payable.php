@@ -2,50 +2,11 @@
 session_start();
 require '../Config/config.php';
 require '../Config/common.php';
-  ?>
-
-  <?php include 'header.php'; ?>
-
-<style media="screen">
-.outer {
-overflow-y: auto;
-height: 300px;
-}
-
-.outer{
-width: 100%;
--layout: fixed;
-}
-
-.outer th {
-text-align: left;
-top: 0;
-position: sticky;
-background-color: white;
-}
-.search_btn{
-  background-color:#1c1c1c;
-  color:white;
-  transition:0.5s;
-  border-radius:10px;
-  padding:7px;
-  padding:-29px;
-  font-size:13px;
-}
-.search_btn:hover{
-  border:2px solid #1c1c1c;
-  background:none;
-  color:#1c1c1c;
-  transition:0.5s;
-  border-radius:10px;
-  box-shadow:2px 8px 16px gray;
-}
-</style>
-
-<?php
-    $supplierstmt = $pdo->prepare("SELECT DISTINCT supplier_id FROM payable");
-    $supplierstmt->execute();
-    $supplierdata = $supplierstmt->fetchAll();
+include 'header.php';
+  
+  $supplierstmt = $pdo->prepare("SELECT DISTINCT supplier_id FROM payable");
+  $supplierstmt->execute();
+  $supplierdata = $supplierstmt->fetchAll();
  ?>
 <div class="container">
   <div class="d-flex" style="margin-top:-17px;">

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 07, 2025 at 06:46 AM
+-- Generation Time: Jun 07, 2025 at 08:25 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `shooping`
+-- Database: `protech_sbm`
 --
 
 -- --------------------------------------------------------
@@ -236,9 +236,27 @@ INSERT INTO `payable` (`id`, `date`, `vr_no`, `supplier_id`, `amount`, `paid`, `
 (17, '2025-06-06', '25001', '4002', 0, 100000, 8900000, 0, 0, 0, ''),
 (24, '2025-06-06', '25385756', '4003', 1000000, 0, 1000000, 19, 19, 25385756, 'paid'),
 (25, '2025-06-06', '25208051', '4003', 15000000, 0, 16000000, 20, 20, 25208051, 'paid'),
-(26, '2025-06-06', '25956646', '4003', 4000000, 0, 14000000, 21, 23, 25956646, ''),
-(49, '2025-06-07', '52443979', '4003', 0, 5000000, 11000000, 0, 21, 25208051, 'pending'),
-(50, '2025-06-07', '52789823', '4003', 0, 1000000, 10000000, 0, 22, 52443979, 'pending');
+(26, '2025-06-06', '25956646', '4003', 4000000, 0, 4000000, 21, 24, 25956646, ''),
+(56, '2025-06-07', '52149105', '4003', 0, 5000000, 11000000, 0, 21, 25208051, 'paid'),
+(57, '2025-06-07', '52892419', '4003', 0, 1000000, 10000000, 0, 22, 52149105, 'paid'),
+(58, '2025-06-07', '52933454', '4003', 0, 10000000, 0, 0, 23, 52892419, 'paid');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `purchase_order`
+--
+
+CREATE TABLE `purchase_order` (
+  `id` int(11) NOT NULL,
+  `order_no` varchar(100) NOT NULL,
+  `supplier_id` int(11) NOT NULL,
+  `order_date` date NOT NULL,
+  `item_id` int(11) NOT NULL,
+  `qty` int(11) NOT NULL,
+  `amount` int(11) NOT NULL,
+  `status` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -421,6 +439,12 @@ ALTER TABLE `payable`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `purchase_order`
+--
+ALTER TABLE `purchase_order`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `receivable`
 --
 ALTER TABLE `receivable`
@@ -500,7 +524,13 @@ ALTER TABLE `item`
 -- AUTO_INCREMENT for table `payable`
 --
 ALTER TABLE `payable`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
+
+--
+-- AUTO_INCREMENT for table `purchase_order`
+--
+ALTER TABLE `purchase_order`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `receivable`
