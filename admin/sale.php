@@ -202,7 +202,7 @@ require '../Config/common.php';
           $balance = $amount;
         }
         
-        $salestmt = $pdo->prepare("INSERT INTO receivable (date,vr_no,customer_id,amount,sale_id,balance) VALUES (:date,:vr_no,:customer_id,:amount,:sale_id,:balance)");
+        $salestmt = $pdo->prepare("INSERT INTO receivable (date,vr_no,customer_id,amount,sale_id,asc_id,group_id,balance) VALUES (:date,:vr_no,:customer_id,:amount,:sale_id,:sale_id,:vr_no,:balance)");
         $saledata = $salestmt->execute(
           array(':date'=>$date, ':vr_no'=>$vr_no, ':customer_id'=>$customer_id, ':amount'=>$amount, ':sale_id'=>$sale_id, ':balance'=>$balance)
         );

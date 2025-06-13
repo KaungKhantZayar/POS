@@ -64,7 +64,7 @@ background-color: white;
 
 <div class="container">
   <div class="d-flex" style="margin-top:-17px;">
-    <h4 class="col-11"><b>Account Receivable ( <?php echo $item['item_name']; ?> )</b></h4>
+    <h4 class="col-11"><b>Stock Detail ( <?php echo $item['item_name']; ?> )</b></h4>
     <a href="stock_control.php"><button class="">Back</button></a>
   </div>
   <div class="outer" style="margin-top:-10px;">

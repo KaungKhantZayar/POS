@@ -123,6 +123,7 @@ require '../Config/common.php';
       $qty = $_POST['qty'];
       $type = $_POST['type'];
       $foc = $_POST['foc'];
+      $po_no = $_POST['po_no'];
 
       $stmt = $pdo->prepare("SELECT * FROM item WHERE item_id=$item_id");
       $stmt->execute();
@@ -136,17 +137,17 @@ require '../Config/common.php';
 
         $percentage_amount = ($amount/100) * $discount_percentage;
         $amount = $amount - $percentage_amount;
-        $addstmt = $pdo->prepare("INSERT INTO temp_purchase (date,vr_no,supplier_id,item_id,price,qty,type,percentage,percentage_amount,stock_foc,amount) VALUES (:date,:vr_no,:supplier_id,:item_id,:price,:qty,:type,:percentage,:percentage_amount,:stock_foc,:amount)");
+        $addstmt = $pdo->prepare("INSERT INTO temp_purchase (date,vr_no,supplier_id,item_id,price,qty,type,percentage,percentage_amount,stock_foc,amount,po_no) VALUES (:date,:vr_no,:supplier_id,:item_id,:price,:qty,:type,:percentage,:percentage_amount,:stock_foc,:amount,:po_no)");
         $addResult = $addstmt->execute(
-          array(':date'=>$date, ':vr_no'=>$vr_no, ':supplier_id'=>$supplier_id, ':item_id'=>$item_id, ':price'=>$price, ':qty'=>$qty, ':type'=>$type, ':percentage'=>$discount_percentage, ':percentage_amount'=>$percentage_amount, ':stock_foc'=>$foc, ':amount'=>$amount)
+          array(':date'=>$date, ':vr_no'=>$vr_no, ':supplier_id'=>$supplier_id, ':item_id'=>$item_id, ':price'=>$price, ':qty'=>$qty, ':type'=>$type, ':percentage'=>$discount_percentage, ':percentage_amount'=>$percentage_amount, ':stock_foc'=>$foc, ':amount'=>$amount, ':po_no'=>$po_no)
         );
 
       }else {
         $amount = $price * $qty;
   
-        $addstmt = $pdo->prepare("INSERT INTO temp_purchase (date,vr_no,supplier_id,item_id,price,qty,type,stock_foc,amount) VALUES (:date,:vr_no,:supplier_id,:item_id,:price,:qty,:type,:stock_foc,:amount)");
+        $addstmt = $pdo->prepare("INSERT INTO temp_purchase (date,vr_no,supplier_id,item_id,price,qty,type,stock_foc,amount,po_no) VALUES (:date,:vr_no,:supplier_id,:item_id,:price,:qty,:type,:stock_foc,:amount,:po_no)");
         $addResult = $addstmt->execute(
-          array(':date'=>$date, ':vr_no'=>$vr_no, ':supplier_id'=>$supplier_id, ':item_id'=>$item_id, ':price'=>$price, ':qty'=>$qty, ':type'=>$type, ':stock_foc'=>$foc, ':amount'=>$amount)
+          array(':date'=>$date, ':vr_no'=>$vr_no, ':supplier_id'=>$supplier_id, ':item_id'=>$item_id, ':price'=>$price, ':qty'=>$qty, ':type'=>$type, ':stock_foc'=>$foc, ':amount'=>$amount, ':po_no'=>$po_no)
         );
   
       }
@@ -200,7 +201,7 @@ require '../Config/common.php';
           $balance = $amount;
         }
 
-        $payablstmt = $pdo->prepare("INSERT INTO payable (date,vr_no,supplier_id,amount,purchase_id,asc_id,group_id,balance) VALUES (:date,:vr_no,:supplier_id,:amount,:purchase_id,:purchase_id,:vr_no,:balance)");
+        $payablstmt = $pdo->prepare("INSERT INTO payable (date,vr_no,supplier_id,amount,purchase_id,asc_id,group_id,balance,status) VALUES (:date,:vr_no,:supplier_id,:amount,:purchase_id,:purchase_id,:vr_no,:balance,'Pending')");
         $payabldata = $payablstmt->execute(
           array(':date'=>$date, ':vr_no'=>$vr_no, ':supplier_id'=>$supplier_id, ':amount'=>$amount, ':purchase_id'=>$purchase_id, ':balance'=>$balance)
         );
@@ -262,18 +263,38 @@ require '../Config/common.php';
             <h4><b>Purchase</b></h4>
           </div>
           <form class="" action="" method="post" style="margin-top:-25px;">
-            <div class="row">
-              <div class="col-3">
-                <label for="" class="mt-4"><b>Date</b></label>
-                <input type="date" class="form-control" placeholder="Date" name="date">
-                <p style="color:red;"><?php echo empty($dateError) ? '' : '*'.$dateError;?></p>
-              </div>
-              <div class="col-3">
-                <label for="" class="mt-4"><b>Vr_No</b></label>
-                <input type="text" class="form-control" placeholder="Vr_No" name="" value="<?php echo 25 . rand(1,999999) ?>" disabled>
-                <input type="hidden" class="form-control" placeholder="Vr_No" name="vr_no" value="<?php echo 25 . rand(1,999999) ?>">
+            <div class="d-flex">
+              <div class="col-6 d-flex">
+                <div class="col">
+                  <label for="" class="mt-4"><b>Date</b></label>
+                  <input type="date" class="form-control" placeholder="Date" name="date">
+                  <p style="color:red;"><?php echo empty($dateError) ? '' : '*'.$dateError;?></p>
+                </div>
+                <div class="col">
+                  <label for="" class="mt-4"><b>Vr_No</b></label>
+                  <input type="text" class="form-control" placeholder="Vr_No" name="" value="<?php echo 25 . rand(1,999999) ?>" disabled>
+                  <input type="hidden" class="form-control" placeholder="Vr_No" name="vr_no" value="<?php echo 25 . rand(1,999999) ?>">
+                  <p style="color:red;"><?php echo empty($vr_noError) ? '' : '*'.$vr_noError;?></p>
+                </div>
+              <div class="col">
+                <label for="" class="mt-4"><b>Po_NO </b></label>
+                <select name="po_no" id="" class="form-control">
+                  <option value="">Select PO_No</option>
+                  <?php
+                  $po_nostmt = $pdo->prepare("SELECT * FROM purchase_order ORDER BY id DESC");
+                  $po_nostmt->execute();
+                  $po_nodatas = $po_nostmt->fetchAll();
+                  foreach ($po_nodatas as $po_nodata) {
+                    ?>
+                    <option value="<?php echo $po_nodata['order_no']; ?>"><?php echo $po_nodata['order_no']; ?></option>
+                    <?php
+                  }
+                  ?>
+                </select>
                 <p style="color:red;"><?php echo empty($vr_noError) ? '' : '*'.$vr_noError;?></p>
               </div>
+              </div>
+           
               <div class="col-3">
                 <label for="" class="mt-4"><b>Supplier_Id</b></label>
                 <input type="text" id="supplier_id" oninput="fetchSupplierNameFromId()" class="form-control" placeholder="Supplier_Id" name="supplier_id" >
@@ -283,47 +304,52 @@ require '../Config/common.php';
                 <label for="" class="mt-4"><b>Supplier_Name</b></label>
                 <input type="text" id="supplier_name" class="form-control" placeholder="Supplier_Name" name="supplier_name" oninput="fetchSupplierIdFromName()">
               </div>
-              <div class="col-3" style="margin-top:-20px;">
-                <label for="" class="mt-4"><b>Item_Id</b></label>
-                <input type="text" id="item_id" class="form-control" placeholder="Item_Id" name="item_id" oninput="fetchitemNameFromId()" style="width:130px;">
-                <p style="color:red;"><?php echo empty($item_idError) ? '' : '*'.$item_idError;?></p>
+            </div>
+            
+            <div class="d-flex">
+              <div class="col-5 d-flex">
+                <div class="col">
+                  <label for=""><b>Item_Id</b></label>
+                  <input type="text" id="item_id" class="form-control" placeholder="Item_Id" name="item_id" oninput="fetchitemNameFromId()">
+                  <p style="color:red;"><?php echo empty($item_idError) ? '' : '*'.$item_idError;?></p>
+                </div>
+                <div class="col">
+                  <label for=""><b>Item_Name</b></label>
+                  <input type="text" id="item_name" class="form-control" placeholder="Item_Name" name="item_name" oninput="fetchitemIdFromName()">
+                </div>
+                <div class="col">
+                  <label for=""><b>Qty</b></label>
+                  <input type="number" class="form-control" placeholder="Qty" name="qty">
+                  <p style="color:red;"><?php echo empty($qtyError) ? '' : '*'.$qtyError;?></p>
+                </div>
               </div>
-              <div class="col-3" style="margin-top:-20px;margin-left:-160px;">
-                <label for="" class="mt-4"><b>Item_Name</b></label>
-                <input type="text" id="item_name" class="form-control" placeholder="Item_Name" name="item_name" oninput="fetchitemIdFromName()" style="width:130px;">
-              </div>
-              <div class="col-3" style="margin-left:-150px; margin-top:-20px;">
-                <label for="" class="mt-4"><b>Qty</b></label>
-                <input type="number" class="form-control" placeholder="Qty" name="qty" style="width:130px;">
-                <p style="color:red;"><?php echo empty($qtyError) ? '' : '*'.$qtyError;?></p>
-              </div>
-
-              <div class="col-3" style="margin-top:-110px; margin-left:460px;">
-                <div class="" style="margin-left:10px; margin-top:24px;">
+              <div class="col-5 d-flex">
+                <div class="col">
                   <label for="" class=""><b>Discount</b></label>
-                  <input type="number" class="form-control" placeholder="Discount" name="discount" style="width:130px;">
+                  <input type="number" class="form-control" placeholder="Discount" name="discount">
                   <p style="color:red;"></p>
                 </div>
 
-                <div class="" style="margin-left:165px; margin-top:-86px;">
+                <div class="col">
                   <label for="" class=""><b>Foc</b></label>
-                  <input type="number" class="form-control" placeholder="Foc" name="foc" style="width:130px;">
+                  <input type="number" class="form-control" placeholder="Foc" name="foc">
                   <p style="color:red;"></p>
                 </div>
 
-                <div class="" style="margin-left:320px; margin-top:-111px;">
-                  <label for="" class="mt-4"><b>Payment</b></label>
-                  <select name="type" class="form-control" style="width:130px;">
+                <div class="col">
+                  <label for=""><b>Payment</b></label>
+                  <select name="type" class="form-control">
                       <option value="cash">Cash</option>
                       <option value="credit">Credit</option>
                     </select>
                 </div>
               </div>
-
-            </div>
-            <div class="" style="margin-top:-55px;">
-              <button type="submit" name="add_btn" class="add_btn form-control" style="width:280px; margin-left:940px;">Add</button>
-            </div>
+              <div class="col-2 mt-4">
+                <div class="">
+                  <button type="submit" name="add_btn" class="add_btn form-control mt-2">Add</button>
+                </div>
+              </div>
+            </div>            
 
           </div>
         </div>

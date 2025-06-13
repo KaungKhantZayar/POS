@@ -68,11 +68,6 @@ background-color: white;
       $last_id = $payabl_balancedata['id'];
       $last_asc_id = $payabl_balancedata['asc_id'];
       $last_balance = $payabl_balancedata['balance'];
-      // echo "<script>alert($current_balance);</script>";
-      // exit();
-      // Update asc_id
-      // $asc_idupdate = $pdo->prepare("UPDATE payable SET asc_id='$last_asc_id' WHERE id='$last_id'");
-      // $asc_idupdate->execute();
   
       // Update Row above last_row Paid Status
       $paidstatus_update = $pdo->prepare("UPDATE payable SET status='paid' WHERE supplier_id='$supplier_id' AND asc_id<'$last_asc_id'");
@@ -135,7 +130,7 @@ background-color: white;
         }
         
 
-        $updateupdate = $pdo->prepare("UPDATE payable SET balance='$newbalance', asc_id='$updatea_ascid' WHERE id='$id' AND supplier_id='$supplier_id'");
+        $updateupdate = $pdo->prepare("UPDATE payable SET balance='$newbalance', asc_id='$updatea_ascid', status='Pending' WHERE id='$id' AND supplier_id='$supplier_id'");
         $updateupdate->execute();
         $i++;
       }
@@ -170,11 +165,11 @@ background-color: white;
         <tr data-bs-toggle="modal" data-bs-target="#myModal<?php echo $value['id']; ?>">
           <td><?php echo $id; ?></td>
           <td><?php echo $value['date'];?></td>
-          <td><?php echo $value['vr_no'];?></td>
+          <td><?php if(str_contains($value['vr_no'], "PR")){ echo $value['vr_no']; ?><span class="badge badge-primary ms-2">Purchase Return</span><?php }else{ echo $value['vr_no']; } ?></td>
           <td><?php echo $value['amount'];?></td>
           <td><?php echo $value['paid'];?></td>
           <td><?php echo $value['balance'];?></td>
-          <td><span class="badge <?php if($value['status'] == 'paid'){ echo "badge-success"; }elseif($value['status'] == 'pending'){ echo "badge-primary"; } ?>"><?php echo $value['status'];?></span></td>
+          <td><span class="badge <?php if($value['status'] == 'paid'){ echo "badge-success"; }else{ echo "badge-primary"; } ?>"><?php echo $value['status'];?></span></td>
         </tr>
         <!-- modal -->
         <div id="myModal<?php echo $value['id']; ?>" class="modal fade" role="dialog">

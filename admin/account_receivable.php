@@ -4,7 +4,7 @@ require '../Config/config.php';
 require '../Config/common.php';
   ?>
 
-  <?php include 'header.php'; ?>
+<?php include 'header.php'; ?>
 
 <style media="screen">
 .outer {
@@ -62,25 +62,14 @@ if(isset($_POST['save'])){
   );
 }
 
-?>
-
-<?php
-    $customerstmt = $pdo->prepare("SELECT DISTINCT customer_id FROM receivable");
-    $customerstmt->execute();
-    $customerdata = $customerstmt->fetchAll();
+  $customerstmt = $pdo->prepare("SELECT DISTINCT customer_id FROM receivable");
+  $customerstmt->execute();
+  $customerdata = $customerstmt->fetchAll();
  ?>
 
- <!-- <form class="" action="" method="post">
-   <div class="d-flex" style="margin-left:950px; margin-top:-15px;">
-     <input type="date" name="" value="" class="form-control" placeholder="Search customer_Name" style="width:200px;">
-     <button type="submit" name="search" class="search_btn ms-3">Search</button>
-  </div>
- </form> -->
-
 <div class="container">
-  <div class="d-flex" style="margin-top:-17px;">
+  <div style="margin-top:-17px;">
     <h4 class="col-10 me-5"><b>Account Receivable</b></h4>
-    <button class="ms-3" data-bs-toggle="modal" data-bs-target="#myModal">Received Amount</button>
   </div>
   <div class="outer" style="margin-top:-10px;">
     <table class="table table-bordered mt-4 table-hover">
