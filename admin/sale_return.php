@@ -4,11 +4,10 @@ require '../Config/config.php';
 require '../Config/common.php';
 include 'header.php';
   
-
 // Update Status
 
 if(isset($_POST['received'])){
-  $purchase_vr_no = $_POST['purchase_vr_no'];
+  $sale_vr_no = $_POST['sale_vr_no'];
   $item_id = $_POST['item_id'];
   $qty = $_POST['qty'];
   $date = $_POST['date'];
@@ -24,30 +23,30 @@ if(isset($_POST['received'])){
     if($stock_balancedata['balance'] < $qty){
       echo "<script>alert('Not Enough Stock')</script>";
     }else{
-      $stmt = $pdo->prepare("UPDATE purchase_return SET status='received' WHERE purchase_vr_no = '$purchase_vr_no'");
+      $stmt = $pdo->prepare("UPDATE sale_return SET status='received' WHERE sale_vr_no = '$sale_vr_no'");
       $stmt->execute();
     }
-    $stockbalance = $stock_balancedata['balance'] - $qty;
+    $stockbalance = $stock_balancedata['balance'] + $qty;
   }else{
-    $stockbalance = 0 - $qty;
+    $stockbalance = 0 + $qty;
   }
 
-  $stockstmt = $pdo->prepare("INSERT INTO stock (date,item_id,vr_no,to_from,out_qty,balance) VALUES (:date,:item_id,:vr_no,'purchase return',:out_qty,:balance)");
+  $stockstmt = $pdo->prepare("INSERT INTO stock (date,item_id,vr_no,to_from,in_qty,balance) VALUES (:date,:item_id,:vr_no,'sale return',:in_qty,:balance)");
   $stockdata = $stockstmt->execute(
-    array(':date'=>$date, ':vr_no'=>$purchase_vr_no, ':item_id'=>$item_id, ':out_qty'=>$qty, ':balance'=>$stockbalance)
+    array(':date'=>$date, ':vr_no'=>$sale_vr_no, ':item_id'=>$item_id, ':in_qty'=>$qty, ':balance'=>$stockbalance)
   );
 
 
   // Cash reduce
-  $cash_checkstmt = $pdo->prepare("SELECT * FROM credit_purchase WHERE vr_no='$purchase_vr_no' ORDER BY id DESC");
+  $cash_checkstmt = $pdo->prepare("SELECT * FROM credit_sale WHERE vr_no='$sale_vr_no' ORDER BY id DESC");
   $cash_checkstmt->execute();
   $cash_checksdata = $cash_checkstmt->fetch(PDO::FETCH_ASSOC);
   if(!empty($cash_checksdata)){
-    $supplier_id = $cash_checksdata['supplier_id'];
-    // echo "<script>alert('$supplier_id')</script>";
+    $customer_id = $cash_checksdata['customer_id'];
+    // echo "<script>alert('$customer_id')</script>";
 
-    // Payable Last Balance
-    $payabl_balancestmt = $pdo->prepare("SELECT * FROM payable WHERE supplier_id='$supplier_id' AND vr_no='$purchase_vr_no'");
+    // receivable Last Balance
+    $payabl_balancestmt = $pdo->prepare("SELECT * FROM receivable WHERE customer_id='$customer_id' AND vr_no='$sale_vr_no'");
     $payabl_balancestmt->execute();
     $payabl_balancedata = $payabl_balancestmt->fetch(PDO::FETCH_ASSOC);
     $last_id = $payabl_balancedata['id'];
@@ -58,14 +57,14 @@ if(isset($_POST['received'])){
 
     // Return Voucher Generate
     $asc_id = $last_asc_id + 1;
-    // Insert Payable
-    $payablstmt = $pdo->prepare("INSERT INTO payable (date,vr_no,supplier_id,paid,balance,asc_id,group_id) VALUES (:date,:returnvr_no,:supplier_id,:paid,:balance,:asc_id,:group_id)");
+    // Insert receivable
+    $payablstmt = $pdo->prepare("INSERT INTO receivable (date,vr_no,customer_id,paid,balance,asc_id,group_id) VALUES (:date,:returnvr_no,:customer_id,:paid,:balance,:asc_id,:group_id)");
       $payabldata = $payablstmt->execute(
-        array(':date'=>$date, ':returnvr_no'=>$return_vr_no, ':supplier_id'=>$supplier_id, ':paid'=>$amount, ':asc_id' => $asc_id, ':group_id' => $purchase_vr_no, ':balance'=>$balance)
+        array(':date'=>$date, ':returnvr_no'=>$return_vr_no, ':customer_id'=>$customer_id, ':paid'=>$amount, ':asc_id' => $asc_id, ':group_id' => $sale_vr_no, ':balance'=>$balance)
       );
     
     // Current Id
-    $current_idstmt = $pdo->prepare("SELECT * FROM payable WHERE supplier_id='$supplier_id' ORDER BY id DESC");
+    $current_idstmt = $pdo->prepare("SELECT * FROM receivable WHERE customer_id='$customer_id' ORDER BY id DESC");
     $current_idstmt->execute();
     $current_iddata = $current_idstmt->fetch(PDO::FETCH_ASSOC);
     $current_id = $current_iddata['id'];
@@ -74,7 +73,7 @@ if(isset($_POST['received'])){
 
     // For Update Others row
     // Check How Many Line to update
-    $other_rowstmt = $pdo->prepare("SELECT * FROM payable WHERE supplier_id='$supplier_id' AND id!='$current_id' AND asc_id!='$last_asc_id' AND asc_id>$last_asc_id");
+    $other_rowstmt = $pdo->prepare("SELECT * FROM receivable WHERE customer_id='$customer_id' AND id!='$current_id' AND asc_id!='$last_asc_id' AND asc_id>$last_asc_id");
     $other_rowstmt->execute();
     $other_rowdatas = $other_rowstmt->fetchAll();
     $i = 1;
@@ -83,7 +82,7 @@ if(isset($_POST['received'])){
       // echo "<script>alert('Hello');</script>";
 
         $id = $other_rowdata['id'];
-        $supplier_id = $other_rowdata['supplier_id'];
+        $customer_id = $other_rowdata['customer_id'];
         $amount = $other_rowdata['amount'];
         $paid = $other_rowdata['paid'];
         $updatea_ascid = $current_ascid + $i;
@@ -91,7 +90,7 @@ if(isset($_POST['received'])){
         if($i == 1){
             $newbalance = $current_balance + $amount - $paid;
         }else{
-            $balancestmt = $pdo->prepare("SELECT * FROM payable WHERE supplier_id='$supplier_id' AND id<'$id' ORDER BY id DESC");
+            $balancestmt = $pdo->prepare("SELECT * FROM receivable WHERE customer_id='$customer_id' AND id<'$id' ORDER BY id DESC");
             $balancestmt->execute();
             $balancedata = $balancestmt->fetch(PDO::FETCH_ASSOC);
 
@@ -99,7 +98,7 @@ if(isset($_POST['received'])){
         }
         
 
-        $updateupdate = $pdo->prepare("UPDATE payable SET balance='$newbalance', asc_id='$updatea_ascid' WHERE id='$id' AND supplier_id='$supplier_id'");
+        $updateupdate = $pdo->prepare("UPDATE receivable SET balance='$newbalance', asc_id='$updatea_ascid' WHERE id='$id' AND customer_id='$customer_id'");
         $updateupdate->execute();
         $i++;
       }
@@ -110,18 +109,18 @@ if(isset($_POST['received'])){
 // if(isset($_POST['cancel'])){
 //   $order_no = $_POST['order_no'];
 
-//   $stmt = $pdo->prepare("UPDATE purchase_order SET status='cancel' WHERE order_no = '$order_no'");
+//   $stmt = $pdo->prepare("UPDATE sale_order SET status='cancel' WHERE order_no = '$order_no'");
 //   $stmt->execute();
 // }
 
-// Add Purchase Order
+// Add sale Order
    if (isset($_POST['add_btn'])) {
-    if (empty($_POST['date']) || empty($_POST['purchase_vr_no']) || empty($_POST['reason']) || empty($_POST['item_id']) || empty($_POST['qty']) || empty($_POST['return_type'])) {
+    if (empty($_POST['date']) || empty($_POST['sale_vr_no']) || empty($_POST['reason']) || empty($_POST['item_id']) || empty($_POST['qty']) || empty($_POST['return_type'])) {
       if (empty($_POST['date'])) {
         $dateError = 'Date is required';
       }
-      if (empty($_POST['purchase_vr_no'])) {
-        $purchase_vr_noError = 'purchase_vr_no is required';
+      if (empty($_POST['sale_vr_no'])) {
+        $sale_vr_noError = 'sale_vr_no is required';
       }
       if (empty($_POST['reason'])) {
         $reasonError = 'Reason is required';
@@ -137,7 +136,7 @@ if(isset($_POST['received'])){
       }
     }else {
       $date = $_POST['date'];
-      $purchase_vr_no = $_POST['purchase_vr_no'];
+      $sale_vr_no = $_POST['sale_vr_no'];
       $reason = $_POST['reason'];
       $item_id = $_POST['item_id'];
       $qty = $_POST['qty'];
@@ -149,29 +148,29 @@ if(isset($_POST['received'])){
       $stmt->execute();
       $totalResult = $stmt->fetch(PDO::FETCH_ASSOC);
 
-      $price = $totalResult['original_price'];
+      $price = $totalResult['selling_price'];
 
       $amount = $price * $qty;
   
-      $addstmt = $pdo->prepare("INSERT INTO purchase_return (date,return_vr_no,item_id,qty,amount,reason,status,return_type,purchase_vr_no) VALUES (:date,:return_vr_no,:item_id,:qty,:amount,:reason,'pending',:return_type,:purchase_vr_no)");
+      $addstmt = $pdo->prepare("INSERT INTO sale_return (date,return_vr_no,item_id,qty,amount,reason,status,return_type,sale_vr_no) VALUES (:date,:return_vr_no,:item_id,:qty,:amount,:reason,'pending',:return_type,:sale_vr_no)");
       $addResult = $addstmt->execute(
-        array(':date'=>$date, 'return_vr_no'=>$return_vr_no, ':purchase_vr_no'=>$purchase_vr_no, ':reason'=>$reason, ':item_id'=>$item_id, ':qty'=>$qty, ':amount'=>$amount, ':return_type'=>$return_type)
+        array(':date'=>$date, 'return_vr_no'=>$return_vr_no, ':sale_vr_no'=>$sale_vr_no, ':reason'=>$reason, ':item_id'=>$item_id, ':qty'=>$qty, ':amount'=>$amount, ':return_type'=>$return_type)
       );
   
       if ($addResult) {
-        echo "<script>alert('Sussessfully added');window.location.href='purchase_return.php';</script>";
+        echo "<script>alert('Sussessfully added');window.location.href='sale_return.php';</script>";
       }
     }
    }
 
-$purchase_returnstmt = $pdo->prepare("SELECT * FROM purchase_return WHERE status='pending' ORDER BY id DESC");
-$purchase_returnstmt->execute();
-$purchase_returndata = $purchase_returnstmt->fetchAll();
+$sale_returnstmt = $pdo->prepare("SELECT * FROM sale_return WHERE status='pending' ORDER BY id DESC");
+$sale_returnstmt->execute();
+$sale_returndata = $sale_returnstmt->fetchAll();
  ?>
   <div class="container" style="margin-top:-30px;">
     <div class="card">
       <div class="card-body">
-        <h4>Purchase Return</h4>
+        <h4>Sale Return</h4>
         <form class="" action="" method="post">
             <div class="row">
               <div class="col-6 d-flex">
@@ -208,14 +207,14 @@ $purchase_returndata = $purchase_returnstmt->fetchAll();
             <div class="row">
               <div class="col-6 d-flex">
                 <div class="col">
-                  <label for=""><b>Purchase Vr_no</b></label>
-                  <select name="purchase_vr_no" id="" class="form-control">
+                  <label for=""><b>sale Vr_no</b></label>
+                  <select name="sale_vr_no" id="" class="form-control">
                     <?php 
                     $vr_nostmt = $pdo->prepare("SELECT DISTINCT vr_no FROM (
-                      SELECT vr_no FROM cash_purchase
+                      SELECT vr_no FROM cash_sale
                       UNION
-                      SELECT vr_no FROM credit_purchase
-                    ) AS all_purchases
+                      SELECT vr_no FROM credit_sale
+                    ) AS all_sales
                     ORDER BY vr_no DESC;");
                     $vr_nostmt->execute();
                     $vr_nodatas = $vr_nostmt->fetchAll();
@@ -226,7 +225,7 @@ $purchase_returndata = $purchase_returnstmt->fetchAll();
                     }
                   ?>
                   </select>
-                  <p style="color:red;"><?php echo empty($purchase_vr_noError) ? '' : '*'.$purchase_vr_noError;?></p>
+                  <p style="color:red;"><?php echo empty($sale_vr_noError) ? '' : '*'.$sale_vr_noError;?></p>
                 </div>
                 <div class="col">
                   <label for=""><b>Qty</b></label>
@@ -261,7 +260,7 @@ $purchase_returndata = $purchase_returnstmt->fetchAll();
         <tr>
           <th style="width: 10px">No</th>
           <th>Return Date</th>
-          <th>Purchase Vr_no</th>
+          <th>sale Vr_no</th>
           <th>Item Name</th>
           <th>Qty</th>
           <th>Reason</th>
@@ -272,9 +271,9 @@ $purchase_returndata = $purchase_returnstmt->fetchAll();
       </thead>
       <tbody>
         <?php
-          if ($purchase_returndata) {
+          if ($sale_returndata) {
             $id = 1;
-            foreach ($purchase_returndata as $value) {
+            foreach ($sale_returndata as $value) {
               $item_id = $value['item_id'];
 
               // Item Name
@@ -285,7 +284,7 @@ $purchase_returndata = $purchase_returnstmt->fetchAll();
         <tr>
           <td><?php echo $id; ?></td>
           <td><?php echo $value['date']; ?></td>
-          <td><?php echo $value['purchase_vr_no']; ?></td>
+          <td><?php echo $value['sale_vr_no']; ?></td>
           <td><?php echo $itemIdResult['item_name']; ?></td>
           <td><?php echo $value['qty']; ?></td>
           <td><?php echo $value['reason']; ?></td>
@@ -295,7 +294,7 @@ $purchase_returndata = $purchase_returnstmt->fetchAll();
           <td><?php echo $value['return_type']; ?></td>
           <td>
             <form action="" method="post">
-              <input type="hidden" value="<?php echo $value['purchase_vr_no']; ?>" name="purchase_vr_no">
+              <input type="hidden" value="<?php echo $value['sale_vr_no']; ?>" name="sale_vr_no">
               <input type="hidden" value="<?php echo $value['return_vr_no']; ?>" name="return_vr_no">
               <input type="hidden" value="<?php echo $value['item_id']; ?>" name="item_id">
               <input type="hidden" value="<?php echo $value['date']; ?>" name="date">

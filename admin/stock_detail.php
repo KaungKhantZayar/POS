@@ -9,7 +9,7 @@ require '../Config/common.php';
 <style media="screen">
 .outer {
 overflow-y: auto;
-height: 300px;
+height: 700px;
 }
 
 .outer{

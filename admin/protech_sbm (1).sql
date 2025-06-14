@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 13, 2025 at 02:24 PM
+-- Generation Time: Jun 14, 2025 at 07:52 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -161,7 +161,9 @@ INSERT INTO `credit_sale` (`id`, `date`, `vr_no`, `customer_id`, `item_id`, `qty
 (5, '2025-06-06', 35274254, '3002', '5002', 5),
 (6, '2025-06-06', 35993343, '3001', '2001', 3),
 (7, '2025-06-12', 35470178, '1005', '5003', 1),
-(8, '2025-06-12', 3559955, '1005', '4001', 1);
+(8, '2025-06-12', 3559955, '1005', '4001', 1),
+(11, '2025-06-14', 35826154, '1005', '2001', 2),
+(12, '2025-06-14', 35249379, '1005', '4001', 1);
 
 -- --------------------------------------------------------
 
@@ -249,11 +251,9 @@ INSERT INTO `payable` (`id`, `date`, `vr_no`, `supplier_id`, `amount`, `paid`, `
 (57, '2025-06-07', '52892419', '4003', 0, 1000000, 10000000, 0, 22, 52149105, 'paid'),
 (58, '2025-06-07', '52933454', '4003', 0, 10000000, 0, 0, 23, 52892419, 'paid'),
 (59, '2025-06-12', '52897171', '4002', 0, 5000000, 4000000, 0, 1, 25637307, 'pending'),
-(60, '2025-06-13', '25107077', '4004', 33000000, 0, 33000000, 22, 22, 25107077, 'paid'),
-(66, '2025-06-13', '25120964', '4004', 500000, 0, 500000, 23, 25, 25120964, 'Pending'),
-(67, '2025-06-13', '25114007', '4004', 5000000, 0, 5500000, 24, 26, 25114007, 'Pending'),
-(73, '2025-06-13', 'PR-928790', '4004', 0, 3000000, 30000000, 0, 23, 25107077, 'paid'),
-(74, '2025-06-13', '5254124', '4004', 0, 30000000, 0, 0, 24, 0, 'paid');
+(60, '2025-06-13', '25107077', '4004', 33000000, 0, 33000000, 22, 22, 25107077, ''),
+(66, '2025-06-13', '25120964', '4004', 500000, 0, 33500000, 23, 23, 25120964, ''),
+(67, '2025-06-13', '25114007', '4004', 5000000, 0, 38500000, 24, 24, 25114007, '');
 
 -- --------------------------------------------------------
 
@@ -338,9 +338,62 @@ INSERT INTO `receivable` (`id`, `date`, `vr_no`, `customer_id`, `amount`, `paid`
 (5, '2025-06-06', '25001', '3002', 0, 100000, 10900000, 0, 0, 0, '0'),
 (6, '2025-06-06', '35993343', '3001', 450000, 0, 450000, 6, 0, 0, '0'),
 (7, '2025-06-12', '35470178', '1005', 2200000, 0, 2200000, 7, 7, 35470178, 'paid'),
-(8, '2025-06-12', '3559955', '1005', 5200000, 0, 5200000, 8, 10, 3559955, '0'),
+(8, '2025-06-12', '3559955', '1005', 5200000, 0, 5200000, 8, 10, 3559955, ''),
 (13, '2025-06-13', '25101300', '1005', 0, 200000, 2000000, 0, 8, 35470178, 'paid'),
-(14, '2025-06-13', '25595494', '1005', 0, 2000000, 0, 0, 9, 25101300, 'paid');
+(14, '2025-06-13', '25595494', '1005', 0, 2000000, 0, 0, 9, 25101300, 'paid'),
+(17, '2025-06-14', '35826154', '1005', 300000, 0, 5500000, 11, 11, 35826154, ''),
+(18, '2025-06-14', '35249379', '1005', 5200000, 0, 10550000, 12, 13, 35249379, ''),
+(23, '2025-06-14', 'PR-406106', '1005', 0, 150000, 5350000, 0, 12, 35826154, '');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `sale_order`
+--
+
+CREATE TABLE `sale_order` (
+  `id` int(11) NOT NULL,
+  `order_no` varchar(100) NOT NULL,
+  `customer_id` int(11) NOT NULL,
+  `order_date` date NOT NULL,
+  `item_id` int(11) NOT NULL,
+  `qty` int(11) NOT NULL,
+  `amount` int(11) NOT NULL,
+  `status` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `sale_order`
+--
+
+INSERT INTO `sale_order` (`id`, `order_no`, `customer_id`, `order_date`, `item_id`, `qty`, `amount`, `status`) VALUES
+(6, 'SO-90069', 1005, '2025-06-14', 2001, 2, 300000, 'pending');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `sale_return`
+--
+
+CREATE TABLE `sale_return` (
+  `id` int(11) NOT NULL,
+  `date` date NOT NULL,
+  `return_vr_no` varchar(100) NOT NULL,
+  `item_id` int(11) NOT NULL,
+  `qty` int(11) NOT NULL,
+  `amount` int(11) NOT NULL,
+  `reason` varchar(255) NOT NULL,
+  `status` varchar(100) NOT NULL,
+  `return_type` varchar(100) NOT NULL,
+  `sale_vr_no` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `sale_return`
+--
+
+INSERT INTO `sale_return` (`id`, `date`, `return_vr_no`, `item_id`, `qty`, `amount`, `reason`, `status`, `return_type`, `sale_vr_no`) VALUES
+(3, '2025-06-14', 'PR-406106', 2001, 1, 150000, 'testing reason', 'received', 'wrong', 35826154);
 
 -- --------------------------------------------------------
 
@@ -379,7 +432,10 @@ INSERT INTO `stock` (`id`, `date`, `item_id`, `vr_no`, `to_from`, `in_qty`, `out
 (25, '2025-06-12', 4001, 3559955, 'sale', 0, 1, 0, 3),
 (41, '2025-06-13', 2002, 25107077, 'purchase', 11, 0, 0, 11),
 (44, '2025-06-13', 2001, 25120964, 'purchase', 5, 0, 0, 42),
-(45, '2025-06-13', 4001, 25114007, 'purchase', 1, 0, 0, 4);
+(45, '2025-06-13', 4001, 25114007, 'purchase', 1, 0, 0, 4),
+(50, '2025-06-14', 2001, 35826154, 'sale', 0, 2, 0, 40),
+(51, '2025-06-14', 4001, 35249379, 'sale', 0, 1, 0, 3),
+(56, '2025-06-14', 2001, 35826154, 'sale return', 1, 0, 0, 41);
 
 -- --------------------------------------------------------
 
@@ -445,7 +501,8 @@ CREATE TABLE `temp_sale` (
   `percentage` int(11) NOT NULL,
   `percentage_amount` int(11) NOT NULL,
   `stock_foc` int(11) NOT NULL,
-  `amount` int(11) NOT NULL
+  `amount` int(11) NOT NULL,
+  `so_no` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -519,6 +576,18 @@ ALTER TABLE `receivable`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `sale_order`
+--
+ALTER TABLE `sale_order`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `sale_return`
+--
+ALTER TABLE `sale_return`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `stock`
 --
 ALTER TABLE `stock`
@@ -574,7 +643,7 @@ ALTER TABLE `credit_purchase`
 -- AUTO_INCREMENT for table `credit_sale`
 --
 ALTER TABLE `credit_sale`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `customer`
@@ -592,7 +661,7 @@ ALTER TABLE `item`
 -- AUTO_INCREMENT for table `payable`
 --
 ALTER TABLE `payable`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=75;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=77;
 
 --
 -- AUTO_INCREMENT for table `purchase_order`
@@ -610,13 +679,25 @@ ALTER TABLE `purchase_return`
 -- AUTO_INCREMENT for table `receivable`
 --
 ALTER TABLE `receivable`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+
+--
+-- AUTO_INCREMENT for table `sale_order`
+--
+ALTER TABLE `sale_order`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `sale_return`
+--
+ALTER TABLE `sale_return`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `stock`
 --
 ALTER TABLE `stock`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
 
 --
 -- AUTO_INCREMENT for table `supplier`
@@ -634,7 +715,7 @@ ALTER TABLE `temp_purchase`
 -- AUTO_INCREMENT for table `temp_sale`
 --
 ALTER TABLE `temp_sale`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

@@ -31,11 +31,11 @@ require '../Config/common.php';
     }else {
       $pageno = 1;
     }
-    $numOfrecs = 5;
+    $numOfrecs = 10;
     $offset = ($pageno - 1) * $numOfrecs;
 
     if (empty($_POST['search'])) {
-      $stmt = $pdo->prepare("SELECT * FROM item ORDER BY id  DESC");
+      $stmt = $pdo->prepare("SELECT * FROM item ORDER BY id DESC");
       $stmt->execute();
       $rawResult = $stmt->fetchAll();
 

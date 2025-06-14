@@ -272,16 +272,15 @@ require '../Config/common.php';
                 </div>
                 <div class="col">
                   <label for="" class="mt-4"><b>Vr_No</b></label>
-                  <input type="text" class="form-control" placeholder="Vr_No" name="" value="<?php echo 25 . rand(1,999999) ?>" disabled>
-                  <input type="hidden" class="form-control" placeholder="Vr_No" name="vr_no" value="<?php echo 25 . rand(1,999999) ?>">
+                  <input type="text" class="form-control" placeholder="Vr_No" name="vr_no" value="<?php echo 25 . rand(1,999999) ?>" readonly>
                   <p style="color:red;"><?php echo empty($vr_noError) ? '' : '*'.$vr_noError;?></p>
                 </div>
               <div class="col">
-                <label for="" class="mt-4"><b>Po_NO </b></label>
+                <label for="" class="mt-4"><b>Purchase Order No</b></label>
                 <select name="po_no" id="" class="form-control">
                   <option value="">Select PO_No</option>
                   <?php
-                  $po_nostmt = $pdo->prepare("SELECT * FROM purchase_order ORDER BY id DESC");
+                  $po_nostmt = $pdo->prepare("SELECT * FROM purchase_order WHERE status LIKE '%ending%' ORDER BY id DESC");
                   $po_nostmt->execute();
                   $po_nodatas = $po_nostmt->fetchAll();
                   foreach ($po_nodatas as $po_nodata) {

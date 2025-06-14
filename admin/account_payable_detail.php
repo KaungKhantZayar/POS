@@ -134,6 +134,7 @@ background-color: white;
         $updateupdate->execute();
         $i++;
       }
+        echo "<script>window.location.href='account_payable_detail.php?supplier_id=$supplier_id';</script>";
     }
  ?>
 

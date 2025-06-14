@@ -10,28 +10,28 @@ include 'header.php';
 if(isset($_POST['received'])){
   $order_no = $_POST['order_no'];
 
-  $stmt = $pdo->prepare("UPDATE purchase_order SET status='received' WHERE order_no = '$order_no'");
+  $stmt = $pdo->prepare("UPDATE sale_order SET status='received' WHERE order_no = '$order_no'");
   $stmt->execute();
 }
 
 if(isset($_POST['cancel'])){
   $order_no = $_POST['order_no'];
 
-  $stmt = $pdo->prepare("UPDATE purchase_order SET status='cancel' WHERE order_no = '$order_no'");
+  $stmt = $pdo->prepare("UPDATE sale_order SET status='cancel' WHERE order_no = '$order_no'");
   $stmt->execute();
 }
 
-// Add Purchase Order
+// Add sale Order
    if (isset($_POST['add_btn'])) {
-    if (empty($_POST['order_date']) || empty($_POST['order_no']) || empty($_POST['supplier_id']) || empty($_POST['item_id']) || empty($_POST['qty'])) {
+    if (empty($_POST['order_date']) || empty($_POST['order_no']) || empty($_POST['customer_id']) || empty($_POST['item_id']) || empty($_POST['qty'])) {
       if (empty($_POST['order_date'])) {
         $dateError = 'Date is required';
       }
       if (empty($_POST['order_no'])) {
         $vr_noError = 'Vr_No is required';
       }
-      if (empty($_POST['supplier_id'])) {
-        $supplier_idError = 'Supplier is required';
+      if (empty($_POST['customer_id'])) {
+        $customer_idError = 'customer is required';
       }
       if (empty($_POST['item_id'])) {
         $item_idError = 'Item_Id is required';
@@ -42,7 +42,7 @@ if(isset($_POST['cancel'])){
     }else {
       $order_date = $_POST['order_date'];
       $order_no = $_POST['order_no'];
-      $supplier_id = $_POST['supplier_id'];
+      $customer_id = $_POST['customer_id'];
       $item_id = $_POST['item_id'];
       $qty = $_POST['qty'];
 
@@ -50,29 +50,29 @@ if(isset($_POST['cancel'])){
       $stmt->execute();
       $totalResult = $stmt->fetch(PDO::FETCH_ASSOC);
 
-      $price = $totalResult['original_price'];
+      $price = $totalResult['selling_price'];
 
       $amount = $price * $qty;
   
-      $addstmt = $pdo->prepare("INSERT INTO purchase_order (order_date,order_no,supplier_id,item_id,qty,amount,status) VALUES (:order_date,:order_no,:supplier_id,:item_id,:qty,:amount,'Pending')");
+      $addstmt = $pdo->prepare("INSERT INTO sale_order (order_date,order_no,customer_id,item_id,qty,amount,status) VALUES (:order_date,:order_no,:customer_id,:item_id,:qty,:amount,'Pending')");
       $addResult = $addstmt->execute(
-        array(':order_date'=>$order_date, ':order_no'=>$order_no, ':supplier_id'=>$supplier_id, ':item_id'=>$item_id, ':qty'=>$qty, ':amount'=>$amount)
+        array(':order_date'=>$order_date, ':order_no'=>$order_no, ':customer_id'=>$customer_id, ':item_id'=>$item_id, ':qty'=>$qty, ':amount'=>$amount)
       );
   
       if ($addResult) {
-        echo "<script>alert('Sussessfully added');window.location.href='purchase_order.php';</script>";
+        echo "<script>alert('Sussessfully added');window.location.href='sale_order.php';</script>";
       }
     }
    }
 
-$purchase_orderstmt = $pdo->prepare("SELECT * FROM purchase_order WHERE status='pending' ORDER BY id DESC");
-$purchase_orderstmt->execute();
-$purchase_orderdata = $purchase_orderstmt->fetchAll();
+$sale_orderstmt = $pdo->prepare("SELECT * FROM sale_order WHERE status='pending' ORDER BY id DESC");
+$sale_orderstmt->execute();
+$sale_orderdata = $sale_orderstmt->fetchAll();
  ?>
   <div class="container" style="margin-top:-30px;">
     <div class="card">
       <div class="card-body">
-        <h4>Purchase Order</h4>
+        <h4>Sale Order</h4>
         <form class="" action="" method="post" style="margin-top:-20px;">
           <div class="row">
             <div class="col-3">
@@ -82,17 +82,17 @@ $purchase_orderdata = $purchase_orderstmt->fetchAll();
             </div>
             <div class="col-3">
               <label for="" class="mt-4"><b>Order No</b></label>
-              <input type="text" class="form-control" name="order_no" value="<?php echo "PO-" . rand(1,999999) ?>" readonly>
+              <input type="text" class="form-control" name="order_no" value="<?php echo "SO-" . rand(1,999999) ?>" readonly>
               <p style="color:red;"><?php echo empty($vr_noError) ? '' : '*'.$vr_noError;?></p>
             </div>
             <div class="col-3">
-              <label for="" class="mt-4"><b>Supplier_Id</b></label>
-              <input type="text" id="supplier_id" oninput="fetchSupplierNameFromId()" class="form-control" placeholder="Supplier_Id" name="supplier_id" >
-              <p style="color:red;"><?php echo empty($supplier_idError) ? '' : '*'.$supplier_idError;?></p>
+              <label for="" class="mt-4"><b>Customer_Id</b></label>
+              <input type="text" id="customer_id" oninput="fetchcustomerNameFromId()" class="form-control" placeholder="customer_Id" name="customer_id" >
+              <p style="color:red;"><?php echo empty($customer_idError) ? '' : '*'.$customer_idError;?></p>
             </div>
             <div class="col-3">
-              <label for="" class="mt-4"><b>Supplier_Name</b></label>
-              <input type="text" id="supplier_name" class="form-control" placeholder="Supplier_Name" name="supplier_name" oninput="fetchSupplierIdFromName()">
+              <label for="" class="mt-4"><b>Customer_Name</b></label>
+              <input type="text" id="customer_name" class="form-control" placeholder="customer_Name" name="customer_name" oninput="fetchcustomerIdFromName()">
             </div>
           </div>
             <!-- Second Row -->
@@ -129,7 +129,7 @@ $purchase_orderdata = $purchase_orderstmt->fetchAll();
         <tr>
           <th style="width: 10px">No</th>
           <th>Order No</th>
-          <th>Supplier_Name</th>
+          <th>customer_Name</th>
           <th>Order Date</th>
           <th>Item Name</th>
           <th>Qty</th>
@@ -140,16 +140,16 @@ $purchase_orderdata = $purchase_orderstmt->fetchAll();
       </thead>
       <tbody>
         <?php
-          if ($purchase_orderdata) {
+          if ($sale_orderdata) {
             $id = 1;
-            foreach ($purchase_orderdata as $value) {
-              $supplier_id = $value['supplier_id'];
+            foreach ($sale_orderdata as $value) {
+              $customer_id = $value['customer_id'];
               $item_id = $value['item_id'];
 
-              // Supplier Name
-              $supplierIdstmt = $pdo->prepare("SELECT * FROM supplier WHERE supplier_id='$supplier_id'");
-              $supplierIdstmt->execute();
-              $supplierIdResult = $supplierIdstmt->fetch(PDO::FETCH_ASSOC);
+              // customer Name
+              $customerIdstmt = $pdo->prepare("SELECT * FROM customer WHERE customer_id='$customer_id'");
+              $customerIdstmt->execute();
+              $customerIdResult = $customerIdstmt->fetch(PDO::FETCH_ASSOC);
 
               // Item Name
               $itemIdstmt = $pdo->prepare("SELECT * FROM item WHERE item_id='$item_id'");
@@ -159,7 +159,7 @@ $purchase_orderdata = $purchase_orderstmt->fetchAll();
         <tr>
           <td><?php echo $id; ?></td>
           <td><?php echo $value['order_no']; ?></td>
-          <td><?php echo $supplierIdResult['supplier_name']; ?></td>
+          <td><?php echo $customerIdResult['customer_name']; ?></td>
           <td><?php echo $value['order_date']; ?></td>
           <td><?php echo $itemIdResult['item_name']; ?></td>
           <td><?php echo $value['qty']; ?></td>
