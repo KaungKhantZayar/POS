@@ -14,7 +14,7 @@ $sale_pages = ['sale_order.php', 'sale.php', 'sale_return.php'];
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
 
-  <title>ProTech - Small Business Management</title>
+  <title>ProTech - Inventory Management</title>
 
   <link href="bootstrap-4.0.0-dist/css/bootstrap.css" rel="stylesheet">
   <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
@@ -113,7 +113,49 @@ background-color: #d0f0c0;
 .table tr {
   padding: 5px;
 }
+.tooltip-square {
+  width: 25px;
+  height: 25px;
+  border-radius: 4px;
+  position: relative; /* for tooltip positioning */
+  cursor: pointer;
+}
 
+.tooltip-text {
+  visibility: hidden;
+  width: max-content;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  padding: 4px 8px;
+  border-radius: 4px;
+  position: absolute;
+  bottom: 125%; /* above the square */
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 12px;
+  z-index: 100;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+/* small arrow */
+.tooltip-text::after {
+  content: "";
+  position: absolute;
+  top: 100%; /* bottom of tooltip */
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: #333 transparent transparent transparent;
+}
+
+.tooltip-square:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
 </style>
 <body class="hold-transition sidebar-mini">
 

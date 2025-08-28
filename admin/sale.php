@@ -224,13 +224,97 @@ require '../Config/common.php';
      $seleResult = $selestmt->fetch(PDO::FETCH_ASSOC);
 
     ?>
+<script>
+function fetchCustomerNameFromId() {
+    let customerId = document.getElementById("customer_id").value;
+    if (customerId.trim() === "") return;
 
+    fetch("get_customer_by_id.php?customer_id=" + customerId)
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById("customer_name").value = data.customer_name;
+            } else {
+                document.getElementById("customer_name").value = "";
+            }
+        })
+        .catch(err => console.error("Error:", err));
+}
+
+function fetchCustomerIdFromName() {
+    let customerName = document.getElementById("customer_name").value;
+    if (customerName.trim() === "") return;
+
+    fetch("get_customer_by_name.php?customer_name=" + customerName)
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById("customer_id").value = data.customer_id;
+            } else {
+                document.getElementById("customer_id").value = "";
+            }
+        })
+        .catch(err => console.error("Error:", err));
+}
+
+function fetchItemNameFromId() {
+    let itemId = document.getElementById("item_id").value.trim();
+
+    if (itemId !== "") {
+        fetch("get_item_by_id.php?item_id=" + encodeURIComponent(itemId))
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById("item_name").value = data.item_name;
+                document.getElementById("stock_balance").innerText = "Balance Qty is " + data.stock_balance + " pcs";
+                document.getElementById("selling_price").value = data.selling_price;
+            } else {
+                document.getElementById("item_name").value = "";
+                document.getElementById("stock_balance").innerText = "";
+                document.getElementById("selling_price").value = "";
+            }
+        })
+        .catch(err => console.error("Error fetching item name:", err));
+    } else {
+        document.getElementById("item_name").value = "";
+        document.getElementById("stock_balance").innerText = "";
+        document.getElementById("selling_price").value = "";
+    }
+}
+
+function fetchItemIdFromName() {
+    let itemName = document.getElementById("item_name").value.trim()  ;
+
+    if (itemName !== "") {
+        fetch("get_item_by_name.php?item_name=" + encodeURIComponent(itemName))
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById("item_id").value = data.item_id;
+                document.getElementById("stock_balance").innerText = "Balance Qty is " + data.stock_balance + " pcs";
+                document.getElementById("selling_price").value = data.selling_price;
+            } else {
+                document.getElementById("item_id").value = "";
+                document.getElementById("stock_balance").innerText = "";
+                document.getElementById("selling_price").value = "";
+            }
+        })
+        .catch(err => console.error("Error fetching item id:", err));
+    } else {
+        document.getElementById("item_id").value = "";
+        document.getElementById("stock_balance").innerText = "";
+        document.getElementById("selling_price").value = "";
+    }
+}
+</script>
     <div class="col-md-12 mt-4 px-3 pt-1">
       <h4 class="mb-3 d-flex align-items-center justify-content-between">
         Sale Listing
         <button class="btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#newSaleForm" aria-expanded="true" aria-controls="newSaleForm">
-          Add New Sale
-        </button>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-down-up" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M11.5 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L11 2.707V14.5a.5.5 0 0 0 .5.5m-7-14a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L4 13.293V1.5a.5.5 0 0 1 .5-.5"/>
+            </svg>
+          </button>
       </h4>
       <div class="collapse show" id="newSaleForm">
       <div class="card">
@@ -251,7 +335,7 @@ require '../Config/common.php';
                     <p style="color:red;"><?php echo empty($gin_noError) ? '' : '*'.$gin_noError;?></p>
                   </div>
                   <div class="col">
-                    <label for="" class="mt-4">Sale Order No</label>
+                    <label for="" class="mt-4">SO No</label>
                     <select name="so_no" id="" class="form-control">
                       <option value="">Select SO_No</option>
                       <?php
@@ -271,57 +355,61 @@ require '../Config/common.php';
                 <div class="col-6 d-flex">
                   <div class="col">
                     <label for="" class="mt-4">Customer_Id</label>
-                    <input type="text" id="customer_id" oninput="fetchSaleNameFromId()" class="form-control" placeholder="Customer_Id" name="customer_id">
+                    <input type="text" id="customer_id" oninput="fetchCustomerNameFromId()" class="form-control" placeholder="Customer_Id" name="customer_id">
                     <p style="color:red;"><?php echo empty($customer_idError) ? '' : '*'.$customer_idError;?></p>
                   </div>
                   <div class="col">
                     <label for="" class="mt-4">Customer_Name</label>
-                    <input type="text" id="customer_name" class="form-control" placeholder="Customer_Name" name="customer_Name" oninput="fetchSaleIdFromName()">
-                  </div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-5 d-flex">
-                  <div class="col">
-                    <label for="">Item_Id</label>
-                    <input type="text" id="item_id" class="form-control" placeholder="Item_Id" name="item_id" oninput="fetchitemNameFromId()" style="width:130px;">
-                    <p style="color:red;"><?php echo empty($item_idError) ? '' : '*'.$item_idError;?></p>
+                    <input type="text" id="customer_name" class="form-control" placeholder="Customer_Name" name="customer_Name" oninput="fetchCustomerIdFromName()">
                   </div>
                   <div class="col">
-                    <label for="">Item_Name</label>
-                    <input type="text" id="item_name" class="form-control" placeholder="Item_Name" name="item_name" oninput="fetchitemIdFromName()" style="width:130px;">
-                  </div>
-                  <div class="col">
-                    <label for="">Qty</label>
-                    <input type="number" class="form-control" placeholder="Qty" name="qty" style="width:130px;">
-                    <p style="color:red;"><?php echo empty($qtyError) ? '' : '*'.$qtyError;?></p>
-                  </div>
-                </div>
-                <div class="col-5 d-flex">
-                  <div class="col">
-                    <label for="" class="">Discount</label>
-                    <input type="number" class="form-control" placeholder="Discount" name="discount" style="width:130px;">
-                    <p style="color:red;"></p>
-                  </div>
-
-                  <div class="col">
-                    <label for="" class="">Foc</label>
-                    <input type="number" class="form-control" placeholder="Foc" name="foc" style="width:130px;">
-                    <p style="color:red;"></p>
-                  </div>
-
-                  <div class="col">
-                    <label for="">Payment</label>
-                    <select name="type" class="form-control" style="width:130px;">
+                    <label class="mt-4">Payment</label>
+                    <select name="type" class="form-control">
                         <option value="cash">Cash</option>
                         <option value="credit">Credit</option>
                       </select>
                   </div>
                 </div>
-                <div class="col-2 mt-4">
-                    <button type="submit" name="add_btn" class="add_btn form-control mt-2">Add</button>
-                </div>
               </div>
+  
+                <div class="d-flex">
+                  <div class="col-2">
+                    <label for="">Item_Id</label>
+                    <input type="text" id="item_id" class="form-control" placeholder="Item_Id" name="item_id" oninput="fetchItemNameFromId()">
+                    <p style="color:red;"><?php echo empty($item_idError) ? '' : '*'.$item_idError;?></p>
+                    <span style="color:green; font-size: 13px;" id="stock_balance"></span>
+                  </div>
+                  <div class="col-2">
+                    <label for="">Item_Name</label>
+                    <input type="text" id="item_name" class="form-control" placeholder="Item_Name" name="item_name" oninput="fetchItemIdFromName()">
+                  </div>
+                  <div class="col-2">
+                    <label for="">Selling Price</label>
+                    <input type="number" class="form-control" placeholder="Selling Price" name="selling_price" id="selling_price">
+                    <p style="color:red;"><?php echo empty($qtyError) ? '' : '*'.$qtyError;?></p>
+                  </div>
+                  <div class="col">
+                    <label for="">Qty</label>
+                    <input type="number" class="form-control" placeholder="Qty" name="qty">
+                    <p style="color:red;"><?php echo empty($qtyError) ? '' : '*'.$qtyError;?></p>
+                  </div>
+                  <div class="col">
+                    <label for="" class="">Discount</label>
+                    <input type="number" class="form-control" placeholder="Discount" name="discount">
+                    <p style="color:red;"></p>
+                  </div>
+  
+                  <div class="col">
+                    <label for="" class="">Foc</label>
+                    <input type="number" class="form-control" placeholder="Foc" name="foc">
+                    <p style="color:red;"></p>
+                  </div>
+                  <div class="col-2 mt-4">
+                      <button type="submit" name="add_btn" class="add_btn form-control mt-2">Add</button>
+                  </div>
+                </div>
+
+              
             </div>
           </div>
         </form>  
@@ -406,101 +494,5 @@ require '../Config/common.php';
       </form>
       </div>
       </div>
-
-    <!-- Main content -->
-    <script>
-    function fetchSaleNameFromId() {
-      const customerId = document.getElementById('customer_id').value;
-
-      if (customerId.trim() === "") {
-        document.getElementById('customer_name').value = "";
-        return;
-      }
-
-      fetch('get_sale_by_id.php?customer_id=' + customerId)
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            document.getElementById('customer_name').value = data.customer_name;
-          } else {
-            document.getElementById('customer_name').value = "Not found";
-          }
-        })
-        .catch(err => {
-          console.error("Fetch error:", err);
-        });
-    }
-
-    function fetchSaleIdFromName() {
-      const customerName = document.getElementById('customer_name').value;
-
-      if (supplierName.trim() === "") {
-        document.getElementById('customer_id').value = "";
-        return;
-      }
-
-      fetch('get_sale_by_name.php?customer_name=' + encodeURIComponent(customerName))
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            document.getElementById('customer_id').value = data.customer_id;
-          } else {
-            document.getElementById('customer_id').value = "Not found";
-          }
-        })
-        .catch(err => {
-          console.error("Fetch error:", err);
-        });
-    }
-    </script>
-
-    <!-- next_script -->
-
-      <script>
-      function fetchitemNameFromId() {
-    const itemId = document.getElementById('item_id').value;
-
-    if (itemId.trim() === "") {
-      document.getElementById('item_name').value = "";
-      return;
-    }
-
-    fetch('get_item_by_id.php?item_id=' + itemId)
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          document.getElementById('item_name').value = data.item_name;
-        } else {
-          document.getElementById('item_name').value = "Not found";
-        }
-      })
-      .catch(err => {
-        console.error("Fetch error:", err);
-      });
-  }
-
-
-      function fetchitemIdFromName() {
-        const itemName = document.getElementById('item_name').value;
-
-        if (itemName.trim() === "") {
-          document.getElementById('item_id').value = "";
-          return;
-        }
-
-        fetch('get_item_by_name.php?item_name=' + encodeURIComponent(itemName))
-          .then(res => res.json())
-          .then(data => {
-            if (data.success) {
-              document.getElementById('item_id').value = data.item_id;
-            } else {
-              document.getElementById('item_id').value = "Not found";
-            }
-          })
-          .catch(err => {
-            console.error("Fetch error:", err);
-          });
-      }
-      </script>
 
 <?php include 'footer.html'; ?>

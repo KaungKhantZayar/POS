@@ -167,10 +167,58 @@ $purchase_returnstmt = $pdo->prepare("SELECT * FROM purchase_return WHERE status
 $purchase_returnstmt->execute();
 $purchase_returndata = $purchase_returnstmt->fetchAll();
  ?>
-  <div class="container">
+ <script>
+  function fetchItemNameFromId() {
+    let itemId = document.getElementById("item_id").value.trim();
+
+    if (itemId !== "") {
+        fetch("get_item_by_id.php?item_id=" + encodeURIComponent(itemId))
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById("item_name").value = data.item_name;
+            } else {
+                document.getElementById("item_name").value = "";
+            }
+        })
+        .catch(err => console.error("Error fetching item name:", err));
+    } else {
+        document.getElementById("item_name").value = "";
+    }
+}
+
+function fetchItemIdFromName() {
+    let itemName = document.getElementById("item_name").value.trim();
+
+    if (itemName !== "") {
+        fetch("get_item_by_name.php?item_name=" + encodeURIComponent(itemName))
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById("item_id").value = data.item_id;
+            } else {
+                document.getElementById("item_id").value = "";
+            }
+        })
+        .catch(err => console.error("Error fetching item id:", err));
+    } else {
+        document.getElementById("item_id").value = "";
+    }
+}
+
+ </script>
+  <div class="col-md-12 mt-4 px-3 pt-1">
+    <h4 class="mb-3 d-flex align-items-center justify-content-between">
+    Purchase Return Listing
+    <button class="btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#newSaleForm" aria-expanded="false" aria-controls="newSaleForm">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-down-up" viewBox="0 0 16 16">
+        <path fill-rule="evenodd" d="M11.5 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L11 2.707V14.5a.5.5 0 0 0 .5.5m-7-14a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L4 13.293V1.5a.5.5 0 0 1 .5-.5"/>
+      </svg>
+    </button>
+  </h4>
+    <div class="collapse show" id="newSaleForm">
     <div class="card">
       <div class="card-body">
-        <h4>Purchase Return</h4>
         <form class="" action="" method="post">
             <div class="row">
               <div class="col-6 d-flex">
@@ -188,12 +236,15 @@ $purchase_returndata = $purchase_returnstmt->fetchAll();
               <div class="col-3 d-flex">
                 <div class="col">
                   <label for="">Item_Id</label>
-                  <input type="text" id="item_id" class="form-control" placeholder="Item_Id" name="item_id" oninput="fetchitemNameFromId()">
+                  <input type="text" id="item_id" class="form-control" placeholder="Item_Id" name="item_id" 
+                        oninput="fetchItemNameFromId()">
                   <p style="color:red;"><?php echo empty($item_idError) ? '' : '*'.$item_idError;?></p>
                 </div>
+
                 <div class="col">
                   <label for="">Item_Name</label>
-                  <input type="text" id="item_name" class="form-control" placeholder="Item_Name" name="item_name" oninput="fetchitemIdFromName()">
+                  <input type="text" id="item_name" class="form-control" placeholder="Item_Name" name="item_name" 
+                        oninput="fetchItemIdFromName()">
                 </div>
               </div>
               <div class="col-3">
@@ -255,6 +306,7 @@ $purchase_returndata = $purchase_returnstmt->fetchAll();
       </form>
       </div>
     </div>
+  </div>
   <div>
     <table class="table table-bordered table-hover">
       <thead class="custom-thead">

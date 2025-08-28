@@ -23,7 +23,7 @@ if(isset($_POST['cancel'])){
 
 // Add sale Order
    if (isset($_POST['add_btn'])) {
-    if (empty($_POST['order_date']) || empty($_POST['order_no']) || empty($_POST['customer_id']) || empty($_POST['item_id']) || empty($_POST['qty'])) {
+    if (empty($_POST['order_date']) || empty($_POST['order_no']) || empty($_POST['customer_id']) || empty($_POST['item_id']) || empty($_POST['qty']) || empty($_POST['selling_price']) ) {
       if (empty($_POST['order_date'])) {
         $dateError = 'Date is required';
       }
@@ -39,18 +39,16 @@ if(isset($_POST['cancel'])){
       if (empty($_POST['qty'])) {
         $qtyError = 'Qty is required';
       }
+      if (empty($_POST['selling_price'])) {
+        $priceError = 'Price is required';
+      }
     }else {
       $order_date = $_POST['order_date'];
       $order_no = $_POST['order_no'];
       $customer_id = $_POST['customer_id'];
       $item_id = $_POST['item_id'];
       $qty = $_POST['qty'];
-
-      $stmt = $pdo->prepare("SELECT * FROM item WHERE item_id=$item_id");
-      $stmt->execute();
-      $totalResult = $stmt->fetch(PDO::FETCH_ASSOC);
-
-      $price = $totalResult['selling_price'];
+      $price = $_POST['selling_price'];
 
       $amount = $price * $qty;
   
@@ -69,10 +67,102 @@ $sale_orderstmt = $pdo->prepare("SELECT * FROM sale_order WHERE status='pending'
 $sale_orderstmt->execute();
 $sale_orderdata = $sale_orderstmt->fetchAll();
  ?>
-  <div class="container">
-    <div class="card">
+<script>
+function fetchCustomerNameFromId() {
+    let customerId = document.getElementById("customer_id").value;
+    if (customerId.trim() === "") return;
+
+    fetch("get_customer_by_id.php?customer_id=" + customerId)
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById("customer_name").value = data.customer_name;
+            } else {
+                document.getElementById("customer_name").value = "";
+            }
+        })
+        .catch(err => console.error("Error:", err));
+}
+
+function fetchCustomerIdFromName() {
+    let customerName = document.getElementById("customer_name").value;
+    if (customerName.trim() === "") return;
+
+    fetch("get_customer_by_name.php?customer_name=" + customerName)
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById("customer_id").value = data.customer_id;
+            } else {
+                document.getElementById("customer_id").value = "";
+            }
+        })
+        .catch(err => console.error("Error:", err));
+}
+
+function fetchItemNameFromId() {
+    let itemId = document.getElementById("item_id").value.trim();
+
+    if (itemId !== "") {
+        fetch("get_item_by_id.php?item_id=" + encodeURIComponent(itemId))
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById("item_name").value = data.item_name;
+                document.getElementById("stock_balance").innerText = "Balance Qty is " + data.stock_balance + " pcs";
+                document.getElementById("selling_price").value = data.selling_price;
+            } else {
+                document.getElementById("item_name").value = "";
+                document.getElementById("stock_balance").innerText = "";
+                document.getElementById("selling_price").value = "";
+            }
+        })
+        .catch(err => console.error("Error fetching item name:", err));
+    } else {
+        document.getElementById("item_name").value = "";
+        document.getElementById("stock_balance").innerText = "";
+        document.getElementById("selling_price").value = "";
+    }
+}
+
+function fetchItemIdFromName() {
+    let itemName = document.getElementById("item_name").value.trim()  ;
+
+    if (itemName !== "") {
+        fetch("get_item_by_name.php?item_name=" + encodeURIComponent(itemName))
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById("item_id").value = data.item_id;
+                document.getElementById("stock_balance").innerText = "Balance Qty is " + data.stock_balance + " pcs";
+                document.getElementById("selling_price").value = data.selling_price;
+            } else {
+                document.getElementById("item_id").value = "";
+                document.getElementById("stock_balance").innerText = "";
+                document.getElementById("selling_price").value = "";
+            }
+        })
+        .catch(err => console.error("Error fetching item id:", err));
+    } else {
+        document.getElementById("item_id").value = "";
+        document.getElementById("stock_balance").innerText = "";
+        document.getElementById("selling_price").value = "";
+    }
+}
+</script>
+
+  <div class="col-md-12 mt-4 px-3 pt-1">
+        <h4 class="mb-3 d-flex align-items-center justify-content-between">
+          Sale Orders
+          <button class="btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#newSaleForm" aria-expanded="true" aria-controls="newSaleForm">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-down-up" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M11.5 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L11 2.707V14.5a.5.5 0 0 0 .5.5m-7-14a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L4 13.293V1.5a.5.5 0 0 1 .5-.5"/>
+            </svg>
+          </button>
+        </h4>
+      <div class="collapse show" id="newSaleForm">
+            <div class="card">
       <div class="card-body">
-        <h4>Sale Order</h4>
         <form class="" action="" method="post" style="margin-top:-20px;">
           <div class="row">
             <div class="col-3">
@@ -87,12 +177,12 @@ $sale_orderdata = $sale_orderstmt->fetchAll();
             </div>
             <div class="col-3">
               <label for="" class="mt-4">Customer_Id</label>
-              <input type="text" id="customer_id" oninput="fetchcustomerNameFromId()" class="form-control" placeholder="customer_Id" name="customer_id" >
+              <input type="text" id="customer_id" oninput="fetchCustomerNameFromId()" class="form-control" placeholder="customer_Id" name="customer_id" >
               <p style="color:red;"><?php echo empty($customer_idError) ? '' : '*'.$customer_idError;?></p>
             </div>
             <div class="col-3">
               <label for="" class="mt-4">Customer_Name</label>
-              <input type="text" id="customer_name" class="form-control" placeholder="customer_Name" name="customer_name" oninput="fetchcustomerIdFromName()">
+              <input type="text" id="customer_name" class="form-control" placeholder="customer_Name" name="customer_name" oninput="fetchCustomerIdFromName()">
             </div>
           </div>
             <!-- Second Row -->
@@ -100,15 +190,20 @@ $sale_orderdata = $sale_orderstmt->fetchAll();
             <div class="col-6 d-flex">
                 <div class="col">
                   <label for="">Item_Id</label>
-                  <input type="text" id="item_id" class="form-control" placeholder="Item_Id" name="item_id" oninput="fetchitemNameFromId()">
+                  <input type="text" id="item_id" class="form-control" placeholder="Item_Id" name="item_id" oninput="fetchItemNameFromId()">
                   <p style="color:red;"><?php echo empty($item_idError) ? '' : '*'.$item_idError;?></p>
+                  <span style="color:green; font-size: 15px;" id="stock_balance"></span>
                 </div>
                 <div class="col">
                   <label for="">Item_Name</label>
-                  <input type="text" id="item_name" class="form-control" placeholder="Item_Name" name="item_name" oninput="fetchitemIdFromName()">
+                  <input type="text" id="item_name" class="form-control" placeholder="Item_Name" name="item_name" oninput="fetchItemIdFromName()">
                 </div>
               </div>
               <div class="col-6 d-flex">
+                <div class="col">
+                  <label for="">Price</label>
+                  <input type="number" class="form-control" placeholder="Selling Price" name="selling_price" id="selling_price">
+                </div>
                 <div class="col">
                   <label for="">Qty</label>
                   <input type="number" class="form-control" placeholder="Qty" name="qty">
@@ -121,6 +216,7 @@ $sale_orderdata = $sale_orderstmt->fetchAll();
 
           </div>
       </form>
+      </div>
       </div>
     </div>
   <div>

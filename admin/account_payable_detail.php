@@ -4,47 +4,9 @@
   require '../Config/common.php';
 ?>
 <?php include 'header.php'; ?>
-
-<style media="screen">
-.outer {
-overflow-y: auto;
-height: 300px;
-}
-
-.outer{
-width: 100%;
--layout: fixed;
-}
-
-.outer th {
-text-align: left;
-top: 0;
-position: sticky;
-background-color: white;
-}
-.search_btn{
-  background-color:#1c1c1c;
-  color:white;
-  transition:0.5s;
-  border-radius:10px;
-  padding:7px;
-  padding:-29px;
-  font-size:13px;
-}
-.search_btn:hover{
-  border:2px solid #1c1c1c;
-  background:none;
-  color:#1c1c1c;
-  transition:0.5s;
-  border-radius:10px;
-  box-shadow:2px 8px 16px gray;
-}
-</style>
-
-
 <?php
     $supplier_id = $_GET['supplier_id'];
-    $payaplestmt = $pdo->prepare("SELECT * FROM payable WHERE supplier_id='$supplier_id' ORDER BY asc_id");
+    $payaplestmt = $pdo->prepare("SELECT * FROM payable WHERE supplier_id='$supplier_id' GROUP BY group_id");
     $payaplestmt->execute();
     $payapledata = $payaplestmt->fetchAll();
 
@@ -54,87 +16,86 @@ background-color: white;
     $supplierIdResult = $supplierIdstmt->fetch(PDO::FETCH_ASSOC);
  
     // Add Payment
-    if(isset($_POST['save'])){
-      $date = $_POST['date'];
-      $grn_no = $_POST['grn_no'];
-      $supplier_id = $_POST['supplier_id'];
-      $amount = $_POST['amount'];
+    // if(isset($_POST['save'])){
+    //   $date = $_POST['date'];
+    //   $grn_no = $_POST['grn_no'];
+    //   $supplier_id = $_POST['supplier_id'];
+    //   $amount = $_POST['amount'];
 
-      // Payable Last Balance
-      $payabl_balancestmt = $pdo->prepare("SELECT * FROM payable WHERE supplier_id='$supplier_id' AND grn_no='$grn_no'");
-      $payabl_balancestmt->execute();
-      $payabl_balancedata = $payabl_balancestmt->fetch(PDO::FETCH_ASSOC);
-      $last_id = $payabl_balancedata['id'];
-      $last_asc_id = $payabl_balancedata['asc_id'];
-      $last_balance = $payabl_balancedata['balance'];
+    //   // Payable Last Balance
+    //   $payabl_balancestmt = $pdo->prepare("SELECT * FROM payable WHERE supplier_id='$supplier_id' AND grn_no='$grn_no'");
+    //   $payabl_balancestmt->execute();
+    //   $payabl_balancedata = $payabl_balancestmt->fetch(PDO::FETCH_ASSOC);
+    //   $last_id = $payabl_balancedata['id'];
+    //   $last_asc_id = $payabl_balancedata['asc_id'];
+    //   $last_balance = $payabl_balancedata['balance'];
   
-      // Update Row above last_row Paid Status
-      $paidstatus_update = $pdo->prepare("UPDATE payable SET status='paid' WHERE supplier_id='$supplier_id' AND asc_id<'$last_asc_id'");
-      $paidstatus_update->execute();
+    //   // Update Row above last_row Paid Status
+    //   $paidstatus_update = $pdo->prepare("UPDATE payable SET status='paid' WHERE supplier_id='$supplier_id' AND asc_id<'$last_asc_id'");
+    //   $paidstatus_update->execute();
 
-      $balance = $last_balance - $amount;
+    //   $balance = $last_balance - $amount;
       
-      if($balance == 0){
-        // Update last_row Paid Status
-        $pendingstatus_update = $pdo->prepare("UPDATE payable SET status='paid' WHERE supplier_id='$supplier_id' AND id='$last_id'");
-        $pendingstatus_update->execute();        
-        $payablstmt = $pdo->prepare("INSERT INTO payable (date,grn_no,supplier_id,paid,balance,asc_id,group_id,status) VALUES (:date,:paymentgrn_no,:supplier_id,:paid,:balance,:asc_id,:group_id,'paid')");
-      }else{
-        // Update last_row Pending Status
-        $pendingstatus_update = $pdo->prepare("UPDATE payable SET status='pending' WHERE supplier_id='$supplier_id' AND id='$last_id'");
-        $pendingstatus_update->execute();
-        $payablstmt = $pdo->prepare("INSERT INTO payable (date,grn_no,supplier_id,paid,balance,asc_id,group_id,status) VALUES (:date,:paymentgrn_no,:supplier_id,:paid,:balance,:asc_id,:group_id,'pending')");
-      }
+    //   if($balance == 0){
+    //     // Update last_row Paid Status
+    //     $pendingstatus_update = $pdo->prepare("UPDATE payable SET status='paid' WHERE supplier_id='$supplier_id' AND id='$last_id'");
+    //     $pendingstatus_update->execute();        
+    //     $payablstmt = $pdo->prepare("INSERT INTO payable (date,grn_no,supplier_id,paid,balance,asc_id,group_id,status) VALUES (:date,:paymentgrn_no,:supplier_id,:paid,:balance,:asc_id,:group_id,'paid')");
+    //   }else{
+    //     // Update last_row Pending Status
+    //     $pendingstatus_update = $pdo->prepare("UPDATE payable SET status='pending' WHERE supplier_id='$supplier_id' AND id='$last_id'");
+    //     $pendingstatus_update->execute();
+    //     $payablstmt = $pdo->prepare("INSERT INTO payable (date,grn_no,supplier_id,paid,balance,asc_id,group_id,status) VALUES (:date,:paymentgrn_no,:supplier_id,:paid,:balance,:asc_id,:group_id,'pending')");
+    //   }
 
-      // Add Paid Amount And Asc_id
-      $paymentgrn_no =  52 . rand(0,999999);
-      $asc_id = $last_asc_id + 1;
-      $payabldata = $payablstmt->execute(
-        array(':date'=>$date, ':paymentgrn_no'=>$paymentgrn_no, ':supplier_id'=>$supplier_id, ':paid'=>$amount, ':asc_id' => $asc_id, ':group_id' => $grn_no, ':balance'=>$balance)
-      );
+    //   // Add Paid Amount And Asc_id
+    //   $paymentgrn_no =  52 . rand(0,999999);
+    //   $asc_id = $last_asc_id + 1;
+    //   $payabldata = $payablstmt->execute(
+    //     array(':date'=>$date, ':paymentgrn_no'=>$paymentgrn_no, ':supplier_id'=>$supplier_id, ':paid'=>$amount, ':asc_id' => $asc_id, ':group_id' => $grn_no, ':balance'=>$balance)
+    //   );
 
-      // Current Id
-      $current_idstmt = $pdo->prepare("SELECT * FROM payable WHERE supplier_id='$supplier_id' ORDER BY id DESC");
-      $current_idstmt->execute();
-      $current_iddata = $current_idstmt->fetch(PDO::FETCH_ASSOC);
-      $current_id = $current_iddata['id'];
-      $current_ascid = $current_iddata['asc_id'];
-      $current_balance = $current_iddata['balance'];
+    //   // Current Id
+    //   $current_idstmt = $pdo->prepare("SELECT * FROM payable WHERE supplier_id='$supplier_id' ORDER BY id DESC");
+    //   $current_idstmt->execute();
+    //   $current_iddata = $current_idstmt->fetch(PDO::FETCH_ASSOC);
+    //   $current_id = $current_iddata['id'];
+    //   $current_ascid = $current_iddata['asc_id'];
+    //   $current_balance = $current_iddata['balance'];
 
-      // For Update Others row
-      // Check How Many Line to update
-      $other_rowstmt = $pdo->prepare("SELECT * FROM payable WHERE supplier_id='$supplier_id' AND id!='$current_id' AND asc_id!='$last_asc_id' AND asc_id>$last_asc_id");
-      $other_rowstmt->execute();
-      $other_rowdatas = $other_rowstmt->fetchAll();
-      $i = 1;
-      // print "<pre>";
-      // print_r($other_rowdatas);
-      foreach ($other_rowdatas as $other_rowdata) {
-      // echo "<script>alert('Hello');</script>";
+    //   // For Update Others row
+    //   // Check How Many Line to update
+    //   $other_rowstmt = $pdo->prepare("SELECT * FROM payable WHERE supplier_id='$supplier_id' AND id!='$current_id' AND asc_id!='$last_asc_id' AND asc_id>$last_asc_id");
+    //   $other_rowstmt->execute();
+    //   $other_rowdatas = $other_rowstmt->fetchAll();
+    //   $i = 1;
+    //   // print "<pre>";
+    //   // print_r($other_rowdatas);
+    //   foreach ($other_rowdatas as $other_rowdata) {
+    //   // echo "<script>alert('Hello');</script>";
 
-        $id = $other_rowdata['id'];
-        $supplier_id = $other_rowdata['supplier_id'];
-        $amount = $other_rowdata['amount'];
-        $paid = $other_rowdata['paid'];
-        $updatea_ascid = $current_ascid + $i;
+    //     $id = $other_rowdata['id'];
+    //     $supplier_id = $other_rowdata['supplier_id'];
+    //     $amount = $other_rowdata['amount'];
+    //     $paid = $other_rowdata['paid'];
+    //     $updatea_ascid = $current_ascid + $i;
 
-        if($i == 1){
-            $newbalance = $current_balance + $amount - $paid;
-        }else{
-            $balancestmt = $pdo->prepare("SELECT * FROM payable WHERE supplier_id='$supplier_id' AND id<'$id' ORDER BY id DESC");
-            $balancestmt->execute();
-            $balancedata = $balancestmt->fetch(PDO::FETCH_ASSOC);
+    //     if($i == 1){
+    //         $newbalance = $current_balance + $amount - $paid;
+    //     }else{
+    //         $balancestmt = $pdo->prepare("SELECT * FROM payable WHERE supplier_id='$supplier_id' AND id<'$id' ORDER BY id DESC");
+    //         $balancestmt->execute();
+    //         $balancedata = $balancestmt->fetch(PDO::FETCH_ASSOC);
 
-            $newbalance = $balancedata['balance'] + $amount - $paid;
-        }
-        
+    //         $newbalance = $balancedata['balance'] + $amount - $paid;
+    //     }
 
-        $updateupdate = $pdo->prepare("UPDATE payable SET balance='$newbalance', asc_id='$updatea_ascid', status='Pending' WHERE id='$id' AND supplier_id='$supplier_id'");
-        $updateupdate->execute();
-        $i++;
-      }
-        echo "<script>window.location.href='account_payable_detail.php?supplier_id=$supplier_id';</script>";
-    }
+    //     $updateupdate = $pdo->prepare("UPDATE payable SET balance='$newbalance', asc_id='$updatea_ascid', status='Pending' WHERE id='$id' AND supplier_id='$supplier_id'");
+    //     $updateupdate->execute();
+    //     $i++;
+    //   }
+    //     echo "<script>window.location.href='account_payable_detail.php?supplier_id=$supplier_id';</script>";
+    // }
  ?>
 
 <div class="col-md-12 px-4 mt-4">
@@ -153,16 +114,17 @@ background-color: white;
     </div>
   </div>
   <div class="" style="margin-top:-10px;">
-    <table class="table table-bordered mt-4 table-hover">
+    <table class="table mt-4 table-hover">
       <thead class="custom-thead">
         <tr>
           <th style="width: 10px">#</th>
           <th>Date</th>
-          <th>grn_no</th>
+          <th>GRN No</th>
           <th>Amount</th>
           <th>Paid</th>
           <th>Balance</th>
           <th>Status</th>
+          <th>Action</th>
         </tr>
       </thead>
       <tbody>
@@ -171,15 +133,57 @@ background-color: white;
             $id = 1;
             foreach ($payapledata as $value) {
               $supplier_id = $value['supplier_id'];
+
+              $grn_no = $value['grn_no'];
+              $group_id = $value['group_id'];
+
+              // Total Amount
+              $amountstmt = $pdo->prepare("SELECT SUM(amount) AS total_amount FROM payable WHERE supplier_id = '$supplier_id' AND grn_no = '$grn_no'");
+              $amountstmt->execute();
+              $total_amountdata = $amountstmt->fetch(PDO::FETCH_ASSOC);
+              $total_amount = $total_amountdata['total_amount'];
+              
+              // Paid Amount
+              $paidamountstmt = $pdo->prepare("SELECT SUM(paid) AS total_paid_amount FROM payable WHERE supplier_id = '$supplier_id' AND group_id = '$group_id'");
+              $paidamountstmt->execute();
+              $paidamountdata = $paidamountstmt->fetch(PDO::FETCH_ASSOC);
+              $paidamount = $paidamountdata['total_paid_amount'];
+              // echo "<script>alert($paidamounta);</script>";
+
+              // Balance
+              $balance = $total_amount - $paidamount;
+
          ?>
-        <tr data-bs-toggle="modal" data-bs-target="#myModal<?php echo $value['id']; ?>">
+        <tr>
           <td><?php echo $id; ?></td>
           <td><?php echo $value['date'];?></td>
           <td><?php if(str_contains($value['grn_no'], "PR")){ echo $value['grn_no']; ?><span class="badge badge-primary ms-2">Purchase Return</span><?php }else{ echo $value['grn_no']; } ?></td>
-          <td><?php echo $value['amount'];?></td>
-          <td><?php echo $value['paid'];?></td>
-          <td><?php echo $value['balance'];?></td>
-          <td><span class="badge <?php if($value['status'] == 'paid'){ echo "badge-success"; }else{ echo "badge-primary"; } ?>"><?php echo $value['status'];?></span></td>
+          <td><?php echo $total_amount;?></td>
+          <td><?php echo $paidamount;?></td>
+          <td><?php echo $balance;?></td>
+          <td><span class="badge <?php if($balance == 0){ echo "badge-success"; }else{ echo "badge-primary"; } ?>"><?php if($balance != 0 ){ echo "Pending"; }else{ echo "Paid"; } ?></span></td>
+          <td>
+
+            <button data-toggle="modal" data-target="#myModal<?php echo $value['id']; ?>"
+              class="btn btn-sm btn-primary text-light"
+              data-bs-toggle="tooltip" data-bs-placement="top" title="Add Payment">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cash" viewBox="0 0 16 16">
+                  <path d="M8 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4"/>
+                  <path d="M0 4a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1zm3 0a2 2 0 0 1-2 2v4a2 2 0 0 1 2 2h10a2 2 0 0 1 2-2V6a2 2 0 0 1-2-2z"/>
+                </svg>
+            </button>
+
+            <!-- Second link styled as button with tooltip -->
+            <a href="account_payable_detail.php?supplier_id=<?php echo $value['supplier_id'];?>"
+              class="btn btn-sm btn-purple text-light"
+              data-bs-toggle="tooltip" data-bs-placement="top" title="View Payment History">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clock-history" viewBox="0 0 16 16">
+                  <path d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .589.022zm2.004.45a7 7 0 0 0-.985-.299l.219-.976q.576.129 1.126.342zm1.37.71a7 7 0 0 0-.439-.27l.493-.87a8 8 0 0 1 .979.654l-.615.789a7 7 0 0 0-.418-.302zm1.834 1.79a7 7 0 0 0-.653-.796l.724-.69q.406.429.747.91zm.744 1.352a7 7 0 0 0-.214-.468l.893-.45a8 8 0 0 1 .45 1.088l-.95.313a7 7 0 0 0-.179-.483m.53 2.507a7 7 0 0 0-.1-1.025l.985-.17q.1.58.116 1.17zm-.131 1.538q.05-.254.081-.51l.993.123a8 8 0 0 1-.23 1.155l-.964-.267q.069-.247.12-.501m-.952 2.379q.276-.436.486-.908l.914.405q-.24.54-.555 1.038zm-.964 1.205q.183-.183.35-.378l.758.653a8 8 0 0 1-.401.432z"/>
+                  <path d="M8 1a7 7 0 1 0 4.95 11.95l.707.707A8.001 8.001 0 1 1 8 0z"/>
+                  <path d="M7.5 3a.5.5 0 0 1 .5.5v5.21l3.248 1.856a.5.5 0 0 1-.496.868l-3.5-2A.5.5 0 0 1 7 9V3.5a.5.5 0 0 1 .5-.5"/>
+                </svg>
+            </a>
+          </td>
         </tr>
         <!-- modal -->
         <div id="myModal<?php echo $value['id']; ?>" class="modal fade" role="dialog">
@@ -207,7 +211,7 @@ background-color: white;
                 </div>
                 <div class="modal-footer">
                   <button type="submit" name="save">Save</button>
-                  <button type="button" data-bs-dismiss="modal">Close</button>
+                  <button type="button" data-dismiss="modal">Close</button>
                 </div>
               </form>
             </div>
@@ -223,4 +227,12 @@ background-color: white;
     </table>
   </div>
 </div>
+<script>
+  document.addEventListener("DOMContentLoaded", function(){
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+  });
+</script>
   <?php include 'footer.html'; ?>

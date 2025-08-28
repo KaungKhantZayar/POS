@@ -41,29 +41,43 @@ if(isset($_POST['save'])){
 
 <div class="col-md-12 px-3 mt-4">
   <div class="d-flex justify-content-between px-2">
-    <div>
-      <h4>Stock Listing</h4>
-    </div>
-    <div>
-      <button data-bs-toggle="modal" data-bs-target="#myModal" class="btn btn-purple text-light btn-sm">
+  <div>
+    <h4>Stock Listing</h4>
+  </div>
+  <div class="d-flex align-items-center">
+      <!-- Color Indicators -->
+      <div class="d-flex align-items-center ms-2 mr-3">
+        <div class="tooltip-square mr-2" style="background-color:lightblue;">
+          <span class="tooltip-text">Stock is safe</span>
+        </div>
+        <div class="tooltip-square mr-2" style="background-color:blue;">
+          <span class="tooltip-text">At reorder level</span>
+        </div>
+        <div class="tooltip-square ms-2" style="background-color:red;">
+          <span class="tooltip-text">Below reorder level</span>
+        </div>
+      </div>
+      <!-- Damage Stock Button -->
+      <button data-bs-toggle="modal" data-bs-target="#myModal" class="btn btn-purple text-light btn-sm me-3">
         Damage Stock
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-triangle" style="margin-top: -5px;" viewBox="0 0 16 16">
           <path d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.15.15 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.2.2 0 0 1-.054.06.1.1 0 0 1-.066.017H1.146a.1.1 0 0 1-.066-.017.2.2 0 0 1-.054-.06.18.18 0 0 1 .002-.183L7.884 2.073a.15.15 0 0 1 .054-.057m1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767z"/>
           <path d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z"/>
         </svg>
       </button>
+
     </div>
   </div>
+
   <div class="outer">
     <table class="table mt-4 table-hover">
       <thead class="custom-thead">
         <tr>
           <th>No</th>
           <th>Item Name</th>
-          <th>In</th>
-          <th>Out</th>
           <th>Balance</th>
-          <th>Action</th>
+          <th>Reorder Level</th>
+          <th style="width: 100px;">Action</th>
         </tr>
       </thead>
       <tbody>
@@ -77,7 +91,7 @@ if(isset($_POST['save'])){
               $itemstmt = $pdo->prepare("SELECT * FROM item WHERE item_id='$item_id'");
               $itemstmt->execute();
               $item = $itemstmt->fetch(PDO::FETCH_ASSOC);
-
+              $reorder_level = $item['reorder_level'];
               // Total Receivable Amount
               $total_instmt = $pdo->prepare("SELECT SUM(in_qty) AS total_in FROM stock WHERE item_id='$item_id'");
               $total_instmt->execute();
@@ -90,13 +104,12 @@ if(isset($_POST['save'])){
 
               $balance = $total_indata['total_in'] - $total_outdata['total_out'];
          ?>
-        <tr style="<?php if($balance < 50){ echo "background-color: red !important;"; } ?>">
+        <tr>
           <td><?php echo $id; ?></td>
           <td><?php echo $item['item_name'];?></td>
-          <td><?php echo $total_indata['total_in'];?></td>
-          <td><?php echo $total_outdata['total_out'];?></td>
           <td><?php echo $balance;?></td>
-          <td>
+          <td><?php echo $reorder_level;?></td>
+          <td class="d-flex justify-content-around">
               <a href="stock_detail.php?item_id=<?php echo $item_id; ?>"
               class="btn btn-sm btn-primary text-light"
               data-bs-toggle="tooltip" data-bs-placement="top" title="View Stock Details">
@@ -105,6 +118,7 @@ if(isset($_POST['save'])){
                   <path d="M5 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 5 8m0-2.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m0 5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m-1-5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0M4 8a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0m0 2.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0"/>
                 </svg>
             </a>
+            <div style="width:30px; height: 30px; border-radius: 5px; <?php if($balance < $reorder_level){ echo "background-color: red !important;"; }elseif($balance == $reorder_level){ echo "background-color: blue !important;"; }else{ echo "background-color: lightblue !important;"; } ?>"></div>
           </td>
         </tr>
         <?php
@@ -179,4 +193,5 @@ if(isset($_POST['save'])){
     })
   });
 </script>
+
 <?php include 'footer.html'; ?>

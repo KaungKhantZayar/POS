@@ -167,92 +167,140 @@ $sale_returnstmt = $pdo->prepare("SELECT * FROM sale_return WHERE status='pendin
 $sale_returnstmt->execute();
 $sale_returndata = $sale_returnstmt->fetchAll();
  ?>
-  <div class="container">
-    <div class="card">
-      <div class="card-body">
-        <h4>Sale Return</h4>
-        <form class="" action="" method="post">
-            <div class="row">
-              <div class="col-6 d-flex">
-                <div class="col">
-                  <label for="">Return Date</label>
-                  <input type="date" class="form-control" placeholder="Date" name="date">
-                  <p style="color:red;"><?php echo empty($dateError) ? '' : '*'.$dateError;?></p>
+ <script>
+  function fetchItemNameFromId() {
+    let itemId = document.getElementById("item_id").value.trim();
+
+    if (itemId !== "") {
+        fetch("get_item_by_id.php?item_id=" + encodeURIComponent(itemId))
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById("item_name").value = data.item_name;
+            } else {
+                document.getElementById("item_name").value = "";
+            }
+        })
+        .catch(err => console.error("Error fetching item name:", err));
+    } else {
+        document.getElementById("item_name").value = "";
+    }
+}
+
+function fetchItemIdFromName() {
+    let itemName = document.getElementById("item_name").value.trim();
+
+    if (itemName !== "") {
+        fetch("get_item_by_name.php?item_name=" + encodeURIComponent(itemName))
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById("item_id").value = data.item_id;
+            } else {
+                document.getElementById("item_id").value = "";
+            }
+        })
+        .catch(err => console.error("Error fetching item id:", err));
+    } else {
+        document.getElementById("item_id").value = "";
+    }
+}
+ </script>
+  <div class="col-md-12 mt-4 px-3 pt-1">
+    <h4 class="mb-3 d-flex align-items-center justify-content-between">
+        Sale Returns
+        <button class="btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#newSaleForm" aria-expanded="true" aria-controls="newSaleForm">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-down-up" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M11.5 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L11 2.707V14.5a.5.5 0 0 0 .5.5m-7-14a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L4 13.293V1.5a.5.5 0 0 1 .5-.5"/>
+          </svg>
+        </button>
+      </h4>
+      <div class="collapse show" id="newSaleForm">
+      <div class="card">
+        <div class="card-body">
+          <form class="" action="" method="post">
+              <div class="row">
+                <div class="col-6 d-flex">
+                  <div class="col">
+                    <label for="">Return Date</label>
+                    <input type="date" class="form-control" placeholder="Date" name="date">
+                    <p style="color:red;"><?php echo empty($dateError) ? '' : '*'.$dateError;?></p>
+                  </div>
+                  <div class="col">
+                    <label for="">Return Vr_no</label>
+                    <input type="text" class="form-control" placeholder="Date" readonly name="grn_no" value="<?php echo "PR-" . rand(0,999999); ?>">
+                    <p style="color:red;"><?php echo empty($dateError) ? '' : '*'.$dateError;?></p>
+                  </div>
                 </div>
-                <div class="col">
-                  <label for="">Return Vr_no</label>
-                  <input type="text" class="form-control" placeholder="Date" readonly name="grn_no" value="<?php echo "PR-" . rand(0,999999); ?>">
-                  <p style="color:red;"><?php echo empty($dateError) ? '' : '*'.$dateError;?></p>
+                <div class="col-3 d-flex">
+                  <div class="col">
+                    <label for="">Item_Id</label>
+                    <input type="text" id="item_id" class="form-control" placeholder="Item_Id" name="item_id" oninput="fetchItemNameFromId()">
+                    <p style="color:red;"><?php echo empty($item_idError) ? '' : '*'.$item_idError;?></p>
+                  </div>
+                  <div class="col">
+                    <label for="">Item_Name</label>
+                    <input type="text" id="item_name" class="form-control" placeholder="Item_Name" name="item_name" oninput="fetchItemIdFromName()">
+                  </div>
+                </div>
+                <div class="col-3">
+                  <div class="col">
+                    <label for="">Reason</label>
+                    <input type="text" class="form-control" placeholder="Pls write ur reason here ..." name="reason">
+                    <p style="color:red;"><?php echo empty($reasonError) ? '' : '*'.$reasonError;?></p>
+                  </div>
                 </div>
               </div>
-              <div class="col-3 d-flex">
-                <div class="col">
-                  <label for="">Item_Id</label>
-                  <input type="text" id="item_id" class="form-control" placeholder="Item_Id" name="item_id" oninput="fetchitemNameFromId()">
-                  <p style="color:red;"><?php echo empty($item_idError) ? '' : '*'.$item_idError;?></p>
+              <div class="row">
+                <div class="col-6 d-flex">
+                  <div class="col">
+                    <label for="">GIN_No</label>
+                    <select name="gin_no" id="" class="form-control">
+                      <option value="">Select Goods Issue Note</option>
+                      <?php 
+                      $gin_nostmt = $pdo->prepare("SELECT DISTINCT gin_no FROM (
+                        SELECT gin_no FROM cash_sale
+                        UNION
+                        SELECT gin_no FROM credit_sale
+                      ) AS all_sales
+                      ORDER BY gin_no DESC;");
+                      $gin_nostmt->execute();
+                      $gin_nodatas = $gin_nostmt->fetchAll();
+                      foreach ($gin_nodatas as $gin_nodata) {
+                        ?>
+                        <option value="<?php echo $gin_nodata['gin_no']; ?>"><?php echo $gin_nodata['gin_no']; ?></option>
+                        <?php
+                      }
+                    ?>
+                    </select>
+                    <p style="color:red;"><?php echo empty($gin_noError) ? '' : '*'.$gin_noError;?></p>
+                  </div>
+                  <div class="col">
+                    <label for="">Qty</label>
+                    <input type="number" class="form-control" placeholder="Qty" name="qty">
+                    <p style="color:red;"><?php echo empty($qtyError) ? '' : '*'.$qtyError;?></p>
+                  </div>
+                  
                 </div>
-                <div class="col">
-                  <label for="">Item_Name</label>
-                  <input type="text" id="item_name" class="form-control" placeholder="Item_Name" name="item_name" oninput="fetchitemIdFromName()">
-                </div>
-              </div>
-              <div class="col-3">
-                <div class="col">
-                  <label for="">Reason</label>
-                  <input type="text" class="form-control" placeholder="Pls write ur reason here ..." name="reason">
-                  <p style="color:red;"><?php echo empty($reasonError) ? '' : '*'.$reasonError;?></p>
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-6 d-flex">
-                <div class="col">
-                  <label for="">GIN_No</label>
-                  <select name="gin_no" id="" class="form-control">
-                    <option value="">Select Goods Issue Note</option>
-                    <?php 
-                    $gin_nostmt = $pdo->prepare("SELECT DISTINCT gin_no FROM (
-                      SELECT gin_no FROM cash_sale
-                      UNION
-                      SELECT gin_no FROM credit_sale
-                    ) AS all_sales
-                    ORDER BY gin_no DESC;");
-                    $gin_nostmt->execute();
-                    $gin_nodatas = $gin_nostmt->fetchAll();
-                    foreach ($gin_nodatas as $gin_nodata) {
-                      ?>
-                      <option value="<?php echo $gin_nodata['gin_no']; ?>"><?php echo $gin_nodata['gin_no']; ?></option>
-                      <?php
-                    }
-                  ?>
-                  </select>
-                  <p style="color:red;"><?php echo empty($gin_noError) ? '' : '*'.$gin_noError;?></p>
-                </div>
-                <div class="col">
-                  <label for="">Qty</label>
-                  <input type="number" class="form-control" placeholder="Qty" name="qty">
-                  <p style="color:red;"><?php echo empty($qtyError) ? '' : '*'.$qtyError;?></p>
-                </div>
-                
-              </div>
-              <div class="col-6 d-flex">
-                <div class="col">
-                  <label for="">Return Type</label>
-                  <select name="return_type" class="form-control">
-                    <option value="">Select Return Type</option>
-                    <option value="damaged">Damaged</option>
-                    <option value="wrong">Wrong Item</option>
-                    <option value="extra">Extra Quantity</option>
-                  </select>
-                  <p style="color:red;"><?php echo empty($vr_noError) ? '' : '*'.$vr_noError;?></p>
-                </div>
-                <div class="col mt-2">
-                    <button type="submit" name="add_btn" class="form-control btn btn-purple text-light mt-4">Add Sale Return</button>
+                <div class="col-6 d-flex">
+                  <div class="col">
+                    <label for="">Return Type</label>
+                    <select name="return_type" class="form-control">
+                      <option value="">Select Return Type</option>
+                      <option value="damaged">Damaged</option>
+                      <option value="wrong">Wrong Item</option>
+                      <option value="extra">Extra Quantity</option>
+                    </select>
+                    <p style="color:red;"><?php echo empty($vr_noError) ? '' : '*'.$vr_noError;?></p>
+                  </div>
+                  <div class="col mt-2">
+                      <button type="submit" name="add_btn" class="form-control btn btn-purple text-light mt-4">Add Sale Return</button>
+                  </div>
                 </div>
               </div>
-            </div>
-            
-      </form>
+              
+        </form>
+        </div>
       </div>
     </div>
   <div>
