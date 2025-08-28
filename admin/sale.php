@@ -25,39 +25,6 @@ require '../Config/common.php';
  .crd{
    width:500px;
  }
- .cb{
-   box-shadow:0px 4px 4px gray;
- }
-
-
- .outer {
- overflow-y: auto;
- height: 300px;
- }
-
- .outer{
- width: 100%;
- -layout: fixed;
- }
-
- .outer th {
- text-align: left;
- top: 0;
- position: sticky;
- background-color: white;
- }
- .text{
-   background-color:white;
-   width:130px;
-   margin-left:-15px;
-   margin-top:-16px;
-   padding-left:6px;
-   padding-top:5px;
-   padding-bottom:5px;
-   border-top-left-radius:5px;
-   border-bottom-right-radius:100px;
-
- }
  </style>
 
 
@@ -97,12 +64,12 @@ require '../Config/common.php';
    <?php
 
    if (isset($_POST['add_btn'])) {
-    if (empty($_POST['date']) || empty($_POST['vr_no']) || empty($_POST['customer_id']) || empty($_POST['item_id']) || empty($_POST['qty'])) {
+    if (empty($_POST['date']) || empty($_POST['gin_no']) || empty($_POST['customer_id']) || empty($_POST['item_id']) || empty($_POST['qty'])) {
       if (empty($_POST['date'])) {
         $dateError = 'Date is required';
       }
-      if (empty($_POST['vr_no'])) {
-        $vr_noError = 'Vr_No is required';
+      if (empty($_POST['gin_no'])) {
+        $gin_noError = 'gin_no is required';
       }
       if (empty($_POST['customer_id'])) {
         $customer_idError = 'Customer is required';
@@ -115,7 +82,7 @@ require '../Config/common.php';
       }
     }else {
       $date = $_POST['date'];
-      $vr_no = $_POST['vr_no'];
+      $gin_no = $_POST['gin_no'];
       $customer_id = $_POST['customer_id'];
       $item_id = $_POST['item_id'];
       $qty = $_POST['qty'];
@@ -143,16 +110,16 @@ require '../Config/common.php';
           $percentage_amount = ($amount/100) * $discount_percentage;
           $amount = $amount - $percentage_amount;
           
-          $addstmt = $pdo->prepare("INSERT INTO temp_sale (date,vr_no,customer_id,item_id,price,qty,type,percentage,percentage_amount,stock_foc,amount,so_no) VALUES (:date,:vr_no,:customer_id,:item_id,:price,:qty,:type,:percentage,:percentage_amount,:stock_foc,:amount,:so_no)");
+          $addstmt = $pdo->prepare("INSERT INTO temp_sale (date,gin_no,customer_id,item_id,price,qty,type,percentage,percentage_amount,stock_foc,amount,so_no) VALUES (:date,:gin_no,:customer_id,:item_id,:price,:qty,:type,:percentage,:percentage_amount,:stock_foc,:amount,:so_no)");
           $addResult = $addstmt->execute(
-            array(':date'=>$date, ':vr_no'=>$vr_no, ':customer_id'=>$customer_id, ':item_id'=>$item_id, ':price'=>$price, ':qty'=>$qty, ':type'=>$type, ':percentage'=>$discount_percentage, ':percentage_amount'=>$percentage_amount, ':stock_foc'=>$foc, ':amount'=>$amount, ':so_no'=>$so_no)
+            array(':date'=>$date, ':gin_no'=>$gin_no, ':customer_id'=>$customer_id, ':item_id'=>$item_id, ':price'=>$price, ':qty'=>$qty, ':type'=>$type, ':percentage'=>$discount_percentage, ':percentage_amount'=>$percentage_amount, ':stock_foc'=>$foc, ':amount'=>$amount, ':so_no'=>$so_no)
           );
         
         }else {
           $amount = $price * $qty;
-          $addstmt = $pdo->prepare("INSERT INTO temp_sale (date,vr_no,customer_id,item_id,price,qty,type,stock_foc,amount,so_no) VALUES (:date,:vr_no,:customer_id,:item_id,:price,:qty,:type,:stock_foc,:amount,:so_no)");
+          $addstmt = $pdo->prepare("INSERT INTO temp_sale (date,gin_no,customer_id,item_id,price,qty,type,stock_foc,amount,so_no) VALUES (:date,:gin_no,:customer_id,:item_id,:price,:qty,:type,:stock_foc,:amount,:so_no)");
           $addResult = $addstmt->execute(
-            array(':date'=>$date, ':vr_no'=>$vr_no, ':customer_id'=>$customer_id, ':item_id'=>$item_id, ':price'=>$price, ':qty'=>$qty, ':type'=>$type, ':stock_foc'=>$foc, ':amount'=>$amount, ':so_no'=>$so_no)
+            array(':date'=>$date, ':gin_no'=>$gin_no, ':customer_id'=>$customer_id, ':item_id'=>$item_id, ':price'=>$price, ':qty'=>$qty, ':type'=>$type, ':stock_foc'=>$foc, ':amount'=>$amount, ':so_no'=>$so_no)
           );
         }
   
@@ -160,8 +127,6 @@ require '../Config/common.php';
           echo "<script>alert('Sussessfully added');window.location.href='sale.php';</script>";
         }
       }
-
-
     }
    }
 
@@ -172,7 +137,7 @@ require '../Config/common.php';
 
     foreach ($result as $value) {
       $date = $value['date'];
-      $vr_no = $value['vr_no'];
+      $gin_no = $value['gin_no'];
       $customer_id = $value['customer_id'];
       $item_id = $value['item_id'];
       $qty = $value['qty'];
@@ -181,9 +146,9 @@ require '../Config/common.php';
       
       // Add Credit Sale
       if ($type == "credit") {
-        $parstmt = $pdo->prepare("INSERT INTO credit_sale (date,vr_no,customer_id,item_id,qty) VALUES (:date,:vr_no,:customer_id,:item_id,:qty)");
+        $parstmt = $pdo->prepare("INSERT INTO credit_sale (date,gin_no,customer_id,item_id,qty) VALUES (:date,:gin_no,:customer_id,:item_id,:qty)");
         $parResult = $parstmt->execute(
-          array(':date'=>$date, ':vr_no'=>$vr_no, ':customer_id'=>$customer_id, ':item_id'=>$item_id,':qty'=>$qty)
+          array(':date'=>$date, ':gin_no'=>$gin_no, ':customer_id'=>$customer_id, ':item_id'=>$item_id,':qty'=>$qty)
         );
 
         $sale_idstmt = $pdo->prepare("SELECT * FROM credit_sale ORDER BY id DESC");
@@ -205,16 +170,16 @@ require '../Config/common.php';
           $balance = $amount;
         }
         
-        $salestmt = $pdo->prepare("INSERT INTO receivable (date,vr_no,customer_id,amount,sale_id,asc_id,group_id,balance) VALUES (:date,:vr_no,:customer_id,:amount,:sale_id,:asc_id,:vr_no,:balance)");
+        $salestmt = $pdo->prepare("INSERT INTO receivable (date,gin_no,customer_id,amount,sale_id,asc_id,group_id,balance) VALUES (:date,:gin_no,:customer_id,:amount,:sale_id,:asc_id,:gin_no,:balance)");
         $saledata = $salestmt->execute(
-          array(':date'=>$date, ':vr_no'=>$vr_no, ':customer_id'=>$customer_id, ':amount'=>$amount, ':sale_id'=>$sale_id, ':asc_id'=>$asc_id, ':balance'=>$balance)
+          array(':date'=>$date, ':gin_no'=>$gin_no, ':customer_id'=>$customer_id, ':amount'=>$amount, ':sale_id'=>$sale_id, ':asc_id'=>$asc_id, ':balance'=>$balance)
         );
 
       }else {
       // Add Cash Sale
-        $cashstmt = $pdo->prepare("INSERT INTO cash_sale (date,vr_no,customer_id,item_id,qty) VALUES (:date,:vr_no,:customer_id,:item_id,:qty)");
+        $cashstmt = $pdo->prepare("INSERT INTO cash_sale (date,gin_no,customer_id,item_id,qty) VALUES (:date,:gin_no,:customer_id,:item_id,:qty)");
         $cashResult = $cashstmt->execute(
-          array(':date'=>$date, ':vr_no'=>$vr_no, ':customer_id'=>$customer_id, ':item_id'=>$item_id,':qty'=>$qty)
+          array(':date'=>$date, ':gin_no'=>$gin_no, ':customer_id'=>$customer_id, ':item_id'=>$item_id,':qty'=>$qty)
         );
       }
 
@@ -239,9 +204,9 @@ require '../Config/common.php';
         $out_qty = $qty;
       }
 
-      $stockstmt = $pdo->prepare("INSERT INTO stock (date,item_id,vr_no,to_from,out_qty,foc_qty,balance) VALUES (:date,:item_id,:vr_no,'sale',:out_qty,:foc_qty,:balance)");
+      $stockstmt = $pdo->prepare("INSERT INTO stock (date,item_id,gin_no,to_from,out_qty,foc_qty,balance) VALUES (:date,:item_id,:gin_no,'sale',:out_qty,:foc_qty,:balance)");
       $stockdata = $stockstmt->execute(
-        array(':date'=>$date, ':vr_no'=>$vr_no, ':item_id'=>$item_id, ':out_qty'=>$out_qty, ':foc_qty'=>$foc, ':balance'=>$stockbalance)
+        array(':date'=>$date, ':gin_no'=>$gin_no, ':item_id'=>$item_id, ':out_qty'=>$out_qty, ':foc_qty'=>$foc, ':balance'=>$stockbalance)
       );
 
       // Delete Temp Sale
@@ -260,120 +225,115 @@ require '../Config/common.php';
 
     ?>
 
-
-
-    <div class="col-md-12" style="margin-top:-30px;">
+    <div class="col-md-12 mt-4 px-3 pt-1">
+      <h4 class="mb-3 d-flex align-items-center justify-content-between">
+        Sale Listing
+        <button class="btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#newSaleForm" aria-expanded="true" aria-controls="newSaleForm">
+          Add New Sale
+        </button>
+      </h4>
+      <div class="collapse show" id="newSaleForm">
       <div class="card">
-        <div class="card-body cb" style="background-color:lightgray; border-radius:5px; ">
-          <div class="text">
-            <h4 class="ms-4"><b>Sale</b></h4>
-          </div>
-          <form class="" action="" method="post" style="margin-top:-25px;">
-            <div class="row">
-              <div class="col-6 d-flex">
-                <div class="col">
-                  <label for="" class="mt-4"><b>Date</b></label>
-                  <input type="date" class="form-control" placeholder="Date" name="date">
-                  <p style="color:red;"><?php echo empty($dateError) ? '' : '*'.$dateError;?></p>
-                </div>
-                <div class="col">
-                  <label for="" class="mt-4"><b>Vr_No</b></label>
-                  <input type="text" class="form-control" placeholder="Vr_No" name="vr_no" readonly value="<?php echo 35 . rand(1,999999) ?>">
-                  <p style="color:red;"><?php echo empty($vr_noError) ? '' : '*'.$vr_noError;?></p>
-                </div>
-                <div class="col">
-                  <label for="" class="mt-4"><b>Sale Order No</b></label>
-                  <select name="so_no" id="" class="form-control">
-                    <option value="">Select SO_No</option>
-                    <?php
-                    $so_nostmt = $pdo->prepare("SELECT * FROM sale_order WHERE status LIKE '%ending%' ORDER BY id DESC");
-                    $so_nostmt->execute();
-                    $so_nodatas = $so_nostmt->fetchAll();
-                    foreach ($so_nodatas as $so_nodata) {
-                      ?>
-                      <option value="<?php echo $so_nodata['order_no']; ?>"><?php echo $so_nodata['order_no']; ?></option>
+          <div class="card-body cb" style="border-radius:5px;">
+            <div class="text">
+            </div>
+            <form class="" action="" method="post" style="margin-top:-25px;">
+              <div class="row">
+                <div class="col-6 d-flex">
+                  <div class="col">
+                    <label for="" class="mt-4">Date</label>
+                    <input type="date" class="form-control" placeholder="Date" name="date">
+                    <p style="color:red;"><?php echo empty($dateError) ? '' : '*'.$dateError;?></p>
+                  </div>
+                  <div class="col">
+                    <label for="" class="mt-4">GIN_No</label>
+                    <input type="text" class="form-control" placeholder="gin_no" name="gin_no" readonly value="<?php echo 35 . rand(1,999999) ?>">
+                    <p style="color:red;"><?php echo empty($gin_noError) ? '' : '*'.$gin_noError;?></p>
+                  </div>
+                  <div class="col">
+                    <label for="" class="mt-4">Sale Order No</label>
+                    <select name="so_no" id="" class="form-control">
+                      <option value="">Select SO_No</option>
                       <?php
-                    }
-                    ?>
-                  </select>
-                  <p style="color:red;"><?php echo empty($vr_noError) ? '' : '*'.$vr_noError;?></p>
-                </div>
-              </div>
-              <div class="col-6 d-flex">
-                <div class="col">
-                  <label for="" class="mt-4"><b>Customer_Id</b></label>
-                  <input type="text" id="customer_id" oninput="fetchSaleNameFromId()" class="form-control" placeholder="Customer_Id" name="customer_id">
-                  <p style="color:red;"><?php echo empty($customer_idError) ? '' : '*'.$customer_idError;?></p>
-                </div>
-                <div class="col">
-                  <label for="" class="mt-4"><b>Customer_Name</b></label>
-                  <input type="text" id="customer_name" class="form-control" placeholder="Customer_Name" name="customer_Name" oninput="fetchSaleIdFromName()">
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-5 d-flex">
-                <div class="col">
-                  <label for=""><b>Item_Id</b></label>
-                  <input type="text" id="item_id" class="form-control" placeholder="Item_Id" name="item_id" oninput="fetchitemNameFromId()" style="width:130px;">
-                  <p style="color:red;"><?php echo empty($item_idError) ? '' : '*'.$item_idError;?></p>
-                </div>
-                <div class="col">
-                  <label for=""><b>Item_Name</b></label>
-                  <input type="text" id="item_name" class="form-control" placeholder="Item_Name" name="item_name" oninput="fetchitemIdFromName()" style="width:130px;">
-                </div>
-                <div class="col">
-                  <label for=""><b>Qty</b></label>
-                  <input type="number" class="form-control" placeholder="Qty" name="qty" style="width:130px;">
-                  <p style="color:red;"><?php echo empty($qtyError) ? '' : '*'.$qtyError;?></p>
-                </div>
-              </div>
-              <div class="col-5 d-flex">
-                <div class="col">
-                  <label for="" class=""><b>Discount</b></label>
-                  <input type="number" class="form-control" placeholder="Discount" name="discount" style="width:130px;">
-                  <p style="color:red;"></p>
-                </div>
-
-                <div class="col">
-                  <label for="" class=""><b>Foc</b></label>
-                  <input type="number" class="form-control" placeholder="Foc" name="foc" style="width:130px;">
-                  <p style="color:red;"></p>
-                </div>
-
-                <div class="col">
-                  <label for=""><b>Payment</b></label>
-                  <select name="type" class="form-control" style="width:130px;">
-                      <option value="cash">Cash</option>
-                      <option value="credit">Credit</option>
+                      $so_nostmt = $pdo->prepare("SELECT * FROM sale_order WHERE status LIKE '%ending%' ORDER BY id DESC");
+                      $so_nostmt->execute();
+                      $so_nodatas = $so_nostmt->fetchAll();
+                      foreach ($so_nodatas as $so_nodata) {
+                        ?>
+                        <option value="<?php echo $so_nodata['order_no']; ?>"><?php echo $so_nodata['order_no']; ?></option>
+                        <?php
+                      }
+                      ?>
                     </select>
+                    <p style="color:red;"><?php echo empty($gin_noError) ? '' : '*'.$gin_noError;?></p>
+                  </div>
+                </div>
+                <div class="col-6 d-flex">
+                  <div class="col">
+                    <label for="" class="mt-4">Customer_Id</label>
+                    <input type="text" id="customer_id" oninput="fetchSaleNameFromId()" class="form-control" placeholder="Customer_Id" name="customer_id">
+                    <p style="color:red;"><?php echo empty($customer_idError) ? '' : '*'.$customer_idError;?></p>
+                  </div>
+                  <div class="col">
+                    <label for="" class="mt-4">Customer_Name</label>
+                    <input type="text" id="customer_name" class="form-control" placeholder="Customer_Name" name="customer_Name" oninput="fetchSaleIdFromName()">
+                  </div>
                 </div>
               </div>
-              <div class="col-2 mt-4">
-                  <button type="submit" name="add_btn" class="add_btn form-control mt-2">Add</button>
+              <div class="row">
+                <div class="col-5 d-flex">
+                  <div class="col">
+                    <label for="">Item_Id</label>
+                    <input type="text" id="item_id" class="form-control" placeholder="Item_Id" name="item_id" oninput="fetchitemNameFromId()" style="width:130px;">
+                    <p style="color:red;"><?php echo empty($item_idError) ? '' : '*'.$item_idError;?></p>
+                  </div>
+                  <div class="col">
+                    <label for="">Item_Name</label>
+                    <input type="text" id="item_name" class="form-control" placeholder="Item_Name" name="item_name" oninput="fetchitemIdFromName()" style="width:130px;">
+                  </div>
+                  <div class="col">
+                    <label for="">Qty</label>
+                    <input type="number" class="form-control" placeholder="Qty" name="qty" style="width:130px;">
+                    <p style="color:red;"><?php echo empty($qtyError) ? '' : '*'.$qtyError;?></p>
+                  </div>
+                </div>
+                <div class="col-5 d-flex">
+                  <div class="col">
+                    <label for="" class="">Discount</label>
+                    <input type="number" class="form-control" placeholder="Discount" name="discount" style="width:130px;">
+                    <p style="color:red;"></p>
+                  </div>
+
+                  <div class="col">
+                    <label for="" class="">Foc</label>
+                    <input type="number" class="form-control" placeholder="Foc" name="foc" style="width:130px;">
+                    <p style="color:red;"></p>
+                  </div>
+
+                  <div class="col">
+                    <label for="">Payment</label>
+                    <select name="type" class="form-control" style="width:130px;">
+                        <option value="cash">Cash</option>
+                        <option value="credit">Credit</option>
+                      </select>
+                  </div>
+                </div>
+                <div class="col-2 mt-4">
+                    <button type="submit" name="add_btn" class="add_btn form-control mt-2">Add</button>
+                </div>
               </div>
             </div>
-              
-            
-            
-
           </div>
-        </div>
-      </form>
-        <!-- /.card-header -->
-        <div class="card-body mt-4">
-
-          <div class="col-3" style="margin-left:50px; margin-top:-30px;">
-          </div>
+        </form>  
+      </div>
 
         <div class="outer">
-
-          <table class="table table-bordered mt-4 table-hover">
-            <thead>
+          <table class="table table-hover">
+            <thead class="custom-thead">
               <tr>
                 <th style="width: 10px">#</th>
                 <th>Date</th>
-                <th>Vr_No</th>
+                <th>GIN_No</th>
                 <th>Customer_Name</th>
                 <th>Item_Name</th>
                 <th>Qty</th>
@@ -403,7 +363,7 @@ require '../Config/common.php';
               <tr>
                 <td><?php echo $id; ?></td>
                 <td><?php echo $value['date'];?></td>
-                <td><?php echo $value['vr_no'];?></td>
+                <td><?php echo $value['gin_no'];?></td>
                 <td><?php echo $customerIdResult['customer_name'];?></td>
                 <td><?php echo $itemResult['item_name']; ?></td>
                 <td><?php echo $value['qty']; ?></td>
@@ -444,9 +404,6 @@ require '../Config/common.php';
           <button type="submit" class="add_btn" name="save_btn" style="padding-bottom:7px;padding-top:5px; padding-left:20px; padding-right:20px;width:120px;">Save</button>
         </div>
       </form>
-        <br><br><br><br><br><br><br>
-        <br><br><br><br><br><br><br>
-            <br>
       </div>
       </div>
 

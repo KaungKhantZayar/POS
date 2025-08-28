@@ -3,17 +3,16 @@ session_start();
 require '../Config/config.php';
 require '../Config/common.php';
 include 'header.php';
-  
 
 // Update Status
 
 if(isset($_POST['received'])){
-  $purchase_vr_no = $_POST['purchase_vr_no'];
+  $grn_no = $_POST['grn_no'];
   $item_id = $_POST['item_id'];
   $qty = $_POST['qty'];
   $date = $_POST['date'];
   $amount = $_POST['amount'];
-  $return_vr_no = $_POST['return_vr_no'];
+  $gin_no = $_POST['gin_no'];
 
   // Stock Balance
   $stock_balancestmt = $pdo->prepare("SELECT * FROM stock WHERE item_id='$item_id' ORDER BY id DESC");
@@ -24,7 +23,7 @@ if(isset($_POST['received'])){
     if($stock_balancedata['balance'] < $qty){
       echo "<script>alert('Not Enough Stock')</script>";
     }else{
-      $stmt = $pdo->prepare("UPDATE purchase_return SET status='received' WHERE purchase_vr_no = '$purchase_vr_no'");
+      $stmt = $pdo->prepare("UPDATE purchase_return SET status='received' WHERE grn_no = '$grn_no'");
       $stmt->execute();
     }
     $stockbalance = $stock_balancedata['balance'] - $qty;
@@ -32,14 +31,14 @@ if(isset($_POST['received'])){
     $stockbalance = 0 - $qty;
   }
 
-  $stockstmt = $pdo->prepare("INSERT INTO stock (date,item_id,vr_no,to_from,out_qty,balance) VALUES (:date,:item_id,:vr_no,'purchase return',:out_qty,:balance)");
+  $stockstmt = $pdo->prepare("INSERT INTO stock (date,item_id,grn_no,to_from,out_qty,balance) VALUES (:date,:item_id,:grn_no,'purchase return',:out_qty,:balance)");
   $stockdata = $stockstmt->execute(
-    array(':date'=>$date, ':vr_no'=>$purchase_vr_no, ':item_id'=>$item_id, ':out_qty'=>$qty, ':balance'=>$stockbalance)
+    array(':date'=>$date, ':grn_no'=>$grn_no, ':item_id'=>$item_id, ':out_qty'=>$qty, ':balance'=>$stockbalance)
   );
 
 
   // Cash reduce
-  $cash_checkstmt = $pdo->prepare("SELECT * FROM credit_purchase WHERE vr_no='$purchase_vr_no' ORDER BY id DESC");
+  $cash_checkstmt = $pdo->prepare("SELECT * FROM credit_purchase WHERE grn_no='$grn_no' ORDER BY id DESC");
   $cash_checkstmt->execute();
   $cash_checksdata = $cash_checkstmt->fetch(PDO::FETCH_ASSOC);
   if(!empty($cash_checksdata)){
@@ -47,7 +46,7 @@ if(isset($_POST['received'])){
     // echo "<script>alert('$supplier_id')</script>";
 
     // Payable Last Balance
-    $payabl_balancestmt = $pdo->prepare("SELECT * FROM payable WHERE supplier_id='$supplier_id' AND vr_no='$purchase_vr_no'");
+    $payabl_balancestmt = $pdo->prepare("SELECT * FROM payable WHERE supplier_id='$supplier_id' AND grn_no='$grn_no'");
     $payabl_balancestmt->execute();
     $payabl_balancedata = $payabl_balancestmt->fetch(PDO::FETCH_ASSOC);
     $last_id = $payabl_balancedata['id'];
@@ -59,9 +58,9 @@ if(isset($_POST['received'])){
     // Return Voucher Generate
     $asc_id = $last_asc_id + 1;
     // Insert Payable
-    $payablstmt = $pdo->prepare("INSERT INTO payable (date,vr_no,supplier_id,paid,balance,asc_id,group_id) VALUES (:date,:returnvr_no,:supplier_id,:paid,:balance,:asc_id,:group_id)");
+    $payablstmt = $pdo->prepare("INSERT INTO payable (date,grn_no,supplier_id,paid,balance,asc_id,group_id) VALUES (:date,:grn_no,:supplier_id,:paid,:balance,:asc_id,:group_id)");
       $payabldata = $payablstmt->execute(
-        array(':date'=>$date, ':returnvr_no'=>$return_vr_no, ':supplier_id'=>$supplier_id, ':paid'=>$amount, ':asc_id' => $asc_id, ':group_id' => $purchase_vr_no, ':balance'=>$balance)
+        array(':date'=>$date, ':grn_no'=>$grn_no, ':supplier_id'=>$supplier_id, ':paid'=>$amount, ':asc_id' => $asc_id, ':group_id' => $grn_no, ':balance'=>$balance)
       );
     
     // Current Id
@@ -116,12 +115,12 @@ if(isset($_POST['received'])){
 
 // Add Purchase Order
    if (isset($_POST['add_btn'])) {
-    if (empty($_POST['date']) || empty($_POST['purchase_vr_no']) || empty($_POST['reason']) || empty($_POST['item_id']) || empty($_POST['qty']) || empty($_POST['return_type'])) {
+    if (empty($_POST['date']) || empty($_POST['grn_no']) || empty($_POST['reason']) || empty($_POST['item_id']) || empty($_POST['qty']) || empty($_POST['return_type'])) {
       if (empty($_POST['date'])) {
         $dateError = 'Date is required';
       }
-      if (empty($_POST['purchase_vr_no'])) {
-        $purchase_vr_noError = 'purchase_vr_no is required';
+      if (empty($_POST['grn_no'])) {
+        $grn_noError = 'grn_no is required';
       }
       if (empty($_POST['reason'])) {
         $reasonError = 'Reason is required';
@@ -137,12 +136,12 @@ if(isset($_POST['received'])){
       }
     }else {
       $date = $_POST['date'];
-      $purchase_vr_no = $_POST['purchase_vr_no'];
+      $grn_no = $_POST['grn_no'];
       $reason = $_POST['reason'];
       $item_id = $_POST['item_id'];
       $qty = $_POST['qty'];
       $return_type = $_POST['return_type'];
-      $return_vr_no = $_POST['return_vr_no'];
+      $gin_no = $_POST['gin_no'];
 
       // amount calculate
       $stmt = $pdo->prepare("SELECT * FROM item WHERE item_id=$item_id");
@@ -153,9 +152,9 @@ if(isset($_POST['received'])){
 
       $amount = $price * $qty;
   
-      $addstmt = $pdo->prepare("INSERT INTO purchase_return (date,return_vr_no,item_id,qty,amount,reason,status,return_type,purchase_vr_no) VALUES (:date,:return_vr_no,:item_id,:qty,:amount,:reason,'pending',:return_type,:purchase_vr_no)");
+      $addstmt = $pdo->prepare("INSERT INTO purchase_return (date,gin_no,item_id,qty,amount,reason,status,return_type,grn_no) VALUES (:date,:gin_no,:item_id,:qty,:amount,:reason,'pending',:return_type,:grn_no)");
       $addResult = $addstmt->execute(
-        array(':date'=>$date, 'return_vr_no'=>$return_vr_no, ':purchase_vr_no'=>$purchase_vr_no, ':reason'=>$reason, ':item_id'=>$item_id, ':qty'=>$qty, ':amount'=>$amount, ':return_type'=>$return_type)
+        array(':date'=>$date, 'gin_no'=>$gin_no, ':grn_no'=>$grn_no, ':reason'=>$reason, ':item_id'=>$item_id, ':qty'=>$qty, ':amount'=>$amount, ':return_type'=>$return_type)
       );
   
       if ($addResult) {
@@ -168,7 +167,7 @@ $purchase_returnstmt = $pdo->prepare("SELECT * FROM purchase_return WHERE status
 $purchase_returnstmt->execute();
 $purchase_returndata = $purchase_returnstmt->fetchAll();
  ?>
-  <div class="container" style="margin-top:-30px;">
+  <div class="container">
     <div class="card">
       <div class="card-body">
         <h4>Purchase Return</h4>
@@ -176,31 +175,31 @@ $purchase_returndata = $purchase_returnstmt->fetchAll();
             <div class="row">
               <div class="col-6 d-flex">
                 <div class="col">
-                  <label for=""><b>Return Date</b></label>
+                  <label for="">Return Date</label>
                   <input type="date" class="form-control" placeholder="Date" name="date">
                   <p style="color:red;"><?php echo empty($dateError) ? '' : '*'.$dateError;?></p>
                 </div>
                 <div class="col">
-                  <label for=""><b>Return Vr_no</b></label>
-                  <input type="text" class="form-control" placeholder="Date" readonly name="return_vr_no" value="<?php echo "PR-" . rand(0,999999); ?>">
+                  <label for="">GIN_No</label>
+                  <input type="text" class="form-control" placeholder="Date" readonly name="gin_no" value="<?php echo "PR-" . rand(0,999999); ?>">
                   <p style="color:red;"><?php echo empty($dateError) ? '' : '*'.$dateError;?></p>
                 </div>
               </div>
               <div class="col-3 d-flex">
                 <div class="col">
-                  <label for=""><b>Item_Id</b></label>
+                  <label for="">Item_Id</label>
                   <input type="text" id="item_id" class="form-control" placeholder="Item_Id" name="item_id" oninput="fetchitemNameFromId()">
                   <p style="color:red;"><?php echo empty($item_idError) ? '' : '*'.$item_idError;?></p>
                 </div>
                 <div class="col">
-                  <label for=""><b>Item_Name</b></label>
+                  <label for="">Item_Name</label>
                   <input type="text" id="item_name" class="form-control" placeholder="Item_Name" name="item_name" oninput="fetchitemIdFromName()">
                 </div>
               </div>
               <div class="col-3">
                 <div class="col">
-                  <label for=""><b>Reason</b></label>
-                  <input type="text" class="form-control" placeholder="Pls write ur reason here ..." name="reason">
+                  <label for="">Reason</label>
+                  <input type="text" class="form-control" placeholder="Pls write your reason here ..." name="reason">
                   <p style="color:red;"><?php echo empty($reasonError) ? '' : '*'.$reasonError;?></p>
                 </div>
               </div>
@@ -208,28 +207,29 @@ $purchase_returndata = $purchase_returnstmt->fetchAll();
             <div class="row">
               <div class="col-6 d-flex">
                 <div class="col">
-                  <label for=""><b>Purchase Vr_no</b></label>
-                  <select name="purchase_vr_no" id="" class="form-control">
+                  <label for="">GRN_No</label>
+                  <select name="grn_no" id="" class="form-control">
+                    <option value="">Select Goods Receive Note</option>
                     <?php 
-                    $vr_nostmt = $pdo->prepare("SELECT DISTINCT vr_no FROM (
-                      SELECT vr_no FROM cash_purchase
+                    $vr_nostmt = $pdo->prepare("SELECT DISTINCT grn_no FROM (
+                      SELECT grn_no FROM cash_purchase
                       UNION
-                      SELECT vr_no FROM credit_purchase
+                      SELECT grn_no FROM credit_purchase
                     ) AS all_purchases
-                    ORDER BY vr_no DESC;");
+                    ORDER BY grn_no DESC;");
                     $vr_nostmt->execute();
                     $vr_nodatas = $vr_nostmt->fetchAll();
                     foreach ($vr_nodatas as $vr_nodata) {
                       ?>
-                      <option value="<?php echo $vr_nodata['vr_no']; ?>"><?php echo $vr_nodata['vr_no']; ?></option>
+                      <option value="<?php echo $vr_nodata['grn_no']; ?>"><?php echo $vr_nodata['grn_no']; ?></option>
                       <?php
                     }
                   ?>
                   </select>
-                  <p style="color:red;"><?php echo empty($purchase_vr_noError) ? '' : '*'.$purchase_vr_noError;?></p>
+                  <p style="color:red;"><?php echo empty($grn_noError) ? '' : '*'.$grn_noError;?></p>
                 </div>
                 <div class="col">
-                  <label for=""><b>Qty</b></label>
+                  <label for="">Qty</label>
                   <input type="number" class="form-control" placeholder="Qty" name="qty">
                   <p style="color:red;"><?php echo empty($qtyError) ? '' : '*'.$qtyError;?></p>
                 </div>
@@ -237,7 +237,7 @@ $purchase_returndata = $purchase_returnstmt->fetchAll();
               </div>
               <div class="col-6 d-flex">
                 <div class="col">
-                  <label for=""><b>Return Type</b></label>
+                  <label for="">Return Type</label>
                   <select name="return_type" class="form-control">
                     <option value="">Select Return Type</option>
                     <option value="damaged">Damaged</option>
@@ -247,7 +247,7 @@ $purchase_returndata = $purchase_returnstmt->fetchAll();
                   <p style="color:red;"><?php echo empty($vr_noError) ? '' : '*'.$vr_noError;?></p>
                 </div>
                 <div class="col mt-2">
-                    <button type="submit" name="add_btn" class="form-control btn btn-primary mt-4">Add</button>
+                    <button type="submit" name="add_btn" class="form-control btn btn-purple text-light mt-4">Add Purchase Return</button>
                 </div>
               </div>
             </div>
@@ -257,7 +257,7 @@ $purchase_returndata = $purchase_returnstmt->fetchAll();
     </div>
   <div>
     <table class="table table-bordered table-hover">
-      <thead>
+      <thead class="custom-thead">
         <tr>
           <th style="width: 10px">No</th>
           <th>Return Date</th>
@@ -285,7 +285,7 @@ $purchase_returndata = $purchase_returnstmt->fetchAll();
         <tr>
           <td><?php echo $id; ?></td>
           <td><?php echo $value['date']; ?></td>
-          <td><?php echo $value['purchase_vr_no']; ?></td>
+          <td><?php echo $value['grn_no']; ?></td>
           <td><?php echo $itemIdResult['item_name']; ?></td>
           <td><?php echo $value['qty']; ?></td>
           <td><?php echo $value['reason']; ?></td>
@@ -295,8 +295,8 @@ $purchase_returndata = $purchase_returnstmt->fetchAll();
           <td><?php echo $value['return_type']; ?></td>
           <td>
             <form action="" method="post">
-              <input type="hidden" value="<?php echo $value['purchase_vr_no']; ?>" name="purchase_vr_no">
-              <input type="hidden" value="<?php echo $value['return_vr_no']; ?>" name="return_vr_no">
+              <input type="hidden" value="<?php echo $value['grn_no']; ?>" name="grn_no">
+              <input type="hidden" value="<?php echo $value['gin_no']; ?>" name="gin_no">
               <input type="hidden" value="<?php echo $value['item_id']; ?>" name="item_id">
               <input type="hidden" value="<?php echo $value['date']; ?>" name="date">
               <input type="hidden" value="<?php echo $value['qty']; ?>" name="qty">

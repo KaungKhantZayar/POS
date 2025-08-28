@@ -5,7 +5,7 @@ require '../Config/common.php';
 
   ?>
 <?php include 'header.php'; ?>
-<style media="screen">
+<!-- <style media="screen">
   .parchase_report{
     text-decoration:none;
     color:black;
@@ -60,9 +60,9 @@ require '../Config/common.php';
     border-bottom-left-radius:5px;
     border-bottom-right-radius:5px;
   }
-</style>
+</style> -->
 
-  <div class="container" style="margin-top:;">
+  <!-- <div class="container">
     <div class="row">
       <div class="col-4">
         <div class="">
@@ -109,11 +109,11 @@ require '../Config/common.php';
         <div style="min-height: 120px;">
           <div class="collapse collapse-horizontal" id="collapseWidthExample2">
             <div class="cabody2">
-              <div class="">
+              <div class=""> -->
                 <!-- <a href="report.php?report_name=date" class="parchase_report"><p>Date အလိုက်ကြည့်ရန် (Date Between)</p></a>
                 <a href="report.php?report_name=vr_no" class="parchase_report" style="margin-top:-10px;"><p>Vouecher No အလိုက်ကြည့်ရန်</p></a>
                 <a href="report.php?report_name=item" class="parchase_report"><p>Item အလိုက်ကြည့်ရန်</p></a> -->
-              </div>
+              <!-- </div>
             </div>
           </div>
         </div>
@@ -128,11 +128,11 @@ require '../Config/common.php';
         <div style="min-height: 120px;">
           <div class="collapse collapse-horizontal" id="collapseWidthExample3">
             <div class="cabody3">
-              <div class="">
+              <div class=""> -->
                 <!-- <a href="report.php?report_name=date" class="parchase_report"><p>Date အလိုက်ကြည့်ရန် (Date Between)</p></a>
                 <a href="report.php?report_name=vr_no" class="parchase_report" style="margin-top:-10px;"><p>Vouecher No အလိုက်ကြည့်ရန်</p></a>
                 <a href="report.php?report_name=item" class="parchase_report"><p>Item အလိုက်ကြည့်ရန်</p></a> -->
-              </div>
+              <!-- </div>
             </div>
           </div>
         </div>
@@ -143,6 +143,6 @@ require '../Config/common.php';
   <br><br><br><br><br><br><br>
   <br><br><br><br><br><br><br>
   <br><br><br><br><br><br><br>
-  <br><br><br><br><br><br><br>
+  <br><br><br><br><br><br><br> -->
 
 <?php include 'footer.html'; ?>

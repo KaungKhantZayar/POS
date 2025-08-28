@@ -22,42 +22,6 @@ require '../Config/common.php';
    border-radius:10px;
    box-shadow:2px 8px 16px gray;
  }
- .crd{
-   width:500px;
- }
- .cb{
-   box-shadow:0px 4px 4px gray;
- }
-
-
- .outer {
- overflow-y: auto;
- height: 300px;
- }
-
- .outer{
- width: 100%;
- -layout: fixed;
- }
-
- .outer th {
- text-align: left;
- top: 0;
- position: sticky;
- background-color: white;
- }
- .text{
-   background-color:white;
-   width:130px;
-   margin-left:-15px;
-   margin-top:-16px;
-   padding-left:6px;
-   padding-top:5px;
-   padding-bottom:5px;
-   border-top-left-radius:5px;
-   border-bottom-right-radius:100px;
-
- }
  </style>
 
 
@@ -99,12 +63,12 @@ require '../Config/common.php';
 
   // Add Purchase
    if (isset($_POST['add_btn'])) {
-    if (empty($_POST['date']) || empty($_POST['vr_no']) || empty($_POST['supplier_id']) || empty($_POST['item_id']) || empty($_POST['qty'])) {
+    if (empty($_POST['date']) || empty($_POST['grn_no']) || empty($_POST['supplier_id']) || empty($_POST['item_id']) || empty($_POST['qty'])) {
       if (empty($_POST['date'])) {
         $dateError = 'Date is required';
       }
-      if (empty($_POST['vr_no'])) {
-        $vr_noError = 'Vr_No is required';
+      if (empty($_POST['grn_no'])) {
+        $grn_noError = 'grn_no is required';
       }
       if (empty($_POST['supplier_id'])) {
         $supplier_idError = 'Supplier is required';
@@ -117,7 +81,7 @@ require '../Config/common.php';
       }
     }else {
       $date = $_POST['date'];
-      $vr_no = $_POST['vr_no'];
+      $grn_no = $_POST['grn_no'];
       $supplier_id = $_POST['supplier_id'];
       $item_id = $_POST['item_id'];
       $qty = $_POST['qty'];
@@ -137,17 +101,17 @@ require '../Config/common.php';
 
         $percentage_amount = ($amount/100) * $discount_percentage;
         $amount = $amount - $percentage_amount;
-        $addstmt = $pdo->prepare("INSERT INTO temp_purchase (date,vr_no,supplier_id,item_id,price,qty,type,percentage,percentage_amount,stock_foc,amount,po_no) VALUES (:date,:vr_no,:supplier_id,:item_id,:price,:qty,:type,:percentage,:percentage_amount,:stock_foc,:amount,:po_no)");
+        $addstmt = $pdo->prepare("INSERT INTO temp_purchase (date,grn_no,supplier_id,item_id,price,qty,type,percentage,percentage_amount,stock_foc,amount,po_no) VALUES (:date,:grn_no,:supplier_id,:item_id,:price,:qty,:type,:percentage,:percentage_amount,:stock_foc,:amount,:po_no)");
         $addResult = $addstmt->execute(
-          array(':date'=>$date, ':vr_no'=>$vr_no, ':supplier_id'=>$supplier_id, ':item_id'=>$item_id, ':price'=>$price, ':qty'=>$qty, ':type'=>$type, ':percentage'=>$discount_percentage, ':percentage_amount'=>$percentage_amount, ':stock_foc'=>$foc, ':amount'=>$amount, ':po_no'=>$po_no)
+          array(':date'=>$date, ':grn_no'=>$grn_no, ':supplier_id'=>$supplier_id, ':item_id'=>$item_id, ':price'=>$price, ':qty'=>$qty, ':type'=>$type, ':percentage'=>$discount_percentage, ':percentage_amount'=>$percentage_amount, ':stock_foc'=>$foc, ':amount'=>$amount, ':po_no'=>$po_no)
         );
 
       }else {
         $amount = $price * $qty;
   
-        $addstmt = $pdo->prepare("INSERT INTO temp_purchase (date,vr_no,supplier_id,item_id,price,qty,type,stock_foc,amount,po_no) VALUES (:date,:vr_no,:supplier_id,:item_id,:price,:qty,:type,:stock_foc,:amount,:po_no)");
+        $addstmt = $pdo->prepare("INSERT INTO temp_purchase (date,grn_no,supplier_id,item_id,price,qty,type,stock_foc,amount,po_no) VALUES (:date,:grn_no,:supplier_id,:item_id,:price,:qty,:type,:stock_foc,:amount,:po_no)");
         $addResult = $addstmt->execute(
-          array(':date'=>$date, ':vr_no'=>$vr_no, ':supplier_id'=>$supplier_id, ':item_id'=>$item_id, ':price'=>$price, ':qty'=>$qty, ':type'=>$type, ':stock_foc'=>$foc, ':amount'=>$amount, ':po_no'=>$po_no)
+          array(':date'=>$date, ':grn_no'=>$grn_no, ':supplier_id'=>$supplier_id, ':item_id'=>$item_id, ':price'=>$price, ':qty'=>$qty, ':type'=>$type, ':stock_foc'=>$foc, ':amount'=>$amount, ':po_no'=>$po_no)
         );
   
       }
@@ -167,7 +131,7 @@ require '../Config/common.php';
 
     foreach ($result as $value) {
       $date = $value['date'];
-      $vr_no = $value['vr_no'];
+      $grn_no = $value['grn_no'];
       $supplier_id = $value['supplier_id'];
       $item_id = $value['item_id'];
       $price = $value['price'];
@@ -177,9 +141,9 @@ require '../Config/common.php';
 
       // Add Credit Purchase
       if ($type == "credit") {
-        $parstmt = $pdo->prepare("INSERT INTO credit_purchase (date,vr_no,supplier_id,item_id,price,qty) VALUES (:date,:vr_no,:supplier_id,:item_id,:price,:qty)");
+        $parstmt = $pdo->prepare("INSERT INTO credit_purchase (date,grn_no,supplier_id,item_id,price,qty) VALUES (:date,:grn_no,:supplier_id,:item_id,:price,:qty)");
         $parResult = $parstmt->execute(
-          array(':date'=>$date, ':vr_no'=>$vr_no, ':supplier_id'=>$supplier_id, ':item_id'=>$item_id, ':price'=>$price, ':qty'=>$qty)
+          array(':date'=>$date, ':grn_no'=>$grn_no, ':supplier_id'=>$supplier_id, ':item_id'=>$item_id, ':price'=>$price, ':qty'=>$qty)
         );
 
         // Purchase Id
@@ -201,16 +165,16 @@ require '../Config/common.php';
           $balance = $amount;
         }
 
-        $payablstmt = $pdo->prepare("INSERT INTO payable (date,vr_no,supplier_id,amount,purchase_id,asc_id,group_id,balance,status) VALUES (:date,:vr_no,:supplier_id,:amount,:purchase_id,:purchase_id,:vr_no,:balance,'Pending')");
+        $payablstmt = $pdo->prepare("INSERT INTO payable (date,grn_no,supplier_id,amount,purchase_id,asc_id,group_id,balance,status) VALUES (:date,:grn_no,:supplier_id,:amount,:purchase_id,:purchase_id,:grn_no,:balance,'Pending')");
         $payabldata = $payablstmt->execute(
-          array(':date'=>$date, ':vr_no'=>$vr_no, ':supplier_id'=>$supplier_id, ':amount'=>$amount, ':purchase_id'=>$purchase_id, ':balance'=>$balance)
+          array(':date'=>$date, ':grn_no'=>$grn_no, ':supplier_id'=>$supplier_id, ':amount'=>$amount, ':purchase_id'=>$purchase_id, ':balance'=>$balance)
         );
 
       }else {
       // Add Cash Purchase
-        $cashstmt = $pdo->prepare("INSERT INTO cash_purchase (date,vr_no,supplier_id,item_id,price,qty) VALUES (:date,:vr_no,:supplier_id,:item_id,:price,:qty)");
+        $cashstmt = $pdo->prepare("INSERT INTO cash_purchase (date,grn_no,supplier_id,item_id,price,qty) VALUES (:date,:grn_no,:supplier_id,:item_id,:price,:qty)");
         $cashResult = $cashstmt->execute(
-          array(':date'=>$date, ':vr_no'=>$vr_no, ':supplier_id'=>$supplier_id, ':item_id'=>$item_id, ':price'=>$price, ':qty'=>$qty)
+          array(':date'=>$date, ':grn_no'=>$grn_no, ':supplier_id'=>$supplier_id, ':item_id'=>$item_id, ':price'=>$price, ':qty'=>$qty)
         );
       }
 
@@ -235,9 +199,9 @@ require '../Config/common.php';
         $in_qty = $qty;
       }
 
-      $stockstmt = $pdo->prepare("INSERT INTO stock (date,item_id,vr_no,to_from,in_qty,foc_qty,balance) VALUES (:date,:item_id,:vr_no,'purchase',:in_qty,:foc_qty,:balance)");
+      $stockstmt = $pdo->prepare("INSERT INTO stock (date,item_id,grn_no,to_from,in_qty,foc_qty,balance) VALUES (:date,:item_id,:grn_no,'purchase',:in_qty,:foc_qty,:balance)");
       $stockdata = $stockstmt->execute(
-        array(':date'=>$date, ':vr_no'=>$vr_no, ':item_id'=>$item_id, ':in_qty'=>$in_qty, ':foc_qty'=>$foc, ':balance'=>$stockbalance)
+        array(':date'=>$date, ':grn_no'=>$grn_no, ':item_id'=>$item_id, ':in_qty'=>$in_qty, ':foc_qty'=>$foc, ':balance'=>$stockbalance)
       );
 
 
@@ -253,30 +217,27 @@ require '../Config/common.php';
      $seleResult = $selestmt->fetch(PDO::FETCH_ASSOC);
 
     ?>
-
-
-
-    <div class="col-md-12" style="margin-top:-30px;">
-      <div class="card">
-        <div class="card-body cb" style="background-color:lightgray; border-radius:5px; ">
-          <div class="text">
-            <h4><b>Purchase</b></h4>
-          </div>
-          <form class="" action="" method="post" style="margin-top:-25px;">
+    <div class="col-md-12">
+      <form class="" action="" method="post">
+        <div class="card">
+          <div class="card-body cb" style="border-radius:5px; ">
+            <div class="text">
+              <h4>New Purchase</h4>
+            </div>
             <div class="d-flex">
-              <div class="col-6 d-flex">
+              <div class="col-8 d-flex">
                 <div class="col">
-                  <label for="" class="mt-4"><b>Date</b></label>
+                  <label for="">Date</label>
                   <input type="date" class="form-control" placeholder="Date" name="date">
                   <p style="color:red;"><?php echo empty($dateError) ? '' : '*'.$dateError;?></p>
                 </div>
                 <div class="col">
-                  <label for="" class="mt-4"><b>Vr_No</b></label>
-                  <input type="text" class="form-control" placeholder="Vr_No" name="vr_no" value="<?php echo 25 . rand(1,999999) ?>" readonly>
-                  <p style="color:red;"><?php echo empty($vr_noError) ? '' : '*'.$vr_noError;?></p>
+                  <label for="">GRN_No</label>
+                  <input type="text" class="form-control" placeholder="grn_no" name="grn_no" value="<?php echo 25 . rand(1,999999) ?>" readonly>
+                  <p style="color:red;"><?php echo empty($grn_noError) ? '' : '*'.$grn_noError;?></p>
                 </div>
               <div class="col">
-                <label for="" class="mt-4"><b>Purchase Order No</b></label>
+                <label for="">Purchase Order No</label>
                 <select name="po_no" id="" class="form-control">
                   <option value="">Select PO_No</option>
                   <?php
@@ -290,53 +251,53 @@ require '../Config/common.php';
                   }
                   ?>
                 </select>
-                <p style="color:red;"><?php echo empty($vr_noError) ? '' : '*'.$vr_noError;?></p>
+                <p style="color:red;"><?php echo empty($grn_noError) ? '' : '*'.$grn_noError;?></p>
               </div>
               </div>
-           
-              <div class="col-3">
-                <label for="" class="mt-4"><b>Supplier_Id</b></label>
+            
+              <div class="col-2">
+                <label for="">Supplier_Id</label>
                 <input type="text" id="supplier_id" oninput="fetchSupplierNameFromId()" class="form-control" placeholder="Supplier_Id" name="supplier_id" >
                 <p style="color:red;"><?php echo empty($supplier_idError) ? '' : '*'.$supplier_idError;?></p>
               </div>
-              <div class="col-3">
-                <label for="" class="mt-4"><b>Supplier_Name</b></label>
+              <div class="col-2">
+                <label for="">Supplier_Name</label>
                 <input type="text" id="supplier_name" class="form-control" placeholder="Supplier_Name" name="supplier_name" oninput="fetchSupplierIdFromName()">
               </div>
             </div>
-            
+              
             <div class="d-flex">
               <div class="col-5 d-flex">
                 <div class="col">
-                  <label for=""><b>Item_Id</b></label>
+                  <label for="">Item_Id</label>
                   <input type="text" id="item_id" class="form-control" placeholder="Item_Id" name="item_id" oninput="fetchitemNameFromId()">
                   <p style="color:red;"><?php echo empty($item_idError) ? '' : '*'.$item_idError;?></p>
                 </div>
                 <div class="col">
-                  <label for=""><b>Item_Name</b></label>
+                  <label for="">Item_Name</label>
                   <input type="text" id="item_name" class="form-control" placeholder="Item_Name" name="item_name" oninput="fetchitemIdFromName()">
                 </div>
                 <div class="col">
-                  <label for=""><b>Qty</b></label>
+                  <label for="">Qty</label>
                   <input type="number" class="form-control" placeholder="Qty" name="qty">
                   <p style="color:red;"><?php echo empty($qtyError) ? '' : '*'.$qtyError;?></p>
                 </div>
               </div>
               <div class="col-5 d-flex">
                 <div class="col">
-                  <label for="" class=""><b>Discount</b></label>
+                  <label for="" class="">Discount %</label>
                   <input type="number" class="form-control" placeholder="Discount" name="discount">
                   <p style="color:red;"></p>
                 </div>
 
                 <div class="col">
-                  <label for="" class=""><b>Foc</b></label>
+                  <label for="" class="">Foc</label>
                   <input type="number" class="form-control" placeholder="Foc" name="foc">
                   <p style="color:red;"></p>
                 </div>
 
                 <div class="col">
-                  <label for=""><b>Payment</b></label>
+                  <label for="">Payment</label>
                   <select name="type" class="form-control">
                       <option value="cash">Cash</option>
                       <option value="credit">Credit</option>
@@ -353,12 +314,12 @@ require '../Config/common.php';
           </div>
         </div>
       </form>
-          <table class="table table-bordered mt-4 table-hover">
-            <thead>
+          <table class="table mt-4 table-hover">
+            <thead class="custom-thead">
               <tr>
                 <th style="width: 10px">#</th>
                 <th>Date</th>
-                <th>Vr_No</th>
+                <th>grn_no</th>
                 <th>Supplier_Name</th>
                 <th>Item_Name</th>
                 <th>Price</th>
@@ -389,7 +350,7 @@ require '../Config/common.php';
               <tr>
                 <td><?php echo $id; ?></td>
                 <td><?php echo $value['date'];?></td>
-                <td><?php echo $value['vr_no'];?></td>
+                <td><?php echo $value['grn_no'];?></td>
                 <td><?php echo $supplierIdResult['supplier_name'];?></td>
                 <td><?php echo $itemResult['item_name']; ?></td>
                 <td><?php echo $value['price'];?></td>

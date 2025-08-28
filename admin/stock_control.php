@@ -5,43 +5,6 @@ require '../Config/common.php';
   ?>
 
   <?php include 'header.php'; ?>
-
-<style media="screen">
-.outer {
-overflow-y: auto;
-height: 300px;
-}
-
-.outer{
-width: 100%;
--layout: fixed;
-}
-
-.outer th {
-text-align: left;
-top: 0;
-position: sticky;
-background-color: white;
-}
-.search_btn{
-  background-color:#1c1c1c;
-  color:white;
-  transition:0.5s;
-  border-radius:10px;
-  padding:7px;
-  padding:-29px;
-  font-size:13px;
-}
-.search_btn:hover{
-  border:2px solid #1c1c1c;
-  background:none;
-  color:#1c1c1c;
-  transition:0.5s;
-  border-radius:10px;
-  box-shadow:2px 8px 16px gray;
-}
-</style>
-
 <?php
 
 if(isset($_POST['save'])){
@@ -76,14 +39,24 @@ if(isset($_POST['save'])){
   </div>
  </form> -->
 
-<div class="container">
-  <div class="d-flex" style="margin-top:-17px;">
-    <h4 class="col-10 me-5"><b>Stock Control</b></h4>
-    <button class="ms-3" data-bs-toggle="modal" data-bs-target="#myModal">Damage Stock</button>
+<div class="col-md-12 px-3 mt-4">
+  <div class="d-flex justify-content-between px-2">
+    <div>
+      <h4>Stock Listing</h4>
+    </div>
+    <div>
+      <button data-bs-toggle="modal" data-bs-target="#myModal" class="btn btn-purple text-light btn-sm">
+        Damage Stock
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-triangle" style="margin-top: -5px;" viewBox="0 0 16 16">
+          <path d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.15.15 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.2.2 0 0 1-.054.06.1.1 0 0 1-.066.017H1.146a.1.1 0 0 1-.066-.017.2.2 0 0 1-.054-.06.18.18 0 0 1 .002-.183L7.884 2.073a.15.15 0 0 1 .054-.057m1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767z"/>
+          <path d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z"/>
+        </svg>
+      </button>
+    </div>
   </div>
-  <div class="outer" style="margin-top:-10px;">
-    <table class="table table-bordered mt-4 table-hover">
-      <thead>
+  <div class="outer">
+    <table class="table mt-4 table-hover">
+      <thead class="custom-thead">
         <tr>
           <th>No</th>
           <th>Item Name</th>
@@ -124,7 +97,14 @@ if(isset($_POST['save'])){
           <td><?php echo $total_outdata['total_out'];?></td>
           <td><?php echo $balance;?></td>
           <td>
-              <a href="stock_detail.php?item_id=<?php echo $item_id; ?>"><button>View Detail</button></a>
+              <a href="stock_detail.php?item_id=<?php echo $item_id; ?>"
+              class="btn btn-sm btn-primary text-light"
+              data-bs-toggle="tooltip" data-bs-placement="top" title="View Stock Details">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-card-list" viewBox="0 0 16 16">
+                  <path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2z"/>
+                  <path d="M5 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 5 8m0-2.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m0 5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m-1-5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0M4 8a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0m0 2.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0"/>
+                </svg>
+            </a>
           </td>
         </tr>
         <?php
@@ -191,4 +171,12 @@ if(isset($_POST['save'])){
 
   </div>
 </div>
-  <?php include 'footer.html'; ?>
+<script>
+  document.addEventListener("DOMContentLoaded", function(){
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+  });
+</script>
+<?php include 'footer.html'; ?>

@@ -46,7 +46,7 @@ require '../Config/common.php';
           $categories_code = $_POST['categories_code'];
           $categories_name = $_POST['categories_name'];
 
-          $stmt = $pdo->prepare("INSERT INTO categories (categories_code,categories_name,) VALUES (:categories_code,:categories_name)");
+          $stmt = $pdo->prepare("INSERT INTO categories (categories_code,categories_name) VALUES (:categories_code,:categories_name)");
           $result = $stmt->execute(
             array(':categories_code'=>$categories_code,':categories_name'=>$categories_name)
           );

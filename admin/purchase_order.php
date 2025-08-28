@@ -69,29 +69,50 @@ $purchase_orderstmt = $pdo->prepare("SELECT * FROM purchase_order WHERE status='
 $purchase_orderstmt->execute();
 $purchase_orderdata = $purchase_orderstmt->fetchAll();
  ?>
-  <div class="container" style="margin-top:-30px;">
+ <script>
+function fetchSupplierNameFromId() {
+    let supplierId = document.getElementById("supplier_id").value;
+
+    if (supplierId.trim() !== "") {
+        fetch("get_supplier_by_id.php?supplier_id=" + supplierId)
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById("supplier_name").value = data.supplier_name;
+            } else {
+                document.getElementById("supplier_name").value = "";
+            }
+        })
+        .catch(err => console.error("Error fetching supplier name:", err));
+    } else {
+        document.getElementById("supplier_name").value = "";
+    }
+}
+</script>
+
+  <div class="container">
     <div class="card">
       <div class="card-body">
         <h4>Purchase Order</h4>
         <form class="" action="" method="post" style="margin-top:-20px;">
           <div class="row">
             <div class="col-3">
-              <label for="" class="mt-4"><b>Order Date</b></label>
+              <label for="" class="mt-4">Order Date</label>
               <input type="date" class="form-control" placeholder="Date" name="order_date">
               <p style="color:red;"><?php echo empty($dateError) ? '' : '*'.$dateError;?></p>
             </div>
             <div class="col-3">
-              <label for="" class="mt-4"><b>Order No</b></label>
+              <label for="" class="mt-4">Order No</label>
               <input type="text" class="form-control" name="order_no" value="<?php echo "PO-" . rand(1,999999) ?>" readonly>
               <p style="color:red;"><?php echo empty($vr_noError) ? '' : '*'.$vr_noError;?></p>
             </div>
             <div class="col-3">
-              <label for="" class="mt-4"><b>Supplier_Id</b></label>
+              <label for="" class="mt-4">Supplier_Id</label>
               <input type="text" id="supplier_id" oninput="fetchSupplierNameFromId()" class="form-control" placeholder="Supplier_Id" name="supplier_id" >
               <p style="color:red;"><?php echo empty($supplier_idError) ? '' : '*'.$supplier_idError;?></p>
             </div>
             <div class="col-3">
-              <label for="" class="mt-4"><b>Supplier_Name</b></label>
+              <label for="" class="mt-4">Supplier_Name</label>
               <input type="text" id="supplier_name" class="form-control" placeholder="Supplier_Name" name="supplier_name" oninput="fetchSupplierIdFromName()">
             </div>
           </div>
@@ -99,23 +120,23 @@ $purchase_orderdata = $purchase_orderstmt->fetchAll();
           <div class="row">
             <div class="col-6 d-flex">
                 <div class="col">
-                  <label for=""><b>Item_Id</b></label>
+                  <label for="">Item_Id</label>
                   <input type="text" id="item_id" class="form-control" placeholder="Item_Id" name="item_id" oninput="fetchitemNameFromId()">
                   <p style="color:red;"><?php echo empty($item_idError) ? '' : '*'.$item_idError;?></p>
                 </div>
                 <div class="col">
-                  <label for=""><b>Item_Name</b></label>
+                  <label for="">Item_Name</label>
                   <input type="text" id="item_name" class="form-control" placeholder="Item_Name" name="item_name" oninput="fetchitemIdFromName()">
                 </div>
               </div>
               <div class="col-6 d-flex">
                 <div class="col">
-                  <label for=""><b>Qty</b></label>
+                  <label for="">Qty</label>
                   <input type="number" class="form-control" placeholder="Qty" name="qty">
                   <p style="color:red;"><?php echo empty($qtyError) ? '' : '*'.$qtyError;?></p>
                 </div>
                 <div class="col mt-4">
-                    <button type="submit" name="add_btn" class="form-control btn btn-primary mt-2">Add</button>
+                    <button type="submit" name="add_btn" class="form-control btn btn-purple mt-2 text-light">Add Purchase Order</button>
                 </div>
               </div>
 
@@ -125,7 +146,7 @@ $purchase_orderdata = $purchase_orderstmt->fetchAll();
     </div>
   <div>
     <table class="table table-bordered table-hover">
-      <thead>
+      <thead class="custom-thead">
         <tr>
           <th style="width: 10px">No</th>
           <th>Order No</th>

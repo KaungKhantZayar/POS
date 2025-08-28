@@ -6,43 +6,6 @@ require '../Config/common.php';
 
   <?php include 'header.php'; ?>
 
-<style media="screen">
-.outer {
-overflow-y: auto;
-height: 700px;
-}
-
-.outer{
-width: 100%;
--layout: fixed;
-}
-
-.outer th {
-text-align: left;
-top: 0;
-position: sticky;
-background-color: white;
-}
-.search_btn{
-  background-color:#1c1c1c;
-  color:white;
-  transition:0.5s;
-  border-radius:10px;
-  padding:7px;
-  padding:-29px;
-  font-size:13px;
-}
-.search_btn:hover{
-  border:2px solid #1c1c1c;
-  background:none;
-  color:#1c1c1c;
-  transition:0.5s;
-  border-radius:10px;
-  box-shadow:2px 8px 16px gray;
-}
-</style>
-
-
 <?php
     $item_id = $_GET['item_id'];
     $stockstmt = $pdo->prepare("SELECT * FROM stock WHERE item_id='$item_id'");
@@ -55,26 +18,30 @@ background-color: white;
     $item = $itemstmt->fetch(PDO::FETCH_ASSOC);
  ?>
 
- <!-- <form class="" action="" method="post">
-   <div class="d-flex" style="margin-left:950px; margin-top:-15px;">
-     <input type="date" name="" value="" class="form-control" placeholder="Search Supplier_Name" style="width:200px;">
-     <button type="submit" name="search" class="search_btn ms-3">Search</button>
-  </div>
- </form> -->
-
-<div class="container">
-  <div class="d-flex" style="margin-top:-17px;">
-    <h4 class="col-11"><b>Stock Detail ( <?php echo $item['item_name']; ?> )</b></h4>
-    <a href="stock_control.php"><button class="">Back</button></a>
+<div class="col-md-12 px-3 mt-4">
+  <div class="d-flex justify-content-between px-2">
+    <div>
+      <h4><?php echo $item['item_name']; ?> - Detail</h4>
+    </div>
+    <div>
+      <a href="index.php">
+        Home
+      </a>
+      /
+      <a href="stock_control.php">
+        Stock Control
+      </a>
+    </div>
   </div>
   <div class="outer" style="margin-top:-10px;">
     <table class="table table-bordered mt-4 table-hover">
-      <thead>
+      <thead class="custom-thead">
         <tr>
           <th style="width: 10px">No</th>
           <th>Date</th>
           <th>To / From</th>
-          <th>Vr_No</th>
+          <th>GRN_No</th>
+          <th>GIN_No</th>
           <th class="text-center">In</th>
           <th class="text-center">Out</th>
           <th class="text-center">Balance</th>
@@ -90,7 +57,8 @@ background-color: white;
           <td><?php echo $id; ?></td>
           <td><?php echo $value['date'];?></td>
           <td><?php echo $value['to_from'];?></td>
-          <td><?php echo $value['vr_no'];?></td>
+          <td><?php echo $value['grn_no'];?></td>
+          <td><?php echo $value['gin_no'];?></td>
           <td class="text-center">
             <?php 
              if(!empty($value['in_qty'])){

@@ -53,7 +53,7 @@ require '../Config/common.php';
             echo "Date-အလိုက်ကြည့်ရန် Credit-Purchase";
           }
         ?></h5>
-        <label for="" class="mt-2 me-3" style=" margin-left:220px;">Start Date :</label>
+        <label for="" class="mt-2 me-3">Start Date :</label>
           <input type="date" class="form-control" name="start_date" value="" style="width:200px;">
 
           <label for="" class="mt-2 ms-3">End Date :</label>
