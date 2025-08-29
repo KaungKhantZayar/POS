@@ -259,7 +259,7 @@ function fetchItemIdFromName() {
           <td><?php echo $value['order_date']; ?></td>
           <td><?php echo $itemIdResult['item_name']; ?></td>
           <td><?php echo $value['qty']; ?></td>
-          <td><?php echo $value['amount']; ?></td>
+          <td><?php echo number_format($value['amount']); ?></td>
           <td>
             <div class="badge badge-primary">Pending</div>
           </td>

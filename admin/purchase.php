@@ -478,7 +478,7 @@ function fetchItemIdFromName() {
                 <td><?php echo $value['price'] * $value['qty']; ?></td>
                 <td><?php echo $value['percentage_amount'];?></td>
                 <td><?php echo $value['stock_foc'];?></td>
-                <td><?php echo $value['amount']; ?></td>
+                <td><?php echo number_format($value['amount']); ?></td>
 
                 <td>
                   <div class="btn-group">

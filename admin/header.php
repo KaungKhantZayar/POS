@@ -156,6 +156,61 @@ background-color: #d0f0c0;
   visibility: visible;
   opacity: 1;
 }
+.bg-lightgreen{
+  background-color: #d0f0c0;
+}
+.drawer {
+  position: fixed;
+  top: 0;
+  right: -400px; /* hidden */
+  width: 400px;
+  height: 100%;
+  background: #fff;
+  box-shadow: -2px 0 8px rgba(0,0,0,0.2);
+  transition: right 0.3s ease;
+  z-index: 1050;
+  overflow-y: auto;
+  padding: 1rem;
+}
+.drawer.open {
+  right: 0;
+}
+.drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.drawer-backdrop {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+  z-index: 1040;
+}
+.drawer-backdrop.show {
+  display: block;
+}
+
+.drawer.show {
+  right: 0;
+}
+
+.drawer-header h5 {
+  font-size: 1.1rem;
+  color: #343a40;
+}
+
+.drawer-body {
+  max-height: calc(100% - 60px);
+  overflow-y: auto;
+}
+
+.btn-close {
+  background: none;
+  border: none;
+}
+
 </style>
 <body class="hold-transition sidebar-mini">
 

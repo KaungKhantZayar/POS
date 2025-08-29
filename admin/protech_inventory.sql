@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 28, 2025 at 09:14 AM
+-- Generation Time: Aug 29, 2025 at 09:24 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -95,7 +95,10 @@ CREATE TABLE `credit_purchase` (
 --
 
 INSERT INTO `credit_purchase` (`id`, `date`, `grn_no`, `supplier_id`, `item_id`, `price`, `qty`, `po_no`) VALUES
-(1, '2025-08-23', 25151978, '4004', '2002', 1500000, 100, '');
+(1, '2025-08-23', 25151978, '4004', '2002', 1500000, 100, ''),
+(2, '2025-08-28', 25793408, '4004', '2002', 1500000, 5, ''),
+(3, '2025-08-28', 25370650, '4004', '2001', 2500000, 100, ''),
+(4, '2025-08-28', 25795284, '4004', '4001', 3000000, 20, '');
 
 -- --------------------------------------------------------
 
@@ -155,7 +158,8 @@ CREATE TABLE `item` (
 
 INSERT INTO `item` (`id`, `item_id`, `item_name`, `categories_id`, `original_price`, `selling_price`, `reorder_level`) VALUES
 (1, '2002', 'Samaung', '1', 1500000, 2000000, 20),
-(2, '2001', 'Lenovo', '2', 2500000, 3000000, 10);
+(2, '2001', 'Lenovo', '2', 2500000, 3000000, 10),
+(3, '4001', 'HP', '2', 3000000, 3500000, 10);
 
 -- --------------------------------------------------------
 
@@ -174,16 +178,18 @@ CREATE TABLE `payable` (
   `purchase_id` int(11) NOT NULL,
   `asc_id` int(11) NOT NULL,
   `group_id` int(11) NOT NULL,
-  `status` varchar(20) NOT NULL
+  `status` varchar(20) NOT NULL,
+  `payment_no` varchar(100) NOT NULL,
+  `account_name` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `payable`
 --
 
-INSERT INTO `payable` (`id`, `date`, `grn_no`, `supplier_id`, `amount`, `paid`, `balance`, `purchase_id`, `asc_id`, `group_id`, `status`) VALUES
-(3, '2025-08-23', '25151978', '4004', 150000000, 0, 150000000, 1, 1, 25151978, 'Pending'),
-(4, '2025-08-23', '25151978', '4004', 0, 1500000, 148500000, 0, 2, 25151978, '');
+INSERT INTO `payable` (`id`, `date`, `grn_no`, `supplier_id`, `amount`, `paid`, `balance`, `purchase_id`, `asc_id`, `group_id`, `status`, `payment_no`, `account_name`) VALUES
+(6, '2025-08-28', '25370650', '4004', 250000000, 0, 250000000, 3, 4, 25370650, 'paid', '', ''),
+(7, '2025-08-28', '25795284', '4004', 60000000, 0, 60000000, 4, 6, 25795284, 'pending', '', '');
 
 -- --------------------------------------------------------
 
@@ -201,6 +207,15 @@ CREATE TABLE `purchase_order` (
   `amount` int(11) NOT NULL,
   `status` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `purchase_order`
+--
+
+INSERT INTO `purchase_order` (`id`, `order_no`, `supplier_id`, `order_date`, `item_id`, `qty`, `amount`, `status`) VALUES
+(1, 'PO-483989', 4004, '2025-08-28', 2002, 10, 15000000, 'Pending'),
+(2, 'PO-791010', 4004, '2025-08-28', 2001, 5, 12500000, 'Pending'),
+(3, 'PO-152052', 4004, '2025-08-28', 2001, 30, 75000000, 'Pending');
 
 -- --------------------------------------------------------
 
@@ -309,7 +324,10 @@ CREATE TABLE `stock` (
 
 INSERT INTO `stock` (`id`, `date`, `item_id`, `to_from`, `in_qty`, `out_qty`, `foc_qty`, `balance`, `grn_no`, `gin_no`) VALUES
 (10, '2025-08-23', 2002, 'purchase', 100, 0, 0, 100, 25151978, NULL),
-(12, '2025-08-23', 2002, 'purchase return', 0, 1, 0, 99, 25151978, NULL);
+(12, '2025-08-23', 2002, 'purchase return', 0, 1, 0, 99, 25151978, NULL),
+(13, '2025-08-28', 2002, 'purchase', 5, 0, 0, 104, 25793408, NULL),
+(14, '2025-08-28', 2001, 'purchase', 100, 0, 0, 100, 25370650, NULL),
+(15, '2025-08-28', 4001, 'purchase', 20, 0, 0, 20, 25795284, NULL);
 
 -- --------------------------------------------------------
 
@@ -508,7 +526,7 @@ ALTER TABLE `categories`
 -- AUTO_INCREMENT for table `credit_purchase`
 --
 ALTER TABLE `credit_purchase`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `credit_sale`
@@ -526,19 +544,19 @@ ALTER TABLE `customer`
 -- AUTO_INCREMENT for table `item`
 --
 ALTER TABLE `item`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `payable`
 --
 ALTER TABLE `payable`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT for table `purchase_order`
 --
 ALTER TABLE `purchase_order`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `purchase_return`
@@ -568,7 +586,7 @@ ALTER TABLE `sale_return`
 -- AUTO_INCREMENT for table `stock`
 --
 ALTER TABLE `stock`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `supplier`
@@ -580,7 +598,7 @@ ALTER TABLE `supplier`
 -- AUTO_INCREMENT for table `temp_purchase`
 --
 ALTER TABLE `temp_purchase`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `temp_sale`
