@@ -7,9 +7,17 @@ require '../Config/common.php';
   <?php include 'header.php'; ?>
 <?php
     $customer_id = $_GET['customer_id'];
-    $receivablestmt = $pdo->prepare("SELECT * FROM receivable WHERE customer_id='$customer_id' ORDER BY asc_id");
-    $receivablestmt->execute();
-    $receivabledata = $receivablestmt->fetchAll();
+
+    if (empty($_POST['search'])) {
+      $receivablestmt = $pdo->prepare("SELECT * FROM receivable WHERE customer_id='$customer_id' GROUP BY group_id");
+      $receivablestmt->execute();
+      $receivabledata = $receivablestmt->fetchAll();
+    }else{
+      $search = $_POST['search'];
+      $receivablestmt = $pdo->prepare("SELECT * FROM receivable WHERE customer_id='$customer_id' AND gin_no LIKE '%$search%' GROUP BY group_id");
+      $receivablestmt->execute();
+      $receivabledata = $receivablestmt->fetchAll();
+    }
 
     // Customer Name
     $customerstmt = $pdo->prepare("SELECT * FROM customer WHERE customer_id='$customer_id'");
@@ -19,12 +27,15 @@ require '../Config/common.php';
     // Add Payment
     if(isset($_POST['save'])){
       $date = $_POST['date'];
-      $vr_no = $_POST['vr_no'];
+      $gin_no = $_POST['gin_no'];
+      $group_id = $_POST['group_id'];
       $customer_id = $_POST['customer_id'];
       $amount = $_POST['amount'];
+      $payment_no = $_POST['payment_no'];
+      $account_name = $_POST['account_name'];
 
-      // Payable Last Balance
-      $receivable_balancestmt = $pdo->prepare("SELECT * FROM receivable WHERE customer_id='$customer_id' AND vr_no='$vr_no'");
+      // Receivable Last Balance
+      $receivable_balancestmt = $pdo->prepare("SELECT * FROM receivable WHERE customer_id='$customer_id' AND group_id='$group_id' ORDER BY id DESC");
       $receivable_balancestmt->execute();
       $receivable_balancedata = $receivable_balancestmt->fetch(PDO::FETCH_ASSOC);
       $last_id = $receivable_balancedata['id'];
@@ -41,61 +52,20 @@ require '../Config/common.php';
         // Update last_row Paid Status
         $pendingstatus_update = $pdo->prepare("UPDATE receivable SET status='paid' WHERE customer_id='$customer_id' AND id='$last_id'");
         $pendingstatus_update->execute();        
-        $receivable_payment_stmt = $pdo->prepare("INSERT INTO receivable (date,vr_no,customer_id,paid,balance,asc_id,group_id,status) VALUES (:date,:paymentvr_no,:customer_id,:paid,:balance,:asc_id,:group_id,'paid')");
+        $receivable_payment_stmt = $pdo->prepare("INSERT INTO receivable (date,payment_no,customer_id,paid,balance,asc_id,group_id,status,account_name) VALUES (:date,:payment_no,:customer_id,:paid,:balance,:asc_id,:group_id,'paid','$account_name')");
       }else{
         // Update last_row Pending Status
         $pendingstatus_update = $pdo->prepare("UPDATE receivable SET status='pending' WHERE customer_id='$customer_id' AND id='$last_id'");
         $pendingstatus_update->execute();
-        $receivable_payment_stmt = $pdo->prepare("INSERT INTO receivable (date,vr_no,customer_id,paid,balance,asc_id,group_id,status) VALUES (:date,:paymentvr_no,:customer_id,:paid,:balance,:asc_id,:group_id,'pending')");
+        $receivable_payment_stmt = $pdo->prepare("INSERT INTO receivable (date,payment_no,customer_id,paid,balance,asc_id,group_id,status,account_name) VALUES (:date,:payment_no,:customer_id,:paid,:balance,:asc_id,:group_id,'pending','$account_name')");
       }
 
       // Add Paid Amount And Asc_id
-      $paymentvr_no =  25 . rand(0,999999);
       $asc_id = $last_asc_id + 1;
       $receivable_payment_data = $receivable_payment_stmt->execute(
-        array(':date'=>$date, ':paymentvr_no'=>$paymentvr_no, ':customer_id'=>$customer_id, ':paid'=>$amount, ':asc_id' => $asc_id, ':group_id' => $vr_no, ':balance'=>$balance)
+        array(':date'=>$date, ':payment_no'=>$payment_no, ':customer_id'=>$customer_id, ':paid'=>$amount, ':asc_id' => $asc_id, ':group_id' => $gin_no, ':balance'=>$balance)
       );
-
-      // Current Id
-      $current_idstmt = $pdo->prepare("SELECT * FROM receivable WHERE customer_id='$customer_id' ORDER BY id DESC");
-      $current_idstmt->execute();
-      $current_iddata = $current_idstmt->fetch(PDO::FETCH_ASSOC);
-      $current_id = $current_iddata['id'];
-      $current_ascid = $current_iddata['asc_id'];
-      $current_balance = $current_iddata['balance'];
-
-      // For Update Others row
-      // Check How Many Line to update
-      $other_rowstmt = $pdo->prepare("SELECT * FROM receivable WHERE customer_id='$customer_id' AND id!='$current_id' AND asc_id!='$last_asc_id' AND asc_id>$last_asc_id");
-      $other_rowstmt->execute();
-      $other_rowdatas = $other_rowstmt->fetchAll();
-      $i = 1;
-      // print "<pre>";
-      // print_r($other_rowdatas);
-      foreach ($other_rowdatas as $other_rowdata) {
-      // echo "<script>alert('Hello');</script>";
-
-        $id = $other_rowdata['id'];
-        $customer_id = $other_rowdata['customer_id'];
-        $amount = $other_rowdata['amount'];
-        $paid = $other_rowdata['paid'];
-        $updatea_ascid = $current_ascid + $i;
-
-        if($i == 1){
-            $newbalance = $current_balance + $amount - $paid;
-        }else{
-            $balancestmt = $pdo->prepare("SELECT * FROM receivable WHERE customer_id='$customer_id' AND id<'$id' ORDER BY id DESC");
-            $balancestmt->execute();
-            $balancedata = $balancestmt->fetch(PDO::FETCH_ASSOC);
-
-            $newbalance = $balancedata['balance'] + $amount - $paid;
-        }
-        
-
-        $updateupdate = $pdo->prepare("UPDATE receivable SET balance='$newbalance', asc_id='$updatea_ascid' WHERE id='$id' AND customer_id='$customer_id'");
-        $updateupdate->execute();
-        $i++;
-      }
+      echo "<script>window.location.href='account_receivable_detail.php?customer_id=$customer_id';</script>";
     }
  ?>
 
@@ -104,27 +74,42 @@ require '../Config/common.php';
     <div>
       <h4>Customer - <?php echo $customer['customer_name']; ?>'s Detail</h4>
     </div>
-    <div>
-      <a href="index.php">
-        Home
-      </a>
-      /
-      <a href="account_receivable.php">
-          Receivable
-      </a>
+    <div class="d-flex">
+      <div class="ml-1 mr-3">
+        <form class="" action="" method="post">
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="Search GIN No" name="search">
+            <button type="submit" class="input-group-text" id="basic-addon2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+              </svg>
+            </button>
+          </div>
+        </form>
+      </div>
+      <div class="mt-1">
+        <a href="index.php">
+          Home
+        </a>
+        /
+        <a href="account_receivable.php">
+            Receivable
+        </a>
+      </div>
     </div>
   </div>
-  <div class="outer" style="margin-top:-10px;">
-    <table class="table table-bordered mt-4 table-hover">
+  <div class="outer">
+    <table class="table mt-4 table-hover">
       <thead class="custom-thead">
         <tr>
           <th style="width: 10px">No</th>
           <th>Date</th>
-          <th>Vr_No</th>
+          <th>GIN_No</th>
           <th>Amount</th>
-          <th>Paid</th>
+          <th>Received Amount</th>
           <th>Balance</th>
           <th>Status</th>
+          <th>Action</th>
         </tr>
       </thead>
       <tbody>
@@ -134,18 +119,58 @@ require '../Config/common.php';
             foreach ($receivabledata as $value) {
               $customer_id = $value['customer_id'];
 
-              $customerstmt = $pdo->prepare("SELECT * FROM customer WHERE customer_id='$customer_id'");
-              $customerstmt->execute();
-              $customer = $customerstmt->fetch(PDO::FETCH_ASSOC);
+              $gin_no = $value['gin_no'];
+              $group_id = $value['group_id'];
+
+              $amountstmt = $pdo->prepare("SELECT SUM(amount) AS total_amount FROM receivable WHERE customer_id = '$customer_id' AND gin_no = '$gin_no'");
+              $amountstmt->execute();
+              $total_amountdata = $amountstmt->fetch(PDO::FETCH_ASSOC);
+              $total_amount = $total_amountdata['total_amount'];
+              
+              // Paid Amount
+              $paidamountstmt = $pdo->prepare("SELECT SUM(paid) AS total_paid_amount FROM receivable WHERE customer_id = '$customer_id' AND group_id = '$group_id'");
+              $paidamountstmt->execute();
+              $paidamountdata = $paidamountstmt->fetch(PDO::FETCH_ASSOC);
+              $paidamount = $paidamountdata['total_paid_amount'];
+              // echo "<script>alert($paidamounta);</script>";
+
+              // Balance
+              $balance = $total_amount - $paidamount;
          ?>
         <tr data-bs-toggle="modal" data-bs-target="#myModal<?php echo $value['id']; ?>">
           <td><?php echo $id; ?></td>
           <td><?php echo $value['date'];?></td>
-          <td><?php echo $value['vr_no'];?></td>
-          <td><?php echo $value['amount'];?></td>
-          <td><?php echo $value['paid'];?></td>
-          <td><?php echo $value['balance'];?></td>
-          <td><span class="badge <?php if($value['status'] == 'paid'){ echo "badge-success"; }elseif($value['status'] == 'pending'){ echo "badge-primary"; } ?>"><?php echo $value['status'];?></span></td>
+          <td><?php echo $value['gin_no'];?></td>
+          <td><?php echo number_format($total_amount);?></td>
+          <td><?php echo number_format($paidamount);?></td>
+          <td><?php echo number_format($balance);?></td>
+          <td><span class="badge <?php if($balance == 0){ echo "badge-success"; }else{ echo "badge-primary"; } ?>"><?php if($balance != 0 ){ echo "Pending"; }else{ echo "Paid"; } ?></span></td>
+          <td>
+              <?php 
+                if($balance != 0){
+                  ?>
+                  <button data-toggle="modal" data-target="#myModal<?php echo $value['id']; ?>"
+                    class="btn btn-sm btn-primary text-light"
+                    data-bs-toggle="tooltip" data-bs-placement="top" title="Add Received">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cash" viewBox="0 0 16 16">
+                        <path d="M8 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4"/>
+                        <path d="M0 4a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1zm3 0a2 2 0 0 1-2 2v4a2 2 0 0 1 2 2h10a2 2 0 0 1 2-2V6a2 2 0 0 1-2-2z"/>
+                      </svg>
+                  </button>
+                  <?php
+                } 
+              ?>
+
+            <a href="account_receivable_detail_per_voucher.php?customer_id=<?php echo $value['customer_id'];?>&group_id=<?php echo $value['group_id'] ?>"
+              class="btn btn-sm btn-purple text-light"
+              data-bs-toggle="tooltip" data-bs-placement="top" title="View Received History">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clock-history" viewBox="0 0 16 16">
+                  <path d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .589.022zm2.004.45a7 7 0 0 0-.985-.299l.219-.976q.576.129 1.126.342zm1.37.71a7 7 0 0 0-.439-.27l.493-.87a8 8 0 0 1 .979.654l-.615.789a7 7 0 0 0-.418-.302zm1.834 1.79a7 7 0 0 0-.653-.796l.724-.69q.406.429.747.91zm.744 1.352a7 7 0 0 0-.214-.468l.893-.45a8 8 0 0 1 .45 1.088l-.95.313a7 7 0 0 0-.179-.483m.53 2.507a7 7 0 0 0-.1-1.025l.985-.17q.1.58.116 1.17zm-.131 1.538q.05-.254.081-.51l.993.123a8 8 0 0 1-.23 1.155l-.964-.267q.069-.247.12-.501m-.952 2.379q.276-.436.486-.908l.914.405q-.24.54-.555 1.038zm-.964 1.205q.183-.183.35-.378l.758.653a8 8 0 0 1-.401.432z"/>
+                  <path d="M8 1a7 7 0 1 0 4.95 11.95l.707.707A8.001 8.001 0 1 1 8 0z"/>
+                  <path d="M7.5 3a.5.5 0 0 1 .5.5v5.21l3.248 1.856a.5.5 0 0 1-.496.868l-3.5-2A.5.5 0 0 1 7 9V3.5a.5.5 0 0 1 .5-.5"/>
+                </svg>
+            </a>
+          </td>
         </tr>
             <!-- modal -->
             <div id="myModal<?php echo $value['id']; ?>" class="modal fade" role="dialog">
@@ -153,30 +178,44 @@ require '../Config/common.php';
                 <!-- Modal content-->
                 <div class="modal-content">
                   <div class="modal-header">
-                    <h4 class="modal-title">Add Paid Amount</h4>
+                    <h4 class="modal-title">Add Received Amount</h4>
                   </div>
                   <div class="modal-body">
                     <form action="" method="post">
-                      <input type="hidden" name="vr_no" value="<?php echo $value['vr_no'];?>">
+                      <input type="hidden" name="gin_no" value="<?php echo $value['gin_no'];?>">
+                      <input type="hidden" name="group_id" value="<?php echo $value['group_id'];?>">
                       <input type="hidden" name="customer_id" value="<?php echo $value['customer_id'];?>">
                         <div class="row mb-2">
                           <div class="col">
-                            <label for="">Date</label>
-                            <input type="date" class="border border-dark form-control" name="date">
+                              <label for="">Date</label>
+                              <input type="date" class="border border-dark form-control" name="date">
+                          </div>
+                          <div class="col">
+                            <label for="">Payment No</label>
+                            <input type="text" class="border border-dark form-control" name="payment_no">
+                          </div>
                         </div>
-                        <div class="col">
-                          <label for="">Amount</label>
-                          <input type="number" class="form-control border border-dark" name="amount">
-                        </div>
+                        <div class="row">
+                          <div class="col">
+                            <label for="">Amount</label>
+                            <input type="number" class="form-control border border-dark" name="amount">
+                          </div>
+                          <div class="col">
+                            <label for="">Account Name</label>
+                            <select name="account_name" id="" class="border border-dark form-control">
+                              <option value="AYA Bank">AYA Bank</option>
+                              <option value="KBZ Bank">KBZ Bank</option>
+                              <option value="Cash">Cash</option>
+                            </select>
+                          </div>
                       </div>
                     </div>
                     <div class="modal-footer">
-                      <button type="submit" name="save">Save</button>
-                      <button type="button" data-bs-dismiss="modal">Close</button>
+                      <button type="button" data-dismiss="modal" class="btn btn-sm btn-danger">Cancel</button>
+                      <button type="submit" class="btn btn-sm btn-purple text-light" name="save">Add Payment</button>
                     </div>
                   </form>
                 </div>
-
               </div>
             </div>
             <?php
@@ -188,4 +227,12 @@ require '../Config/common.php';
     </table>
   </div>
 </div>
+<script>
+  document.addEventListener("DOMContentLoaded", function(){
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+  });
+</script>
 <?php include 'footer.html'; ?>

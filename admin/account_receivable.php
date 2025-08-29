@@ -41,7 +41,7 @@ if(isset($_POST['save'])){
           <th>No</th>
           <th>Customer Name</th>
           <th>Amount</th>
-          <th>Paid</th>
+          <th>Received Amount</th>
           <th>Balance</th>
           <th>Action</th>
         </tr>
@@ -73,9 +73,9 @@ if(isset($_POST['save'])){
         <tr>
           <td><?php echo $id; ?></td>
           <td><?php echo $customer['customer_name'];?></td>
-          <td><?php echo $total_amtdata['total_amt'];?></td>
-          <td><?php echo $total_paiddata['total_paid'];?></td>
-          <td><?php echo $balance;?></td>
+          <td><?php echo number_format($total_amtdata['total_amt']);?></td>
+          <td><?php echo number_format($total_paiddata['total_paid']);?></td>
+          <td><?php echo number_format($balance);?></td>
           <td>
             <!-- First link styled as button with tooltip -->
             <a href="account_receivable_detail.php?customer_id=<?php echo $value['customer_id'];?>"

@@ -487,12 +487,12 @@ function fetchItemIdFromName() {
             </tbody>
           </table>
         </div>
-      <form class="" action="" method="post">
-        <div class="fixed-top" style="margin-left:1370px; margin-top:700px;">
+        <form class="" action="" method="post">
+        <div style="position: absolute; right: 0px;">
           <button type="submit" class="add_btn" name="save_btn" style="padding-bottom:7px;padding-top:5px; padding-left:20px; padding-right:20px;width:120px;">Save</button>
         </div>
       </form>
       </div>
-      </div>
+    </div>
 
 <?php include 'footer.html'; ?>

@@ -276,7 +276,8 @@ function fetchItemIdFromName() {
           <td>
             <form action="" method="post">
               <input type="hidden" value="<?php echo $value['order_no']; ?>" name="order_no">
-              <button type="submit" name="received" class="btn btn-sm btn-success">Received</button>
+              <!-- <button type="submit" name="received" class="btn btn-sm btn-success">Received</button> -->
+              <button type="" name="" class="btn btn-sm btn-success">Edit</button>
               <button type="submit" name="cancel" class="btn btn-sm btn-danger">Cancel</button>
             </form>
           </td>

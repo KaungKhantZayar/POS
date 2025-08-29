@@ -6,9 +6,17 @@
 <?php include 'header.php'; ?>
 <?php
     $supplier_id = $_GET['supplier_id'];
-    $payaplestmt = $pdo->prepare("SELECT * FROM payable WHERE supplier_id='$supplier_id' GROUP BY group_id");
-    $payaplestmt->execute();
-    $payapledata = $payaplestmt->fetchAll();
+
+    if (empty($_POST['search'])) {
+      $payaplestmt = $pdo->prepare("SELECT * FROM payable WHERE supplier_id='$supplier_id' GROUP BY group_id");
+      $payaplestmt->execute();
+      $payapledata = $payaplestmt->fetchAll();
+    }else{
+      $search = $_POST['search'];
+      $payaplestmt = $pdo->prepare("SELECT * FROM payable WHERE supplier_id='$supplier_id' AND grn_no LIKE '%$search%' GROUP BY group_id");
+      $payaplestmt->execute();
+      $payapledata = $payaplestmt->fetchAll();
+    }
 
     // Supplier Name
     $supplierIdstmt = $pdo->prepare("SELECT * FROM supplier WHERE supplier_id='$supplier_id'");
@@ -52,51 +60,10 @@
       }
 
       // Add Paid Amount And Asc_id
-      // $payment_no =  52 . rand(0,999999);
       $asc_id = $last_asc_id + 1;
       $payabldata = $payablstmt->execute(
         array(':date'=>$date, ':payment_no'=>$payment_no, ':supplier_id'=>$supplier_id, ':paid'=>$amount, ':asc_id' => $asc_id, ':group_id' => $grn_no, ':balance'=>$balance)
       );
-
-      // Current Id
-      // $current_idstmt = $pdo->prepare("SELECT * FROM payable WHERE supplier_id='$supplier_id' ORDER BY id DESC");
-      // $current_idstmt->execute();
-      // $current_iddata = $current_idstmt->fetch(PDO::FETCH_ASSOC);
-      // $current_id = $current_iddata['id'];
-      // $current_ascid = $current_iddata['asc_id'];
-      // $current_balance = $current_iddata['balance'];
-
-      // For Update Others row
-      // Check How Many Line to update
-      // $other_rowstmt = $pdo->prepare("SELECT * FROM payable WHERE supplier_id='$supplier_id' AND id!='$current_id' AND asc_id!='$last_asc_id' AND asc_id>$last_asc_id");
-      // $other_rowstmt->execute();
-      // $other_rowdatas = $other_rowstmt->fetchAll();
-      // $i = 1;
-      // print "<pre>";
-      // print_r($other_rowdatas);
-      // foreach ($other_rowdatas as $other_rowdata) {
-      // // echo "<script>alert('Hello');</script>";
-
-      //   $id = $other_rowdata['id'];
-      //   $supplier_id = $other_rowdata['supplier_id'];
-      //   $amount = $other_rowdata['amount'];
-      //   $paid = $other_rowdata['paid'];
-      //   $updatea_ascid = $current_ascid + $i;
-
-      //   if($i == 1){
-      //       $newbalance = $current_balance + $amount - $paid;
-      //   }else{
-      //       $balancestmt = $pdo->prepare("SELECT * FROM payable WHERE supplier_id='$supplier_id' AND id<'$id' ORDER BY id DESC");
-      //       $balancestmt->execute();
-      //       $balancedata = $balancestmt->fetch(PDO::FETCH_ASSOC);
-
-      //       $newbalance = $balancedata['balance'] + $amount - $paid;
-      //   }
-
-      //   $updateupdate = $pdo->prepare("UPDATE payable SET balance='$newbalance', asc_id='$updatea_ascid', status='Pending' WHERE id='$id' AND supplier_id='$supplier_id'");
-      //   $updateupdate->execute();
-      //   $i++;
-      // }
         echo "<script>window.location.href='account_payable_detail.php?supplier_id=$supplier_id';</script>";
     }
  ?>
@@ -106,17 +73,31 @@
     <div>
       <h4>Supplier - <?php echo $supplierIdResult['supplier_name']; ?>'s Detail</h4>
     </div>
-    <div>
-      <a href="index.php">
-        Home
-      </a>
-      /
-      <a href="account_payable.php">
-          Payable
-      </a>
+    <div class="d-flex">
+      <div class="ml-1 mr-3">
+        <form class="" action="" method="post">
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="Search GRN No" name="search">
+            <button type="submit" class="input-group-text" id="basic-addon2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+              </svg>
+            </button>
+          </div>
+        </form>
+      </div>
+      <div class="mt-1">
+        <a href="index.php">
+          Home
+        </a>
+        /
+        <a href="account_payable.php">
+            Payable
+        </a>
+      </div>
     </div>
   </div>
-  <div class="" style="margin-top:-10px;">
+  <div class="outer">
     <table class="table mt-4 table-hover">
       <thead class="custom-thead">
         <tr>
@@ -232,8 +213,8 @@
                   </div>
                 </div>
                 <div class="modal-footer">
-                  <button type="submit" name="save">Save</button>
-                  <button type="button" data-dismiss="modal">Close</button>
+                  <button type="button" data-dismiss="modal" class="btn btn-sm btn-danger">Cancel</button>
+                  <button type="submit" class="btn btn-sm btn-purple text-light" name="save">Add Payment</button>
                 </div>
               </form>
             </div>

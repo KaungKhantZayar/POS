@@ -10,16 +10,16 @@
 if(isset($_POST['edit'])){
   
     $date = $_POST['date'];
-    $grn_no = $_POST['grn_no'];
-    $supplier_id = $_POST['supplier_id'];
+    $gin_no = $_POST['gin_no'];
+    $customer_id = $_POST['customer_id'];
     $amount = $_POST['amount'];
     $payment_no = $_POST['payment_no'];
     $account_name = $_POST['account_name'];
     $group_id = $_POST['group_id'];
     $id = $_POST['id'];
     
-    // Payable Last Balance
-    $payabl_balancestmt = $pdo->prepare("SELECT * FROM payable WHERE supplier_id='$supplier_id' AND group_id='$group_id' AND id < '$id' ORDER BY id DESC");
+    // receivable Last Balance
+    $payabl_balancestmt = $pdo->prepare("SELECT * FROM receivable WHERE customer_id='$customer_id' AND group_id='$group_id' AND id < '$id' ORDER BY id DESC");
     $payabl_balancestmt->execute();
     $payabl_balancedata = $payabl_balancestmt->fetch(PDO::FETCH_ASSOC);
     $last_id = $payabl_balancedata['id'];
@@ -31,17 +31,17 @@ if(isset($_POST['edit'])){
     
     if($balance == 0){
       // Update last_row Paid Status
-      $pendingstatus_update = $pdo->prepare("UPDATE payable SET payment_no = '$payment_no', account_name = '$account_name', paid='$amount', balance='$balance', status='paid' WHERE supplier_id='$supplier_id' AND id='$id'");
+      $pendingstatus_update = $pdo->prepare("UPDATE receivable SET payment_no = '$payment_no', account_name = '$account_name', paid='$amount', balance='$balance', status='paid' WHERE customer_id='$customer_id' AND id='$id'");
       $pendingstatus_update->execute();
     }else{
       // Update last_row Pending Status
-      $pendingstatus_update = $pdo->prepare("UPDATE payable SET payment_no = '$payment_no', account_name = '$account_name', paid='$amount', balance='$balance', status='pending' WHERE supplier_id='$supplier_id' AND id='$id'");
+      $pendingstatus_update = $pdo->prepare("UPDATE receivable SET payment_no = '$payment_no', account_name = '$account_name', paid='$amount', balance='$balance', status='pending' WHERE customer_id='$customer_id' AND id='$id'");
       $pendingstatus_update->execute();
     }
 
     // For Update Others row
     // Check How Many Line to update
-    $other_rowstmt = $pdo->prepare("SELECT * FROM payable WHERE supplier_id='$supplier_id' AND group_id='$group_id' AND id > '$id'");
+    $other_rowstmt = $pdo->prepare("SELECT * FROM receivable WHERE customer_id='$customer_id' AND group_id='$group_id' AND id > '$id'");
     $other_rowstmt->execute();
     $other_rowdatas = $other_rowstmt->fetchAll();
     $i = 1;
@@ -51,39 +51,39 @@ if(isset($_POST['edit'])){
     // echo "<script>alert('Hello');</script>";
 
       $id = $other_rowdata['id'];
-      $supplier_id = $other_rowdata['supplier_id'];
+      $customer_id = $other_rowdata['customer_id'];
       $group_id = $other_rowdata['group_id'];
       $amount = $other_rowdata['amount'];
       $paid = $other_rowdata['paid'];
       $updatea_ascid = $id + $i;
 
-      $balancestmt = $pdo->prepare("SELECT * FROM payable WHERE supplier_id='$supplier_id' AND group_id = '$group_id' AND id<'$id' ORDER BY id DESC");
+      $balancestmt = $pdo->prepare("SELECT * FROM receivable WHERE customer_id='$customer_id' AND group_id = '$group_id' AND id<'$id' ORDER BY id DESC");
       $balancestmt->execute();
       $balancedata = $balancestmt->fetch(PDO::FETCH_ASSOC);
 
       $newbalance = $balancedata['balance'] + $amount - $paid;
 
-      $updateupdate = $pdo->prepare("UPDATE payable SET balance='$newbalance', asc_id='$updatea_ascid', status='Pending' WHERE id='$id' AND supplier_id='$supplier_id'");
+      $updateupdate = $pdo->prepare("UPDATE receivable SET balance='$newbalance', asc_id='$updatea_ascid', status='Pending' WHERE id='$id' AND customer_id='$customer_id'");
       $updateupdate->execute();
       $i++;
     }
-  }
+}
 
-  // Delete Row
+// Delete Row
 if(isset($_POST['delete'])){
   
-    $grn_no = $_POST['grn_no'];
-    $supplier_id = $_POST['supplier_id'];
+    $gin_no = $_POST['gin_no'];
+    $customer_id = $_POST['customer_id'];
     $group_id = $_POST['group_id'];
     $id = $_POST['id'];
     
     // Delete Current row
-    $currentrow_delete = $pdo->prepare("DELETE FROM payable WHERE id='$id'");
-    $currentrow_delete->execute();
+    $pendingstatus_update = $pdo->prepare("DELETE FROM receivable WHERE id='$id'");
+    $pendingstatus_update->execute();
 
     // For Update Others row
     // Check How Many Line to update
-    $other_rowstmt = $pdo->prepare("SELECT * FROM payable WHERE supplier_id='$supplier_id' AND group_id='$group_id' AND id > '$id'");
+    $other_rowstmt = $pdo->prepare("SELECT * FROM receivable WHERE customer_id='$customer_id' AND group_id='$group_id' AND id > '$id'");
     $other_rowstmt->execute();
     $other_rowdatas = $other_rowstmt->fetchAll();
     $i = 1;
@@ -91,19 +91,19 @@ if(isset($_POST['delete'])){
     foreach ($other_rowdatas as $other_rowdata) {
 
       $id = $other_rowdata['id'];
-      $customer_id = $other_rowdata['supplier_id'];
+      $customer_id = $other_rowdata['customer_id'];
       $group_id = $other_rowdata['group_id'];
       $amount = $other_rowdata['amount'];
       $paid = $other_rowdata['paid'];
       $updatea_ascid = $id + $i;
 
-      $balancestmt = $pdo->prepare("SELECT * FROM payable WHERE supplier_id='$supplier_id' AND group_id = '$group_id' AND id<'$id' ORDER BY id DESC");
+      $balancestmt = $pdo->prepare("SELECT * FROM receivable WHERE customer_id='$customer_id' AND group_id = '$group_id' AND id<'$id' ORDER BY id DESC");
       $balancestmt->execute();
       $balancedata = $balancestmt->fetch(PDO::FETCH_ASSOC);
 
       $newbalance = $balancedata['balance'] + $amount - $paid;
 
-      $updateupdate = $pdo->prepare("UPDATE payable SET balance='$newbalance', asc_id='$updatea_ascid', status='Pending' WHERE id='$id' AND supplier_id='$supplier_id'");
+      $updateupdate = $pdo->prepare("UPDATE receivable SET balance='$newbalance', asc_id='$updatea_ascid', status='Pending' WHERE id='$id' AND customer_id='$customer_id'");
       $updateupdate->execute();
       $i++;
     }
@@ -111,33 +111,33 @@ if(isset($_POST['delete'])){
 ?>
 
 <?php
-    $supplier_id = $_GET['supplier_id'];
+    $customer_id = $_GET['customer_id'];
     $group_id = $_GET['group_id'];
-    $payaplestmt = $pdo->prepare("SELECT * FROM payable WHERE supplier_id='$supplier_id' AND group_id='$group_id' ORDER BY asc_id");
+    $payaplestmt = $pdo->prepare("SELECT * FROM receivable WHERE customer_id='$customer_id' AND group_id='$group_id'");
     $payaplestmt->execute();
     $payapledata = $payaplestmt->fetchAll();
 
-    // Supplier Name
-    $supplierIdstmt = $pdo->prepare("SELECT * FROM supplier WHERE supplier_id='$supplier_id'");
-    $supplierIdstmt->execute();
-    $supplierIdResult = $supplierIdstmt->fetch(PDO::FETCH_ASSOC);
+    // customer Name
+    $customerIdstmt = $pdo->prepare("SELECT * FROM customer WHERE customer_id='$customer_id'");
+    $customerIdstmt->execute();
+    $customerIdResult = $customerIdstmt->fetch(PDO::FETCH_ASSOC);
  ?>
 
 <div class="col-md-12 px-4 mt-4">
   <div class="d-flex justify-content-between">
     <div>
-      <h4>Payment History For Supplier - <?php echo $supplierIdResult['supplier_name']; ?></h4>
+      <h4>Received History From Customer - <?php echo $customerIdResult['customer_name']; ?></h4>
     </div>
     <div>
       <?php
-      $supplier_id = $_GET['supplier_id'];
+      $customer_id = $_GET['customer_id'];
       ?>
-      <a href="account_payable_detail.php?supplier_id=<?php echo $supplier_id; ?>">
+      <a href="account_receivable_detail.php?customer_id=<?php echo $customer_id; ?>">
         Back
       </a>
       /
-      <a href="account_payable.php">
-          Payable
+      <a href="account_receivable.php">
+          Receivable
       </a>
     </div>
   </div>
@@ -161,12 +161,12 @@ if(isset($_POST['delete'])){
           if ($payapledata) {
             $id = 1;
             foreach ($payapledata as $value) {
-              $supplier_id = $value['supplier_id'];
+              $customer_id = $value['customer_id'];
          ?>
         <tr data-bs-toggle="modal" data-bs-target="#myModal<?php echo $value['id']; ?>">
           <td><?php echo $id; ?></td>
           <td><?php echo $value['date'];?></td>
-          <td><?php if(str_contains($value['grn_no'], "PR")){ echo $value['grn_no']; ?><span class="badge badge-primary ms-2">Purchase Return</span><?php }else{ echo $value['grn_no']; } ?></td>
+          <td><?php if(str_contains($value['gin_no'], "PR")){ echo $value['gin_no']; ?><span class="badge badge-primary ms-2">Purchase Return</span><?php }else{ echo $value['gin_no']; } ?></td>
           <td><?php echo $value['payment_no'];?></td>
           <td><?php echo $value['account_name'];?></td>
           <td><?php echo number_format($value['amount']);?></td>
@@ -174,7 +174,7 @@ if(isset($_POST['delete'])){
           <td><?php echo number_format($value['balance']);?></td>
           <td class="d-flex">
             <?php
-            if($value['grn_no'] == ''){
+            if($value['gin_no'] == ''){
               ?>
               <!-- First link styled as button with tooltip -->
             <button 
@@ -189,15 +189,15 @@ if(isset($_POST['delete'])){
             <!-- Drawer (Hidden by default) -->
             <div id="drawer<?php echo $value['id']; ?>" class="drawer shadow-lg">
               <div class="drawer-header d-flex justify-content-between align-items-center p-3 border-bottom">
-                <h5 class="mb-0 fw-bold text-dark">Edit Payment</h5>
+                <h5 class="mb-0 fw-bold text-dark">Edit Received</h5>
                 <button type="button" class="btn-close" onclick="closeDrawer()"></button>
               </div>
 
               <div class="drawer-body p-4">
                 <form action="" method="post">
-                  <input type="hidden" name="grn_no" value="<?php echo $value['grn_no'];?>">
+                  <input type="hidden" name="gin_no" value="<?php echo $value['gin_no'];?>">
                   <input type="hidden" name="group_id" value="<?php echo $value['group_id'];?>">
-                  <input type="hidden" name="supplier_id" value="<?php echo $value['supplier_id'];?>">
+                  <input type="hidden" name="customer_id" value="<?php echo $value['customer_id'];?>">
                   <input type="hidden" name="id" value="<?php echo $value['id'];?>">
 
                   <div class="mb-3">
@@ -241,9 +241,9 @@ if(isset($_POST['delete'])){
 
             <!-- Second link styled as button with tooltip -->
              <form action="" method="post">
-              <input type="hidden" name="grn_no" value="<?php echo $value['grn_no'];?>">
+              <input type="hidden" name="gin_no" value="<?php echo $value['gin_no'];?>">
               <input type="hidden" name="group_id" value="<?php echo $value['group_id'];?>">
-              <input type="hidden" name="supplier_id" value="<?php echo $value['supplier_id'];?>">
+              <input type="hidden" name="customer_id" value="<?php echo $value['customer_id'];?>">
               <input type="hidden" name="id" value="<?php echo $value['id'];?>">
 
                <button type="submit"

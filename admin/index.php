@@ -93,10 +93,9 @@ include 'header.php';
 </style>
 
 <div class="container mt-3">
-  <div class="d-flex mb-4 justify-content-between align-items-center">
+  <div class="d-flex mb-4 justify-content-between align-items-center px-3">
     <h2 class="d-flex align-items-center">📊 Dashboard</h2>
     <div id="current-time">
-      <span class="clock-icon">🕒</span>
       <span class="time-text">00:00:00</span>
     </div>
   </div>
@@ -112,7 +111,7 @@ include 'header.php';
   </script>
 
 <!-- Metrics Row -->
-<div class="row">
+<div class="row px-3">
   <div class="col-md-3 animated-card animated-delay-1">
     <div class="card gradient-primary">
       <div class="card-body">
@@ -148,7 +147,7 @@ include 'header.php';
 </div>
 
 <!-- Insights Row -->
-<div class="row g-4">
+<div class="row g-4 px-3">
   <div class="col-md-3 animated-card animated-delay-1">
     <div class="card shadow-sm h-100 bg-white">
       <div class="card-body">
@@ -184,7 +183,7 @@ include 'header.php';
 </div>
 
 <!-- Quick Links -->
-<div class="row g-4 mt-1">
+<div class="row g-4 mt-3 px-3">
   <div class="col-md-6 animated-card animated-delay-3">
     <div class="card quick-link-card h-100 d-flex justify-content-between align-items-center p-3">
       <div>
@@ -205,7 +204,7 @@ include 'header.php';
   </div>
 </div>
 
-<div class="row g-4 mt-1">
+<div class="row g-4 mt-3 px-3">
   <div class="col-md-6 animated-card animated-delay-1">
     <div class="card quick-link-card h-100 d-flex justify-content-between align-items-center p-3">
       <div>

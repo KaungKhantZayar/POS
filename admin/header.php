@@ -210,6 +210,52 @@ background-color: #d0f0c0;
   background: none;
   border: none;
 }
+/* Make the filter panel sticky */
+/* Right filter panel fixed */
+.filter-box {
+  position: fixed;
+  right: 0; /* stick to right edge */
+  top: 30px; /* adjust depending on your header height */
+  width: 25%; /* match your grid size */
+  height: calc(120vh - 100px); /* full height minus header */
+  padding: 15px;
+  border-left: 1px solid #ddd; /* optional: separation */
+  overflow-y: auto; /* scroll inside if content is long */
+  z-index: 999; /* make sure it’s above content */
+}
+.report-sidebar li.fw-bold {
+  font-weight: bold;
+  position: relative;
+  padding-right: 10px; /* space between text and line */
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+}
+.fs-6{
+  font-size: 15px;
+}
+.report-sidebar li.fw-bold::after {
+  content: "";
+  width: 100%;           /* adjust this to make it shorter/longer */
+  height: 1px;
+  background-color: #dde;
+  margin-left: 10px;
+}
+.flex-fill{
+  width: 100% !important;
+  border-radius: 0px;
+}
+.report-sidebar a{
+  transition: 0.3s;
+}
+.report-sidebar a.active {
+    background-color: #055ae3 !important;
+    /* font-weight: bold; */
+    border-radius: 3px;
+    padding: 4px 8px;
+    display: inline-block;
+    color: white !important;
+  }
 
 </style>
 <body class="hold-transition sidebar-mini">
@@ -341,12 +387,21 @@ background-color: #d0f0c0;
           </li>
 
           <!-- Rest of sidebar links -->
+          <?php 
+            $accountPayablePages = [
+              'account_payable.php',
+              'account_payable_detail.php',
+              'account_payable_detail_per_voucher.php'
+            ];
+          ?>
           <li class="nav-item">
-            <a href="account_payable.php" class="nav-link <?php echo $current_page=='account_payable.php'?'active':''; ?>">
+            <a href="account_payable.php" 
+              class="nav-link <?php echo in_array($current_page, $accountPayablePages) ? 'active' : ''; ?>">
               <i class="nav-icon fas fa-money-bill-wave"></i>
               <p style="margin-left:8px;">Account Payable</p>
             </a>
           </li>
+
 
           <li class="nav-item">
             <a href="account_receivable.php" class="nav-link <?php echo $current_page=='account_receivable.php'?'active':''; ?>">
