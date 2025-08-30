@@ -25,6 +25,20 @@ $sale_pages = ['sale_order.php', 'sale.php', 'sale_return.php'];
   <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script> -->
 
+  <!-- <link rel="stylesheet" href="chosenselect/jquery-ui.css">
+  <link rel="stylesheet" href="chosenselect/chosen.css">
+  <script src="jquery.resc.js"></script>
+  <script src="chosenselect/jquery-1.9.3.js"></script>
+  <script src="chosenselect/jquery-ui.js"></script>
+  <script src="chosenselect/chosen.jquery.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var selects = document.querySelectorAll(".chzn-select");
+      selects.forEach(function(select) {
+        $(select).chosen(); // Chosen itself still requires jQuery
+      });
+    });
+  </script> -->
 </head>
 <style>
   .logout{ border-radius:200px; }
@@ -215,7 +229,7 @@ background-color: #d0f0c0;
 .filter-box {
   position: fixed;
   right: 0; /* stick to right edge */
-  top: 30px; /* adjust depending on your header height */
+  top: 10px; /* adjust depending on your header height */
   width: 25%; /* match your grid size */
   height: calc(120vh - 100px); /* full height minus header */
   padding: 15px;
@@ -256,6 +270,17 @@ background-color: #d0f0c0;
     display: inline-block;
     color: white !important;
   }
+form.row.g-2 .report-input {
+    padding: 0px 5px; /* vertical | horizontal */
+    font-size: 14px;    /* optional, control text size */
+    height: 30px;
+}
+
+/* Hover: simple background color change */
+.btn.flex-fill:hover {
+    background-color: #055ae3 !important;
+    color: #fff;                  /* text/icon turns white */
+}
 
 </style>
 <body class="hold-transition sidebar-mini">

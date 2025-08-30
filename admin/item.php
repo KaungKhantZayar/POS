@@ -107,7 +107,7 @@ require '../Config/common.php';
                 foreach ($result as $value) {
                   $id = $value['categories_id'];
 
-                  $catStmt = $pdo->prepare("SELECT * FROM categories WHERE id='$id'");
+                  $catStmt = $pdo->prepare("SELECT * FROM categories WHERE categories_code='$id'");
                   $catStmt->execute();
                   $catResult = $catStmt->fetch(PDO::FETCH_ASSOC);
               ?>

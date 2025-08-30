@@ -3,83 +3,210 @@ session_start();
 require '../Config/config.php';
 require '../Config/common.php';
 
-  ?>
+// Get current report
+$report_name = isset($_GET['report_name']) ? $_GET['report_name'] : null;
+
+// Default: all disabled
+$filterCategory = $filterItem = $fromDate = $toDate = $filterCustomer = $filterSupplier = $filterStockFoc = $filterDamageStock = $filterReturnStock = true;
+
+// Enable/disable logic
+if (in_array($report_name, ["stock_inventory_summary"])) {
+  $filterCategory = true;
+  $filterItem = false;
+  $fromDate = false;
+  $toDate = false;
+  $filterDamageStock = false;
+  $filterReturnStock = false;
+  $filterStockFoc = false;
+
+} elseif ($report_name === "balance_by_category") {
+  $filterCategory = false;
+  $filterItem = true;
+  $fromDate = false;
+  $toDate = false;
+  $filterDamageStock = false;
+  $filterReturnStock = false;
+  $filterStockFoc = false;
+} elseif (in_array($report_name, ["sales_summary", "total_sales"])) {
+  $fromDate = false;
+  $toDate = false;
+  $filterCustomer = false;
+} elseif ($report_name === "royal_customer") {
+  $fromDate = false;
+  $toDate = false;
+} elseif (in_array($report_name, ["purchase_summary", "total_purchase"])) {
+  $fromDate = false;
+  $toDate = false;
+  $filterSupplier = false;
+}
+
+?>
 <?php include 'header.php'; ?>
+
 <div class="container-fluid py-3 px-3">
   <div class="row">
     <!-- Sidebar (75%) -->
     <div class="col-lg-8">
       <h4>Select Report To View Or Print</h4>
-    <nav class="report-sidebar mt-3">
-      <ul class="p-0" style="list-style:none;">
-        <!-- Sales Reports -->
-        <li class="mb-3 fw-bold fs-5">Sales</li>
-        <li class="ms-3 mb-2 fs-6"><a href="#" onclick="loadReport('sales_summary')" class="text-decoration-none text-dark">📄 Sales Summary</a></li>
-        <li class="ms-3 mb-2 fs-6"><a href="#" onclick="loadReport('sales_by_customer')" class="text-decoration-none text-dark">📄 Sales by Customer</a></li>
-        <li class="ms-3 mb-2 fs-6"><a href="#" onclick="loadReport('sales_by_item')" class="text-decoration-none text-dark">📄 Sales by Item</a></li>
-        <li class="ms-3 mb-2 fs-6"><a href="#" onclick="loadReport('sales_by_region')" class="text-decoration-none text-dark">📄 Sales by Region</a></li>
-        <li class="ms-3 mb-2 fs-6"><a href="#" onclick="loadReport('sales_by_channel')" class="text-decoration-none text-dark">📄 Sales by Channel</a></li>
+      <nav class="report-sidebar mt-3">
+        <ul class="p-0" style="list-style:none;">
 
-        <!-- Purchase Reports -->
-        <li class="mb-3 fw-bold fs-5 mt-4">Purchase</li>
-        <li class="ms-3 mb-2 fs-6"><a href="#" onclick="loadReport('purchase_summary')" class="text-decoration-none text-dark">📄 Purchase Summary</a></li>
-        <li class="ms-3 mb-2 fs-6"><a href="#" onclick="loadReport('purchase_by_supplier')" class="text-decoration-none text-dark">📄 Purchase by Supplier</a></li>
-        <li class="ms-3 mb-2 fs-6"><a href="#" onclick="loadReport('purchase_by_item')" class="text-decoration-none text-dark">📄 Purchase by Item</a></li>
-        <li class="ms-3 mb-2 fs-6"><a href="#" onclick="loadReport('purchase_pending')" class="text-decoration-none text-dark">📄 Pending Purchases</a></li>
-        <li class="ms-3 mb-2 fs-6"><a href="#" onclick="loadReport('purchase_history')" class="text-decoration-none text-dark">📄 Purchase History</a></li>
+          <!-- Stock Reports -->
+          <li class="mb-3 fw-bold fs-5 mt-4">Stock</li>
+          <li class="ms-3 mb-2 fs-6">
+            <a href="?report_name=stock_inventory_summary"
+               class="text-decoration-none text-dark <?php if($report_name === 'stock_inventory_summary'){ echo "active"; } ?>">
+               📄 Stock Inventory Summary
+            </a>
+          </li>
+          <li class="ms-3 mb-2 fs-6">
+            <a href="?report_name=balance_by_category"
+               class="text-decoration-none text-dark <?php if($report_name === 'balance_by_category'){ echo "active"; } ?>">
+               📄 Balance by Category
+            </a>
+          </li>
 
-        <!-- Stock Reports -->
-        <li class="mb-3 fw-bold fs-5 mt-4">Stock</li>
-        <li class="ms-3 mb-2 fs-6"><a href="#" onclick="loadReport('stock_summary')" class="text-decoration-none text-dark">📄 Stock Summary</a></li>
-        <li class="ms-3 mb-2 fs-6"><a href="#" onclick="loadReport('low_stock')" class="text-decoration-none text-dark">📄 Low Stock</a></li>
-        <li class="ms-3 mb-2 fs-6"><a href="#" onclick="loadReport('stock_by_category')" class="text-decoration-none text-dark">📄 Stock by Category</a></li>
-        <li class="ms-3 mb-2 fs-6"><a href="#" onclick="loadReport('stock_by_location')" class="text-decoration-none text-dark">📄 Stock by Location</a></li>
-        <li class="ms-3 mb-2 fs-6"><a href="#" onclick="loadReport('stock_audit')" class="text-decoration-none text-dark">📄 Stock Audit</a></li>
-      </ul>
-    </nav>
-  </div>
+          <!-- Sales Reports -->
+          <li class="mb-3 fw-bold fs-5">Sales</li>
+          <li class="ms-3 mb-2 fs-6"><a href="?report_name=sales_summary" class="text-decoration-none text-dark <?php if($report_name === 'sales_summary'){ echo "active"; } ?>">📄 Sales Summary</a></li>
+          <li class="ms-3 mb-2 fs-6"><a href="?report_name=total_sales" class="text-decoration-none text-dark <?php if($report_name === 'total_sales'){ echo "active"; } ?>">📄 Total Sales</a></li>
+          <li class="ms-3 mb-2 fs-6"><a href="?report_name=royal_customer" class="text-decoration-none text-dark <?php if($report_name === 'royal_customer'){ echo "active"; } ?>">📄 Royal Customer</a></li>
 
+          <!-- Purchase Reports -->
+          <li class="mb-3 fw-bold fs-5 mt-4">Purchase</li>
+          <li class="ms-3 mb-2 fs-6"><a href="?report_name=purchase_summary" class="text-decoration-none text-dark <?php if($report_name === 'purchase_summary'){ echo "active"; } ?>">📄 Purchase Summary</a></li>
+          <li class="ms-3 mb-2 fs-6"><a href="?report_name=total_purchase" class="text-decoration-none text-dark <?php if($report_name === 'total_purchase'){ echo "active"; } ?>">📄 Total Purchase</a></li>
+        </ul>
+      </nav>
+    </div>
 
     <!-- Filter Panel (25%) -->
     <div class="col-md-3 filter-box">
-      <h5 id="reportTitle" class="mb-3 text-dark">Select a report</h5>
+      <h4 id="reportTitle" class="mb-3 text-dark">Report Filters</h4>
 
-      <div id="reportFilters" class="mb-3" style="display:none;">
-        <form class="row g-2">
-          <div class="col-12 mb-2">
-            <label class="form-label">Category</label>
-            <select id="filterCategory" class="form-control">
-              <option value="">1</option>
-              <option value="">2</option>
-              <option value="">3</option>
+      <div id="reportFilters" class="mb-3">
+        <form class="row g-2" action="report.php" method="GET" target="_blank">
+          <input type="hidden" name="report_name" value="<?php echo htmlspecialchars($report_name); ?>">
+          <div class="col-12 mb-2 d-flex">
+            <div class="col-6">
+              <label class="form-label">Category</label>
+              <select id="filterCategory" 
+                      class="form-control report-input chzn-select"
+                      <?php echo $filterCategory ? "disabled" : ""; ?> 
+                      name="category_id">
+                <option value="all">All</option>
+                <?php 
+                $stmt = $pdo->prepare("SELECT * FROM categories ORDER BY id DESC");
+                $stmt->execute();
+                $result = $stmt->fetchAll();
+                foreach ($result as $value) {
+                  ?>
+                  <option value="<?php echo $value['categories_code']; ?>">
+                    <?php echo $value['categories_name']; ?>
+                  </option>
+                  <?php
+                }
+                ?>
+              </select>
+            </div>
+            <div class="col-6">
+              <label class="form-label">Item</label>
+              <select id="filterItem" class="form-control report-input" <?php echo $filterItem ? "disabled" : ""; ?> name="item_id">
+                <option value="">All</option>
+                <?php
+                $stmt = $pdo->prepare("SELECT * FROM item ORDER BY id DESC");
+                $stmt->execute();
+                $result = $stmt->fetchAll();
+                foreach ($result as $value) {
+                  ?>
+                  <option value="<?php echo $value['item_id']; ?>"><?php echo $value['item_name']; ?></option>
+                  <?php
+                }
+                ?>
+              </select>
+            </div>
+          </div>
+          <div class="col-12 mb-2 d-flex">
+            <div class="col-6">
+              <label class="form-label">Supplier</label>
+              <select id="filterSupplier" class="form-control report-input" <?php echo $filterSupplier ? "disabled" : ""; ?> name="supplier_id">
+                <option value="all">All</option>
+                <?php 
+                $stmt = $pdo->prepare("SELECT * FROM supplier ORDER BY id DESC");
+                $stmt->execute();
+                $result = $stmt->fetchAll();
+                foreach ($result as $value) {
+                  ?>
+                  <option value="<?php echo $value['supplier_id']; ?>"><?php echo $value['supplier_name']; ?></option>
+                  <?php
+                }
+                ?>
+              </select>
+            </div>
+            <div class="col-6">
+              <label class="form-label">Customer</label>
+              <select id="filterCustomer" class="form-control report-input" <?php echo $filterCustomer ? "disabled" : ""; ?> name="customer_id">
+                <option value="">All</option>
+                <?php
+                $stmt = $pdo->prepare("SELECT * FROM customer ORDER BY id DESC");
+                $stmt->execute();
+                $result = $stmt->fetchAll();
+                foreach ($result as $value) {
+                  ?>
+                  <option value="<?php echo $value['customer_id']; ?>"><?php echo $value['customer_name']; ?></option>
+                  <?php
+                }
+                ?>
+              </select>
+            </div>
+          </div>
+          <div class="col-12 mb-2 d-flex">
+            <div class="col-6">
+              <label class="form-label">FOC</label>
+              <select id="filterStockFoc" class="form-control report-input" name="stock_foc" <?php echo $filterStockFoc ? "disabled" : ""; ?>>
+                <option value="">All</option>
+                <option value="purchase_foc">Purchase FOC</option>
+                <option value="sale_foc">Sale FOC</option>
+                <option value="do_not_show">Do Not Show</option>
+              </select>
+            </div>
+            <div class="col-6">
+              <label class="form-label">Damage</label>
+              <select id="filterDamageStock" class="form-control report-input" name="damage_stock" <?php echo $filterDamageStock ? "disabled" : ""; ?>>
+                <option value="">All</option>
+                <option value="do_not_show">Do Not Show</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-12 mb-2 px-3">
+            <label class="form-label">Return</label>
+            <select id="filterReturnStock" class="form-control report-input" name="return_stock" <?php echo $filterReturnStock ? "disabled" : ""; ?>>
+              <option value="">All</option>
+              <option value="purchase_return">Purchase Return</option>
+              <option value="sale_return">Sale Return</option>
+              <option value="do_not_show">Do Not Show</option>
             </select>
           </div>
-          <div class="col-12 mb-2">
-            <label class="form-label">Item</label>
-            <select id="filterItem" class="form-control">
-              <option value="">1</option>
-              <option value="">2</option>
-              <option value="">3</option>
-            </select>
-          </div>
-          <div class="col-12 mb-2">
-            <label class="form-label">Start Date</label>
-            <input type="date" class="form-control" id="fromDate">
-          </div>
-          <div class="col-12 mb-2">
-            <label class="form-label">End Date</label>
-            <input type="date" class="form-control" id="toDate">
+          <div class="col-12 mb-2 d-flex">
+            <div class="col-6">
+              <label class="form-label">Start Date</label>
+              <input type="date" class="form-control report-input" name="start_date" id="fromDate" <?php echo $fromDate ? "disabled" : ""; ?>>
+            </div>
+            <div class="col-6">
+              <label class="form-label">End Date</label>
+              <input type="date" class="form-control report-input" name="end_date" id="toDate" <?php echo $toDate ? "disabled" : ""; ?>>
+            </div>
           </div>
 
           <!-- Buttons Row 1 -->
           <div class="col-12 mb-3 d-flex gap-2 mt-3">
             <div class="col-6">
-              <button type="button" class="btn flex-fill btn-outline-dark" onclick="showReport()">
+              <button type="submit" class="btn flex-fill btn-outline-dark" style="background-color: #69ad1f; color: white;">
                 <i class="fas fa-eye"></i> Show Report
               </button>
             </div>
             <div class="col-6">
-              <button type="button" class="btn flex-fill btn-outline-dark" onclick="printReport()">
+              <button type="button" class="btn flex-fill btn-outline-dark">
                 <i class="fas fa-print"></i> Print
               </button>
             </div>
@@ -88,12 +215,12 @@ require '../Config/common.php';
           <!-- Buttons Row 2 -->
           <div class="col-12 mb-2 d-flex gap-2">
             <div class="col-6">
-              <button type="button" class="btn flex-fill btn-outline-dark" onclick="exportExcel()">
+              <button type="button" class="btn flex-fill btn-outline-dark">
                 <i class="fas fa-file-excel"></i> Excel
               </button>
             </div>
             <div class="col-6">
-              <button type="button" class="btn flex-fill btn-outline-dark" onclick="exportPdf()">
+              <button type="button" class="btn flex-fill btn-outline-dark">
                 <i class="fas fa-file-pdf"></i> PDF
               </button>
             </div>
@@ -101,97 +228,54 @@ require '../Config/common.php';
         </form>
       </div>
     </div>
-
-    <script>
-    function showReport() {
-      const from = document.getElementById('fromDate').value;
-      const to = document.getElementById('toDate').value;
-      const keyword = document.getElementById('keyword').value;
-      document.getElementById('reportContent').innerHTML = `
-        <p>Showing report from <strong>${from || 'N/A'}</strong> to <strong>${to || 'N/A'}</strong> 
-        with keyword: <strong>${keyword || 'N/A'}</strong></p>`;
-    }
-
-    function printReport() {
-      alert('Print report action!');
-    }
-
-    function exportExcel() {
-      alert('Export to Excel!');
-    }
-
-    function exportPdf() {
-      alert('Export to PDF!');
-    }
-    </script>
-
   </div>
 </div>
-
+<!-- Report Modal -->
+<div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Report Preview</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <?php if(isset($reportData)): ?>
+          <!-- Render your report table here -->
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>In</th>
+                <th>Out</th>
+                <th>Balance</th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php foreach($reportData as $row): ?>
+                <tr>
+                  <td><?= htmlspecialchars($row['item_name']) ?></td>
+                  <td><?= $row['in_qty'] ?></td>
+                  <td><?= $row['out_qty'] ?></td>
+                  <td><?= $row['balance'] ?></td>
+                </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+        <?php else: ?>
+          <p>No report generated yet.</p>
+        <?php endif; ?>
+      </div>
+    </div>
+  </div>
+</div>
 <script>
-
-const reportFiltersConfig = {
-  sales_summary: ["fromDate", "toDate"],
-  sales_by_customer: ["filterCategory", "fromDate", "toDate"],
-  sales_by_item: ["filterCategory", "filterItem", "fromDate", "toDate"],
-  stock_by_category: ["filterCategory"],
-  stock_by_location: ["filterCategory"],
-  balance_by_category: ["filterCategory"], // your example
-  stock_audit: ["fromDate", "toDate"],
-  // ... add more as needed
-};
-
-
-function loadReport(name) {
-  // Remove active highlight from all links
-  document.querySelectorAll('.report-sidebar a').forEach(el => {
-    el.classList.remove('active');
-  });
-
-  // Highlight clicked link
-  event.target.classList.add('active');
-
-  // Update title and show filters
-  document.getElementById('reportTitle').innerText = name.replace(/_/g, ' ').toUpperCase();
-  document.getElementById('reportFilters').style.display = 'block';
-  document.getElementById('reportContent').innerHTML = `<p class="text-muted">Loading ${name}...</p>`;
-
-  // Disable all filters first
-  document.querySelectorAll('#reportFilters select, #reportFilters input').forEach(el => {
-    el.disabled = true;
-  });
-
-  // Enable only filters needed for this report
-  if (reportFiltersConfig[name]) {
-    reportFiltersConfig[name].forEach(id => {
-      document.getElementById(id).disabled = false;
+  $(document).ready(function() {
+    $(".chosen-select").chosen({
+      width: "100%",        // makes it fit bootstrap column
+      placeholder_text_single: "Select a category",
+      no_results_text: "No match found!"
     });
-  }
-}
-
-
-function applyFilter(){
-  const from = document.getElementById('fromDate').value;
-  const to = document.getElementById('toDate').value;
-  const keyword = document.getElementById('keyword').value;
-  document.getElementById('reportContent').innerHTML = `<p>Filters Applied: From ${from || 'N/A'} To ${to || 'N/A'} Keyword: ${keyword || 'N/A'}</p>`;
-}
-</script>
-<script>
-function loadReport(name) {
-  // Remove active from all links
-  document.querySelectorAll('.report-sidebar a').forEach(el => {
-    el.classList.remove('active');
   });
-
-  // Add active to the clicked link
-  event.target.classList.add('active');
-
-  // Update title and filters
-  document.getElementById('reportTitle').innerText = name.replace(/_/g, ' ').toUpperCase();
-  document.getElementById('reportFilters').style.display = 'block';
-  document.getElementById('reportContent').innerHTML = `<p class="text-muted">Loading ${name}...</p>`;
-}
 </script>
 
 <?php include 'footer.html'; ?>

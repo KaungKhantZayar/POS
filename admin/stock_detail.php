@@ -65,7 +65,7 @@ require '../Config/common.php';
                 if($value['foc_qty'] != 0){
                     echo $value['in_qty'];
                     ?>
-                    <span class="badge badge-success">foc +2</span>
+                    <span class="badge badge-success">foc +<?php echo $value['foc_qty']; ?></span>
                     <?php 
                 }else{ 
                     echo $value['in_qty'];              
@@ -81,7 +81,7 @@ require '../Config/common.php';
                   if($value['foc_qty'] != 0){
                       echo $value['out_qty'];
                       ?>
-                      <span class="badge badge-success">foc +2</span>
+                      <span class="badge badge-success">foc +<?php echo $value['foc_qty']; ?></span>
                       <?php 
                   }else{ 
                       echo $value['out_qty'];              

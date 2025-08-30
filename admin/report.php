@@ -3,311 +3,342 @@ session_start();
 require '../Config/config.php';
 require '../Config/common.php';
 ?>
-
 <?php include 'header.php'; ?>
 
-<style media="screen">
-.back_btn{
-  text-decoration: none;
-  border:1px solid black;
-  padding:10px;
-  border-radius:5px;
-  color:black;
-  transition:0.5s;
-}
-.back_btn:hover{
-  background-color: black;
-  color:white;
-}
-</style>
-
 <?php
-    if (isset($_POST['serach_btn'])) {
-      $start_date = $_POST['start_date'];
-      $end_date = $_POST['end_date'];
-
-      if ($_GET['type'] == 'cash') {
-        $stmt = $pdo->prepare("SELECT * FROM cash_purchase WHERE date BETWEEN '$start_date' AND '$end_date' ORDER BY id DESC");
-        $stmt->execute();
-        $result = $stmt->fetchAll();
-      }else {
-        $stmt = $pdo->prepare("SELECT * FROM credit_purchase WHERE date BETWEEN '$start_date' AND '$end_date' ORDER BY id DESC");
-        $stmt->execute();
-        $result = $stmt->fetchAll();
-      }
-    }
- ?>
-
-<?php
-  if ($_GET['report_name'] == 'date') {
-
-    ?>
-    <br><br>
-    <div class="outer" style="width:100%; padding:10px; margin-top:-65px;">
-      <form class="" action="" method="post">
-      <div class="d-flex">
-        <h5><?php
-          if ($_GET['type'] == 'cash') {
-            echo "Date-အလိုက်ကြည့်ရန် Cash-Purchase ";
-          }else {
-            echo "Date-အလိုက်ကြည့်ရန် Credit-Purchase";
-          }
-        ?></h5>
-        <label for="" class="mt-2 me-3">Start Date :</label>
-          <input type="date" class="form-control" name="start_date" value="" style="width:200px;">
-
-          <label for="" class="mt-2 ms-3">End Date :</label>
-          <input type="date" class="ms-3 form-control" name="end_date" value="" style="width:200px;">
-
-          <button type="submit" name="serach_btn" class="btn btn-success ms-3 btn-sm">Search</button>
+if($_GET['report_name'] === 'stock_inventory_summary'){
+  ?>
+  <div class="col-md-12 px-4 mt-4">
+    <div class="d-flex justify-content-between">
+      <h4>
+          Stock In / Out Report
+        </h4>
+      <div>
+        <h4>
+        <?php
+            if(!empty($_GET['start_date']) && !empty($_GET['end_date'])){
+              if($_GET['start_date'] === $_GET['end_date']){
+                echo "Date : " . date('d-m-y', strtotime($_GET['start_date']));
+              }else{
+                echo "Date : " . date('d-m-y', strtotime($_GET['start_date'])) ." To ". date('d-m-y', strtotime($_GET['end_date']));
+              }
+            }
+          ?>
+        </h4>
       </div>
-    </form>
-
-
-      <table class="table table-bordered mt-4 table-hover">
-        <thead>
+    </div>  
+    <div class="report-outer">
+      <table class="table mt-4 table-hover">
+        <thead class="custom-thead">
           <tr>
-            <th style="width: 10px">#</th>
-            <th>Date</th>
-            <th>Vr_No</th>
-            <th>Supplier_Name</th>
-            <th>Item_Name</th>
-            <th>Price</th>
-            <th>Qty</th>
+            <th style="width: 100px">No</th>
+            <th>Item Name</th>
+            <th>Total In Qty</th>
+            <th>Total Out Qty</th>
           </tr>
         </thead>
         <tbody>
-          <?php
-             if (!empty($result)) {
-               $id = 1;
-               foreach ($result as $value) {
+        <?php
+        if(!empty($_GET['item_id'])) {
+          $item_id = $_GET['item_id'];
 
-                 $supplier_id = $value['supplier_id'];
+          // Date Between
+          if($_GET['start_date'] && $_GET['end_date']){
+            $start_date = $_GET['start_date'];
+            $end_date = $_GET['end_date'];
 
-                 $supplierIdstmt = $pdo->prepare("SELECT * FROM supplier WHERE supplier_id='$supplier_id'");
-                 $supplierIdstmt->execute();
-                 $supplierIdResult = $supplierIdstmt->fetch(PDO::FETCH_ASSOC);
+            // Each Stock's Total In
+            $total_instmt = $pdo->prepare("SELECT SUM(in_qty) AS total_in FROM stock WHERE item_id='$item_id' AND date BETWEEN '$start_date' AND '$end_date'");
+            $total_instmt->execute();
+            $total_in = $total_instmt->fetch(PDO::FETCH_ASSOC);
+            
+            // Each Stock's Total Out 
+            $total_outstmt = $pdo->prepare("SELECT SUM(out_qty) AS total_out FROM stock WHERE item_id='$item_id' AND date BETWEEN '$start_date' AND '$end_date'");
+            $total_outstmt->execute();
+            $total_out = $total_outstmt->fetch(PDO::FETCH_ASSOC);
+          }else{
+            // Each Stock's Total In
+            $total_instmt = $pdo->prepare("SELECT SUM(in_qty) AS total_in FROM stock WHERE item_id='$item_id'");
+            $total_instmt->execute();
+            $total_in = $total_instmt->fetch(PDO::FETCH_ASSOC);
+            
+            // Each Stock's Total Out 
+            $total_outstmt = $pdo->prepare("SELECT SUM(out_qty) AS total_out FROM stock WHERE item_id='$item_id'");
+            $total_outstmt->execute();
+            $total_out = $total_outstmt->fetch(PDO::FETCH_ASSOC);
+          }
 
-                 $item_id = $value['item_id'];
-                 $itemstmt = $pdo->prepare("SELECT * FROM item WHERE item_id='$item_id'");
-                 $itemstmt->execute();
-                 $itemResult= $itemstmt->fetch(PDO::FETCH_ASSOC);
-           ?>
-          <tr>
-            <td><?php echo $id;?></td>
-            <td><?php echo $value['date']; ?></td>
-            <td><?php echo $value['vr_no']; ?></td>
-            <td><?php echo $supplierIdResult['supplier_name']; ?></td>
-            <td><?php echo $itemResult['item_name']; ?></td>
-            <td><?php echo $value['price'];?></td>
-            <td><?php echo $value['qty'];?></td>
+          // Item Name
+          $itemstmt = $pdo->prepare("SELECT * FROM item WHERE item_id='$item_id'");
+          $itemstmt->execute();
+          $itemResult= $itemstmt->fetch(PDO::FETCH_ASSOC);
+          ?>
+          <tr style="<?php if($total_in['total_in'] == 0 && $total_out['total_out'] == 0){ echo "display:none;"; } ?>">
+            <td><?php echo "1"; ?></td>
+            <td><?php echo $itemResult['item_name'];?></td>
+            <td><?php echo $total_in['total_in'];?></td>
+            <td><?php echo $total_out['total_out'];?></td>
           </tr>
           <?php
-          $id++;
+        }else{
+          // All Item Stock In / Out
+          $stockstmt = $pdo->prepare("SELECT DISTINCT item_id FROM stock ORDER BY id DESC");
+          $stockstmt->execute();
+          $stockdata = $stockstmt->fetchAll();
+          $id = 1;
+          foreach($stockdata as $data){
+            $item_id = $data['item_id'];
+
+            if(!empty($_GET['start_date']) && !empty($_GET['end_date'])){
+              $start_date = $_GET['start_date'];
+              $end_date = $_GET['end_date'];
+
+              // Each Stock's Total In
+              $total_instmt = $pdo->prepare("SELECT SUM(in_qty) AS total_in FROM stock WHERE item_id='$item_id' AND date BETWEEN '$start_date' AND '$end_date'");
+              $total_instmt->execute();
+              $total_in = $total_instmt->fetch(PDO::FETCH_ASSOC);
+              
+              // Each Stock's Total Out 
+              $total_outstmt = $pdo->prepare("SELECT SUM(out_qty) AS total_out FROM stock WHERE item_id='$item_id' AND date BETWEEN '$start_date' AND '$end_date'");
+              $total_outstmt->execute();
+              $total_out = $total_outstmt->fetch(PDO::FETCH_ASSOC);
+
+            }else{
+              // Each Stock's Total In
+              $total_instmt = $pdo->prepare("SELECT SUM(in_qty) AS total_in FROM stock WHERE item_id='$item_id'");
+              $total_instmt->execute();
+              $total_in = $total_instmt->fetch(PDO::FETCH_ASSOC);
+              
+              // Each Stock's Total Out 
+              $total_outstmt = $pdo->prepare("SELECT SUM(out_qty) AS total_out FROM stock WHERE item_id='$item_id'");
+              $total_outstmt->execute();
+              $total_out = $total_outstmt->fetch(PDO::FETCH_ASSOC);
+            }
+
+            // Item Name
+            $itemstmt = $pdo->prepare("SELECT * FROM item WHERE item_id='$item_id'");
+            $itemstmt->execute();
+            $itemResult= $itemstmt->fetch(PDO::FETCH_ASSOC);
+          ?>
+            <tr style="<?php if($total_in['total_in'] == 0 && $total_out['total_out'] == 0){ echo "display:none;"; } ?>">
+              <td><?php echo $id; ?></td>
+              <td><?php echo $itemResult['item_name'];?></td>
+              <td><?php echo $total_in['total_in'];?></td>
+              <td><?php echo $total_out['total_out'];?></td>
+            </tr>
+          <?php
+          }
+        }
+          ?>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <?php
+}elseif($_GET['report_name'] === 'stock_balance'){
+  ?>
+  <div class="col-md-12 px-4 mt-4">
+    <div class="d-flex justify-content-between">
+    <h4>
+        Stock Balance Report
+      </h4>
+    <div>
+      <h4> 
+      <?php
+          if(!empty($_GET['start_date']) && !empty($_GET['end_date'])){
+            if($_GET['start_date'] === $_GET['end_date']){
+              echo "Date : " . date('d-m-y', strtotime($_GET['start_date']));
+            }else{
+              echo "Date : " . date('d-m-y', strtotime($_GET['start_date'])) ." To ". date('d-m-y', strtotime($_GET['end_date']));
             }
           }
-           ?>
-        </tbody>
-      </table>
-        <div class="fixed-top" style="margin-left:1370px; margin-top:700px;">
-          <a href="chose_report.php" type="submit" class="back_btn" name="" style="padding-bottom:7px;padding-top:5px; padding-left:20px;width:77px;">Back</a>
+        ?>
+      </h4>
+    </div>
+  </div> 
+    <div class="report-outer">
+      <table class="table mt-4 table-hover">
+        <thead class="custom-thead">
+          <tr>
+            <th style="width: 100px">No</th>
+            <th>Item Name</th>
+            <th>Balance</th>
+          </tr>
+        </thead>
+        <tbody>
+        <?php
+        if(!empty($_GET['item_id'])) {
+              $item_id = $_GET['item_id'];
+
+              if(!empty($_GET['start_date']) && !empty($_GET['end_date'])){
+                $start_date = $_GET['start_date'];
+                $end_date = $_GET['end_date'];
+
+                $stockstmt = $pdo->prepare("SELECT * FROM stock WHERE item_id='$item_id' AND date BETWEEN '$start_date' AND '$end_date' ORDER BY id DESC");
+              }else{
+                $stockstmt = $pdo->prepare("SELECT * FROM stock WHERE item_id='$item_id' ORDER BY id DESC");
+              }
+              $stockstmt->execute();
+              $stockdata = $stockstmt->fetch(PDO::FETCH_ASSOC);
+
+              $itemstmt = $pdo->prepare("SELECT * FROM item WHERE item_id='$item_id'");
+              $itemstmt->execute();
+              $itemResult= $itemstmt->fetch(PDO::FETCH_ASSOC);
+              ?>
+                <tr>
+                  <td><?php echo "1"; ?></td>
+                  <td><?php echo $itemResult['item_name'] ?></td>
+                  <td><?php echo $stockdata['balance'] ?></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
-      <!-- <a href="" class="fixed-top form-control" type="button" name="button" style="margin-top:200px;">Back</a> -->
-    </div>
-    <br><br><br><br><br><br><br>
-    <br><br><br><br><br><br><br>
-    <br><br><br><br><br><br><br>
-    <br><br><br><br><br><br><br>
-
-
-
-  <?php
-
-  }elseif ($_GET['report_name'] == 'vr_no') {
-
-    if (isset($_POST['serach_btn2'])) {
-      $vr_no_search = $_POST['vr_no_search'];
-
-      if ($_GET['type'] == 'cash') {
-        $stmt = $pdo->prepare("SELECT * FROM cash_purchase WHERE vr_no LIKE '%$vr_no_search%' ORDER BY id DESC");
-        $stmt->execute();
-        $result = $stmt->fetchAll();
-      }else {
-        $stmt = $pdo->prepare("SELECT * FROM credit_purchase WHERE vr_no LIKE '%$vr_no_search%' ORDER BY id DESC");
-        $stmt->execute();
-        $result = $stmt->fetchAll();
-      }
-    }
-
-    ?>
-    <br><br>
-    <div class="outer" style="width:100%; padding:10px; margin-top:-65px;">
-      <form class="" action="" method="post">
-      <div class="d-flex">
-        <h5>
           <?php
-            if ($_GET['type'] == 'cash') {
-              echo "Vouecher-အလိုက်ကြည့်ရန် Cash-Vouecher-No";
-            }else {
-              echo "Vouecher-အလိုက်ကြည့်ရန် Credit-Vouecher-No";
-            }
-           ?>
-        </h5>
-        <label for="" class="mt-2 me-3" style=" margin-left:540px;">Vr_NO :</label>
-          <input type="number" class="form-control" name="vr_no_search" value="" style="width:200px;">
-          <button type="submit" name="serach_btn2" class="btn btn-success ms-3 btn-sm">Search</button>
-      </div>
-    </form>
-
-
-      <table class="table table-bordered mt-4 table-hover">
-        <thead>
-          <tr>
-            <th style="width: 10px">#</th>
-            <th>Date</th>
-            <th>Vr_No</th>
-            <th>Supplier_Name</th>
-            <th>Item_Name</th>
-            <th>Price</th>
-            <th>Qty</th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php
-             if (!empty($result)) {
-               $id = 1;
-               foreach ($result as $value) {
-
-                 $supplier_id = $value['supplier_id'];
-
-                 $supplierIdstmt = $pdo->prepare("SELECT * FROM supplier WHERE supplier_id='$supplier_id'");
-                 $supplierIdstmt->execute();
-                 $supplierIdResult = $supplierIdstmt->fetch(PDO::FETCH_ASSOC);
-
-                 $item_id = $value['item_id'];
-                 $itemstmt = $pdo->prepare("SELECT * FROM item WHERE item_id='$item_id'");
-                 $itemstmt->execute();
-                 $itemResult= $itemstmt->fetch(PDO::FETCH_ASSOC);
-           ?>
-          <tr>
-            <td><?php echo $id;?></td>
-            <td><?php echo $value['date']; ?></td>
-            <td><?php echo $value['vr_no']; ?></td>
-            <td><?php echo $supplierIdResult['supplier_name']; ?></td>
-            <td><?php echo $itemResult['item_name']; ?></td>
-            <td><?php echo $value['price'];?></td>
-            <td><?php echo $value['qty'];?></td>
-          </tr>
-          <?php
-          $id++;
-            }
+        }else{
+          // All Item Balance
+          $stockstmt = $pdo->prepare("SELECT DISTINCT item_id FROM stock ORDER BY id DESC");
+          $stockstmt->execute();
+          $stockdata = $stockstmt->fetchAll();
+          $id = 1;
+          foreach($stockdata as $data){
+            $item_id = $data['item_id'];
+            $stockstmt = $pdo->prepare("SELECT * FROM stock WHERE item_id='$item_id' ORDER BY id DESC");
+            $stockstmt->execute();
+            $stockdata = $stockstmt->fetch(PDO::FETCH_ASSOC);
+            
+            $itemstmt = $pdo->prepare("SELECT * FROM item WHERE item_id='$item_id'");
+            $itemstmt->execute();
+            $itemResult= $itemstmt->fetch(PDO::FETCH_ASSOC);
+            ?>
+            <tr>
+              <td><?php echo $id; ?></td>
+              <td><?php echo $itemResult['item_name'] ?></td>
+              <td><?php echo $stockdata['balance'] ?></td>
+            </tr>
+            <?php
+            $id++;
           }
-           ?>
-        </tbody>
-      </table>
-    </div>
-    <div class="fixed-top" style="margin-left:1370px; margin-top:700px;">
-      <a href="chose_report.php" type="submit" class="back_btn" name="" style="padding-bottom:7px;padding-top:5px; padding-left:20px;width:77px;">Back</a>
-    </div>
-    <br><br><br><br><br><br><br>
-    <br><br><br><br><br><br><br>
-    <br><br><br><br><br><br><br>
-    <br><br><br><br><br><br><br>
-
-  <?php
-
-  }elseif ($_GET['report_name'] == 'item') {
-
-    if (isset($_POST['item_search'])) {
-      $item_search = $_POST['item_search'];
-
-      if ($_GET['type'] == 'cash') {
-        $stmt = $pdo->prepare("SELECT * FROM cash_purchase WHERE vr_no LIKE '%$item_search%' ORDER BY id DESC");
-        $stmt->execute();
-        $result = $stmt->fetchAll();
-      }else {
-        $stmt = $pdo->prepare("SELECT * FROM credit_purchase WHERE vr_no LIKE '%$item_search%' ORDER BY id DESC");
-        $stmt->execute();
-        $result = $stmt->fetchAll();
-      }
-    }
-
-    ?>
-    <br><br>
-    <div class="outer" style="width:100%; padding:10px; margin-top:-65px;">
-      <form class="" action="" method="post">
-      <div class="d-flex">
-        <h5>
-          <?php
-            if ($_GET['type'] == 'cash') {
-              echo "Cash-Item အလိုက်ကြည့်ရန်";
-            }else {
-              echo "Credit-Item အလိုက်ကြည့်ရန်";
-            }
-           ?>
-        </h5>
-        <label for="" class="mt-2 me-3" style=" margin-left:540px;">Vr_NO :</label>
-          <input type="number" class="form-control" name="item_search" value="" style="width:200px;">
-          <button type="submit" name="serach_btn2" class="btn btn-success ms-3 btn-sm">Search</button>
+          ?>
+            </tbody>
+          </table>
+        </div>
       </div>
-    </form>
-
-
-      <table class="table table-bordered mt-4 table-hover">
-        <thead>
-          <tr>
-            <th style="width: 10px">#</th>
-            <th>Date</th>
-            <th>Vr_No</th>
-            <th>Supplier_Name</th>
-            <th>Item_Name</th>
-            <th>Price</th>
-            <th>Qty</th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php
-             if (!empty($result)) {
-               $id = 1;
-               foreach ($result as $value) {
-
-                 $supplier_id = $value['supplier_id'];
-
-                 $supplierIdstmt = $pdo->prepare("SELECT * FROM supplier WHERE supplier_id='$supplier_id'");
-                 $supplierIdstmt->execute();
-                 $supplierIdResult = $supplierIdstmt->fetch(PDO::FETCH_ASSOC);
-
-                 $item_id = $value['item_id'];
-                 $itemstmt = $pdo->prepare("SELECT * FROM item WHERE item_id='$item_id'");
-                 $itemstmt->execute();
-                 $itemResult= $itemstmt->fetch(PDO::FETCH_ASSOC);
-           ?>
-          <tr>
-            <td><?php echo $id;?></td>
-            <td><?php echo $value['date']; ?></td>
-            <td><?php echo $value['vr_no']; ?></td>
-            <td><?php echo $supplierIdResult['supplier_name']; ?></td>
-            <td><?php echo $itemResult['item_name']; ?></td>
-            <td><?php echo $value['price'];?></td>
-            <td><?php echo $value['qty'];?></td>
-          </tr>
-          <?php
-          $id++;
-            }
-          }
-           ?>
-        </tbody>
-      </table>
-    </div>
-    <br><br><br><br><br><br><br>
-    <br><br><br><br><br><br><br>
-    <br><br><br><br><br><br><br>
-    <br><br><br><br><br><br><br>
-
-  <?php
-
+    <?php
   }
-?>
+    ?>
+    <?php
+}elseif($_GET['report_name'] === 'balance_by_category'){
+  ?>
+  <div class="col-md-12 px-4 mt-4">
+    <div class="d-flex justify-content-between">
+    <h4>
+        Balance By Category Report
+      </h4>
+    <div>
+      <h4> 
+      <?php
+          if(!empty($_GET['start_date']) && !empty($_GET['end_date'])){
+            if($_GET['start_date'] === $_GET['end_date']){
+              echo "Date : " . date('d-m-y', strtotime($_GET['start_date']));
+            }else{
+              echo "Date : " . date('d-m-y', strtotime($_GET['start_date'])) ." To ". date('d-m-y', strtotime($_GET['end_date']));
+            }
+          }
+        ?>
+        <?php
+        if(!empty($_GET['category_id'])) {
+            $category_id = $_GET['category_id'];
+            // Category Name
+            $catstmt = $pdo->prepare("SELECT * FROM categories WHERE categories_code='$category_id'");
+            $catstmt->execute();
+            $catResult= $catstmt->fetch(PDO::FETCH_ASSOC);
+            echo " Category Name : ". $catResult['categories_name'];
+        }
+        ?>
+      </h4>
+    </div>
+  </div> 
+    <div class="report-outer">
+      <table class="table mt-4 table-hover">
+        <thead class="custom-thead">
+          <tr>
+            <th style="width: 100px">No</th>
+            <th>Item Name</th>
+            <th>Balance</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php
+          if(!empty($_GET['category_id'])) {
+            $category_id = $_GET['category_id'];
+            
+            $cat_itemstmt = $pdo->prepare("SELECT * FROM item WHERE categories_id='$category_id' ORDER BY id DESC");
+            $cat_itemstmt->execute();
+            $cat_itemdata = $cat_itemstmt->fetchAll();
+            $id = 1;
+            foreach($cat_itemdata as $item){
+              $item_id = $item['item_id'];
+              // echo "<script>alert('$item_id')</script>";
+              $cat_stockstmt = $pdo->prepare("SELECT * FROM stock WHERE item_id='$item_id' ORDER BY id DESC");
+              $cat_stockstmt->execute();
+              $cat_stockdata = $cat_stockstmt->fetch(PDO::FETCH_ASSOC);
 
+              $stockstmt = $pdo->prepare("SELECT * FROM stock ORDER BY id DESC");
+              $stockstmt->execute();
+              $stockdata = $stockstmt->fetch(PDO::FETCH_ASSOC);
+
+              $itemstmt = $pdo->prepare("SELECT * FROM item WHERE item_id='$item_id'");
+              $itemstmt->execute();
+              $itemResult= $itemstmt->fetch(PDO::FETCH_ASSOC);
+
+              ?>
+              <tr>
+                <td><?php echo $id; ?></td>
+                <td><?php echo $itemResult['item_name'] ?></td>
+                <td><?php //echo $stockdata['balance'] ?></td>
+              </tr>
+              <?php
+              $id++;
+            }
+          }
+          ?>
+      </tbody>
+    </table>
+  </div>
+  </div>
+  <?php
+}elseif($_GET['report_name'] === 'purchase_foc'){
+  ?>
+  <div class="col-md-12 px-4 mt-4">
+    <h4>Purchase Foc Report</h4>
+  </div>
+  <?php
+}elseif($_GET['report_name'] === 'sale_foc'){
+  ?>
+  <div class="col-md-12 px-4 mt-4">
+    <h4>Sale Foc Report</h4>
+  </div>
+  <?php
+}elseif($_GET['report_name'] === 'damage_stock'){
+  ?>
+  <div class="col-md-12 px-4 mt-4">
+    <h4>Damage Stock Report</h4>
+  </div>
+  <?php
+}elseif($_GET['report_name'] === 'reorder_stock'){
+  ?>
+  <div class="col-md-12 px-4 mt-4">
+    <h4>Reorder Stock Report</h4>
+  </div>
+  <?php
+}elseif($_GET['report_name'] === 'low_stock'){
+  ?>
+  <div class="col-md-12 px-4 mt-4">
+    <h4>Low Stock Warning Report</h4>
+  </div>
+  <?php
+}
+?>
 
 <?php include 'footer.html'; ?>

@@ -92,7 +92,7 @@ require '../Config/common.php';
               <select name="categories_id" class="form-control">
                 <option value="">SELECT CATEGORY</option>
                 <?php foreach ($catResult as $value) {?>
-                  <option value="<?php echo $value['id'];?>"><?php echo $value['categories_name'];?></option>
+                  <option value="<?php echo $value['categories_code'];?>"><?php echo $value['categories_name'];?></option>
                 <?php } ?>
               </select>
               <p style="color:red;"><?php echo empty($categoriesidError) ? '' : '*'.$categoriesidError;?></p>
