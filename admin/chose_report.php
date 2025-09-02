@@ -50,7 +50,6 @@ if (in_array($report_name, ["stock_inventory_summary"])) {
       <h4>Select Report To View Or Print</h4>
       <nav class="report-sidebar mt-3">
         <ul class="p-0" style="list-style:none;">
-
           <!-- Stock Reports -->
           <li class="mb-3 fw-bold fs-5 mt-4">Stock</li>
           <li class="ms-3 mb-2 fs-6">
@@ -164,27 +163,27 @@ if (in_array($report_name, ["stock_inventory_summary"])) {
             <div class="col-6">
               <label class="form-label">FOC</label>
               <select id="filterStockFoc" class="form-control report-input" name="stock_foc" <?php echo $filterStockFoc ? "disabled" : ""; ?>>
-                <option value="">All</option>
+                <option value="all">All</option>
                 <option value="purchase_foc">Purchase FOC</option>
                 <option value="sale_foc">Sale FOC</option>
-                <option value="do_not_show">Do Not Show</option>
+                <option value="">Do Not Show</option>
               </select>
             </div>
             <div class="col-6">
               <label class="form-label">Damage</label>
               <select id="filterDamageStock" class="form-control report-input" name="damage_stock" <?php echo $filterDamageStock ? "disabled" : ""; ?>>
-                <option value="">All</option>
-                <option value="do_not_show">Do Not Show</option>
+                <option value="all">All</option>
+                <option value="">Do Not Show</option>
               </select>
             </div>
           </div>
           <div class="col-12 mb-2 px-3">
             <label class="form-label">Return</label>
             <select id="filterReturnStock" class="form-control report-input" name="return_stock" <?php echo $filterReturnStock ? "disabled" : ""; ?>>
-              <option value="">All</option>
+              <option value="all">All</option>
               <option value="purchase_return">Purchase Return</option>
               <option value="sale_return">Sale Return</option>
-              <option value="do_not_show">Do Not Show</option>
+              <option value="">Do Not Show</option>
             </select>
           </div>
           <div class="col-12 mb-2 d-flex">
