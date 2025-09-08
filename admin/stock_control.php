@@ -9,7 +9,7 @@ require '../Config/common.php';
 
 if(isset($_POST['save'])){
   $date = $_POST['date'];
-  $vr_no = $_POST['vr_no'];
+  $gin_no = $_POST['gin_no'];
   $item_id = $_POST['item_id'];
   $qty = $_POST['qty'];
 
@@ -19,9 +19,9 @@ if(isset($_POST['save'])){
   $stock_balancedata = $stock_balancestmt->fetch(PDO::FETCH_ASSOC);
   $balance = $stock_balancedata['balance'] - $qty;  
 
-  $receivablestmt = $pdo->prepare("INSERT INTO stock (date,vr_no,item_id,to_from,out_qty,balance) VALUES (:date,:vr_no,:item_id,'damage',:out_qty,:balance)");
+  $receivablestmt = $pdo->prepare("INSERT INTO stock (date,gin_no,item_id,to_from,out_qty,balance) VALUES (:date,:gin_no,:item_id,'damage',:out_qty,:balance)");
   $receivabledata = $receivablestmt->execute(
-    array(':date'=>$date, ':vr_no'=>$vr_no, ':item_id'=>$item_id, ':out_qty'=>$qty, ':balance'=>$balance)
+    array(':date'=>$date, ':gin_no'=>$gin_no, ':item_id'=>$item_id, ':out_qty'=>$qty, ':balance'=>$balance)
   );
 }
 
@@ -58,7 +58,7 @@ if(isset($_POST['save'])){
         </div>
       </div>
       <!-- Damage Stock Button -->
-      <button data-bs-toggle="modal" data-bs-target="#myModal" class="btn btn-purple text-light btn-sm me-3">
+      <button data-toggle="modal" data-target="#myModal" class="btn btn-purple text-light btn-sm me-3">
         Damage Stock
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-triangle" style="margin-top: -5px;" viewBox="0 0 16 16">
           <path d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.15.15 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.2.2 0 0 1-.054.06.1.1 0 0 1-.066.017H1.146a.1.1 0 0 1-.066-.017.2.2 0 0 1-.054-.06.18.18 0 0 1 .002-.183L7.884 2.073a.15.15 0 0 1 .054-.057m1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767z"/>
@@ -92,17 +92,11 @@ if(isset($_POST['save'])){
               $itemstmt->execute();
               $item = $itemstmt->fetch(PDO::FETCH_ASSOC);
               $reorder_level = $item['reorder_level'];
-              // Total Receivable Amount
-              $total_instmt = $pdo->prepare("SELECT SUM(in_qty) AS total_in FROM stock WHERE item_id='$item_id'");
-              $total_instmt->execute();
-              $total_indata = $total_instmt->fetch(PDO::FETCH_ASSOC);
               
-              // Total Paid Amount
-              $total_outstmt = $pdo->prepare("SELECT SUM(out_qty) AS total_out FROM stock WHERE item_id='$item_id'");
-              $total_outstmt->execute();
-              $total_outdata = $total_outstmt->fetch(PDO::FETCH_ASSOC);
-
-              $balance = $total_indata['total_in'] - $total_outdata['total_out'];
+              $balancestmt = $pdo->prepare("SELECT * FROM stock WHERE item_id='$item_id' ORDER BY id DESC");
+              $balancestmt->execute();
+              $balancedata = $balancestmt->fetch(PDO::FETCH_ASSOC);
+              $balance = $balancedata['balance'];
          ?>
         <tr>
           <td><?php echo $id; ?></td>
@@ -146,8 +140,8 @@ if(isset($_POST['save'])){
               <input type="date" class="border border-dark form-control" name="date">
             </div>
             <div class="col">
-              <label for="">Vr_no</label>
-              <input type="text" class="form-control border border-dark" name="vr_no">
+              <label for="">GIN NO</label>
+              <input type="text" class="form-control border border-dark" name="gin_no">
             </div>
           </div>
           <div class="row mt-2">

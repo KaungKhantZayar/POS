@@ -31,7 +31,7 @@ if(isset($_POST['received'])){
     $stockbalance = 0 + $qty;
   }
 
-  $stockstmt = $pdo->prepare("INSERT INTO stock (date,item_id,gin_no,to_from,in_qty,balance) VALUES (:date,:item_id,:gin_no,'sale return',:in_qty,:balance)");
+  $stockstmt = $pdo->prepare("INSERT INTO stock (date,item_id,gin_no,to_from,in_qty,balance) VALUES (:date,:item_id,:gin_no,'sale_return',:in_qty,:balance)");
   $stockdata = $stockstmt->execute(
     array(':date'=>$date, ':gin_no'=>$gin_no, ':item_id'=>$item_id, ':in_qty'=>$qty, ':balance'=>$stockbalance)
   );

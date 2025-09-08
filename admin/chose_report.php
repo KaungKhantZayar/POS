@@ -27,6 +27,8 @@ if (in_array($report_name, ["stock_inventory_summary"])) {
   $filterDamageStock = false;
   $filterReturnStock = false;
   $filterStockFoc = false;
+  $fromDate = true;
+  $toDate = true;
 } elseif (in_array($report_name, ["sales_summary", "total_sales"])) {
   $fromDate = false;
   $toDate = false;

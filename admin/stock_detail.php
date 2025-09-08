@@ -34,7 +34,7 @@ require '../Config/common.php';
     </div>
   </div>
   <div class="outer" style="margin-top:-10px;">
-    <table class="table table-bordered mt-4 table-hover">
+    <table class="table mt-4 table-hover">
       <thead class="custom-thead">
         <tr>
           <th style="width: 10px">No</th>
@@ -55,7 +55,7 @@ require '../Config/common.php';
          ?>
         <tr>
           <td><?php echo $id; ?></td>
-          <td><?php echo $value['date'];?></td>
+          <td><?php echo date('d-m-Y', strtotime($value['date']));?></td>
           <td><?php echo $value['to_from'];?></td>
           <td><?php echo $value['grn_no'];?></td>
           <td><?php echo $value['gin_no'];?></td>
