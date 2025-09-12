@@ -44,18 +44,18 @@ require '../Config/common.php';
 
       $total_pages = ceil(count($rawResult) / $numOfrecs);
 
-      $stmt = $pdo->prepare("SELECT * FROM temp_sale ORDER BY id DESC LIMIT $offset,$numOfrecs");
+      $stmt = $pdo->prepare("SELECT * FROM temp_sale WHERE status='pending' ORDER BY id DESC LIMIT $offset,$numOfrecs");
       $stmt->execute();
       $result = $stmt->fetchAll();
     }else {
       $search = $_POST['search'];
-      $stmt = $pdo->prepare("SELECT * FROM temp_sale WHERE date LIKE '%$search%' ORDER BY id  DESC");
+      $stmt = $pdo->prepare("SELECT * FROM temp_sale WHERE status='pending' AND date LIKE '%$search%' ORDER BY id  DESC");
       $stmt->execute();
       $rawResult = $stmt->fetchAll();
 
       $total_pages = ceil(count($rawResult) / $numOfrecs);
 
-      $stmt = $pdo->prepare("SELECT * FROM temp_sale WHERE date LIKE '%$search%' ORDER BY id DESC LIMIT $offset,$numOfrecs");
+      $stmt = $pdo->prepare("SELECT * FROM temp_sale WHERE status='pending' AND date LIKE '%$search%' ORDER BY id DESC LIMIT $offset,$numOfrecs");
       $stmt->execute();
       $result = $stmt->fetchAll();
     }
@@ -90,6 +90,9 @@ require '../Config/common.php';
       $foc = $_POST['foc'];
       $so_no = $_POST['so_no'];
 
+      $stmt = $pdo->prepare("UPDATE sale_order SET status='Delievered' WHERE order_no='$so_no'");
+      $stmt->execute();
+
       // Stock Balance Check
       $stock_balancestmt = $pdo->prepare("SELECT * FROM stock WHERE item_id=$item_id ORDER BY id DESC");
       $stock_balancestmt->execute();
@@ -110,16 +113,16 @@ require '../Config/common.php';
           $percentage_amount = ($amount/100) * $discount_percentage;
           $amount = $amount - $percentage_amount;
           
-          $addstmt = $pdo->prepare("INSERT INTO temp_sale (date,gin_no,customer_id,item_id,price,qty,type,percentage,percentage_amount,stock_foc,amount,so_no) VALUES (:date,:gin_no,:customer_id,:item_id,:price,:qty,:type,:percentage,:percentage_amount,:stock_foc,:amount,:so_no)");
+          $addstmt = $pdo->prepare("INSERT INTO temp_sale (date,gin_no,customer_id,item_id,price,qty,type,percentage,percentage_amount,stock_foc,amount,so_no,status) VALUES (:date,:gin_no,:customer_id,:item_id,:price,:qty,:type,:percentage,:percentage_amount,:stock_foc,:amount,:so_no,:status)");
           $addResult = $addstmt->execute(
             array(':date'=>$date, ':gin_no'=>$gin_no, ':customer_id'=>$customer_id, ':item_id'=>$item_id, ':price'=>$price, ':qty'=>$qty, ':type'=>$type, ':percentage'=>$discount_percentage, ':percentage_amount'=>$percentage_amount, ':stock_foc'=>$foc, ':amount'=>$amount, ':so_no'=>$so_no)
           );
         
         }else {
           $amount = $price * $qty;
-          $addstmt = $pdo->prepare("INSERT INTO temp_sale (date,gin_no,customer_id,item_id,price,qty,type,stock_foc,amount,so_no) VALUES (:date,:gin_no,:customer_id,:item_id,:price,:qty,:type,:stock_foc,:amount,:so_no)");
+          $addstmt = $pdo->prepare("INSERT INTO temp_sale (date,gin_no,customer_id,item_id,price,qty,type,stock_foc,amount,so_no,status) VALUES (:date,:gin_no,:customer_id,:item_id,:price,:qty,:type,:stock_foc,:amount,:so_no,:status)");
           $addResult = $addstmt->execute(
-            array(':date'=>$date, ':gin_no'=>$gin_no, ':customer_id'=>$customer_id, ':item_id'=>$item_id, ':price'=>$price, ':qty'=>$qty, ':type'=>$type, ':stock_foc'=>$foc, ':amount'=>$amount, ':so_no'=>$so_no)
+            array(':date'=>$date, ':gin_no'=>$gin_no, ':customer_id'=>$customer_id, ':item_id'=>$item_id, ':price'=>$price, ':qty'=>$qty, ':type'=>$type, ':stock_foc'=>$foc, ':amount'=>$amount, ':so_no'=>$so_no, ':status'=>'pending')
           );
         }
   
@@ -131,7 +134,7 @@ require '../Config/common.php';
    }
 
    if (isset($_POST['save_btn'])) {
-    $stmt = $pdo->prepare("SELECT * FROM temp_sale");
+    $stmt = $pdo->prepare("SELECT * FROM temp_sale WHERE status='pending'");
     $stmt->execute();
     $result = $stmt->fetchAll();
 
@@ -143,12 +146,13 @@ require '../Config/common.php';
       $qty = $value['qty'];
       $type = $value['type'];
       $foc = $value['stock_foc'];
+      $amount = $value['amount'];
       
       // Add Credit Sale
       if ($type == "credit") {
-        $parstmt = $pdo->prepare("INSERT INTO credit_sale (date,gin_no,customer_id,item_id,qty) VALUES (:date,:gin_no,:customer_id,:item_id,:qty)");
+        $parstmt = $pdo->prepare("INSERT INTO credit_sale (date,gin_no,customer_id,item_id,qty,amount) VALUES (:date,:gin_no,:customer_id,:item_id,:qty,:amount)");
         $parResult = $parstmt->execute(
-          array(':date'=>$date, ':gin_no'=>$gin_no, ':customer_id'=>$customer_id, ':item_id'=>$item_id,':qty'=>$qty)
+          array(':date'=>$date, ':gin_no'=>$gin_no, ':customer_id'=>$customer_id, ':item_id'=>$item_id,':qty'=>$qty,':amount'=>$amount)
         );
 
         $sale_idstmt = $pdo->prepare("SELECT * FROM credit_sale ORDER BY id DESC");
@@ -164,11 +168,8 @@ require '../Config/common.php';
         $receivable_balancedata = $receivable_balancestmt->fetch(PDO::FETCH_ASSOC);
         
         $asc_id = $receivable_balancedata['asc_id'] + 1;
-        if (!empty($receivable_balancedata)) {
-          $balance = $receivable_balancedata['balance'] + $amount;
-        }else {
-          $balance = $amount;
-        }
+        
+        $balance = $amount;
         
         $salestmt = $pdo->prepare("INSERT INTO receivable (date,gin_no,customer_id,amount,sale_id,asc_id,group_id,balance) VALUES (:date,:gin_no,:customer_id,:amount,:sale_id,:asc_id,:gin_no,:balance)");
         $saledata = $salestmt->execute(
@@ -177,9 +178,9 @@ require '../Config/common.php';
 
       }else {
       // Add Cash Sale
-        $cashstmt = $pdo->prepare("INSERT INTO cash_sale (date,gin_no,customer_id,item_id,qty) VALUES (:date,:gin_no,:customer_id,:item_id,:qty)");
+        $cashstmt = $pdo->prepare("INSERT INTO cash_sale (date,gin_no,customer_id,item_id,qty,amount) VALUES (:date,:gin_no,:customer_id,:item_id,:qty,:amount)");
         $cashResult = $cashstmt->execute(
-          array(':date'=>$date, ':gin_no'=>$gin_no, ':customer_id'=>$customer_id, ':item_id'=>$item_id,':qty'=>$qty)
+          array(':date'=>$date, ':gin_no'=>$gin_no, ':customer_id'=>$customer_id, ':item_id'=>$item_id,':qty'=>$qty,':amount'=>$amount)
         );
       }
 
@@ -209,9 +210,9 @@ require '../Config/common.php';
         array(':date'=>$date, ':gin_no'=>$gin_no, ':item_id'=>$item_id, ':out_qty'=>$out_qty, ':foc_qty'=>$foc, ':balance'=>$stockbalance)
       );
 
-      // Delete Temp Sale
+      // Update status Temp Sale
       $id = $value['id'];
-      $deletestmt = $pdo->prepare("DELETE FROM temp_sale WHERE id='$id'");
+      $deletestmt = $pdo->prepare("UPDATE temp_sale SET status='sold' WHERE id='$id'");
       $deletestmt->execute();
 
       echo "<script>window.location.href='sale.php';</script>";
@@ -219,9 +220,9 @@ require '../Config/common.php';
    }
 
 
-     $selestmt = $pdo->prepare("SELECT * FROM temp_sale ORDER BY id DESC");
-     $selestmt->execute();
-     $seleResult = $selestmt->fetch(PDO::FETCH_ASSOC);
+    //  $selestmt = $pdo->prepare("SELECT * FROM temp_sale WHERE status='pending' ORDER BY id DESC");
+    //  $selestmt->execute();
+    //  $seleResult = $selestmt->fetch(PDO::FETCH_ASSOC);
 
     ?>
 <script>

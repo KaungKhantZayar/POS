@@ -95,7 +95,7 @@ if (in_array($report_name, ["stock_inventory_summary"])) {
                       class="form-control report-input chzn-select"
                       <?php echo $filterCategory ? "disabled" : ""; ?> 
                       name="category_id">
-                <option value="all">All</option>
+                <option value="">All</option>
                 <?php 
                 $stmt = $pdo->prepare("SELECT * FROM categories ORDER BY id DESC");
                 $stmt->execute();
@@ -131,7 +131,7 @@ if (in_array($report_name, ["stock_inventory_summary"])) {
             <div class="col-6">
               <label class="form-label">Supplier</label>
               <select id="filterSupplier" class="form-control report-input" <?php echo $filterSupplier ? "disabled" : ""; ?> name="supplier_id">
-                <option value="all">All</option>
+                <option value="">All</option>
                 <?php 
                 $stmt = $pdo->prepare("SELECT * FROM supplier ORDER BY id DESC");
                 $stmt->execute();

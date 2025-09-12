@@ -139,7 +139,7 @@ require '../Config/common.php';
          ?>
         <tr data-bs-toggle="modal" data-bs-target="#myModal<?php echo $value['id']; ?>">
           <td><?php echo $id; ?></td>
-          <td><?php echo $value['date'];?></td>
+          <td><?php echo date('d-m-Y', strtotime($value['date']));?></td>
           <td><?php echo $value['gin_no'];?></td>
           <td><?php echo number_format($total_amount);?></td>
           <td><?php echo number_format($paidamount);?></td>

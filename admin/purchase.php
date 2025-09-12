@@ -41,41 +41,15 @@ require '../Config/common.php';
  </style>
 
 
-  <?php
-    if (!empty($_GET['pageno'])) {
-      $pageno = $_GET['pageno'];
-    }else {
-      $pageno = 1;
-    }
-    $numOfrecs = 5;
-    $offset = ($pageno - 1) * $numOfrecs;
-
-    if (empty($_POST['search'])) {
-      $stmt = $pdo->prepare("SELECT * FROM temp_purchase ORDER BY id  DESC");
-      $stmt->execute();
-      $rawResult = $stmt->fetchAll();
-
-      $total_pages = ceil(count($rawResult) / $numOfrecs);
-
-      $stmt = $pdo->prepare("SELECT * FROM temp_purchase ORDER BY id DESC LIMIT $offset,$numOfrecs");
-      $stmt->execute();
-      $result = $stmt->fetchAll();
-    }else {
-      $search = $_POST['search'];
-      $stmt = $pdo->prepare("SELECT * FROM temp_purchase WHERE date LIKE '%$search%' ORDER BY id  DESC");
-      $stmt->execute();
-      $rawResult = $stmt->fetchAll();
-
-      $total_pages = ceil(count($rawResult) / $numOfrecs);
-
-      $stmt = $pdo->prepare("SELECT * FROM temp_purchase WHERE date LIKE '%$search%' ORDER BY id DESC LIMIT $offset,$numOfrecs");
-      $stmt->execute();
-      $result = $stmt->fetchAll();
-    }
-   ?>
 
 
-   <?php
+
+
+
+<?php
+  $stmt = $pdo->prepare("SELECT * FROM temp_purchase WHERE status='pending' ORDER BY id  DESC");
+  $stmt->execute();
+  $result = $stmt->fetchAll();
 
   // Add Purchase
    if (isset($_POST['add_btn'])) {
@@ -119,7 +93,7 @@ require '../Config/common.php';
 
         $percentage_amount = ($amount/100) * $discount_percentage;
         $amount = $amount - $percentage_amount;
-        $addstmt = $pdo->prepare("INSERT INTO temp_purchase (date,grn_no,supplier_id,item_id,price,qty,type,percentage,percentage_amount,stock_foc,amount,po_no) VALUES (:date,:grn_no,:supplier_id,:item_id,:price,:qty,:type,:percentage,:percentage_amount,:stock_foc,:amount,:po_no)");
+        $addstmt = $pdo->prepare("INSERT INTO temp_purchase (date,grn_no,supplier_id,item_id,price,qty,type,percentage,percentage_amount,stock_foc,amount,po_no,status) VALUES (:date,:grn_no,:supplier_id,:item_id,:price,:qty,:type,:percentage,:percentage_amount,:stock_foc,:amount,:po_no,'pending')");
         $addResult = $addstmt->execute(
           array(':date'=>$date, ':grn_no'=>$grn_no, ':supplier_id'=>$supplier_id, ':item_id'=>$item_id, ':price'=>$price, ':qty'=>$qty, ':type'=>$type, ':percentage'=>$discount_percentage, ':percentage_amount'=>$percentage_amount, ':stock_foc'=>$foc, ':amount'=>$amount, ':po_no'=>$po_no)
         );
@@ -127,7 +101,7 @@ require '../Config/common.php';
       }else {
         $amount = $price * $qty;
   
-        $addstmt = $pdo->prepare("INSERT INTO temp_purchase (date,grn_no,supplier_id,item_id,price,qty,type,stock_foc,amount,po_no) VALUES (:date,:grn_no,:supplier_id,:item_id,:price,:qty,:type,:stock_foc,:amount,:po_no)");
+        $addstmt = $pdo->prepare("INSERT INTO temp_purchase (date,grn_no,supplier_id,item_id,price,qty,type,stock_foc,amount,po_no,status) VALUES (:date,:grn_no,:supplier_id,:item_id,:price,:qty,:type,:stock_foc,:amount,:po_no,'pending')");
         $addResult = $addstmt->execute(
           array(':date'=>$date, ':grn_no'=>$grn_no, ':supplier_id'=>$supplier_id, ':item_id'=>$item_id, ':price'=>$price, ':qty'=>$qty, ':type'=>$type, ':stock_foc'=>$foc, ':amount'=>$amount, ':po_no'=>$po_no)
         );
@@ -143,7 +117,7 @@ require '../Config/common.php';
 
   //  Save Purchase
    if (isset($_POST['save_btn'])) {
-    $stmt = $pdo->prepare("SELECT * FROM temp_purchase");
+    $stmt = $pdo->prepare("SELECT * FROM temp_purchase WHERE status='pending'");
     $stmt->execute();
     $result = $stmt->fetchAll();
 
@@ -152,16 +126,16 @@ require '../Config/common.php';
       $grn_no = $value['grn_no'];
       $supplier_id = $value['supplier_id'];
       $item_id = $value['item_id'];
-      $price = $value['price'];
+      $amount = $value['amount'];
       $qty = $value['qty'];
       $type = $value['type'];
       $foc = $value['stock_foc'];
 
       // Add Credit Purchase
       if ($type == "credit") {
-        $parstmt = $pdo->prepare("INSERT INTO credit_purchase (date,grn_no,supplier_id,item_id,price,qty) VALUES (:date,:grn_no,:supplier_id,:item_id,:price,:qty)");
+        $parstmt = $pdo->prepare("INSERT INTO credit_purchase (date,grn_no,supplier_id,item_id,amount,qty) VALUES (:date,:grn_no,:supplier_id,:item_id,:amount,:qty)");
         $parResult = $parstmt->execute(
-          array(':date'=>$date, ':grn_no'=>$grn_no, ':supplier_id'=>$supplier_id, ':item_id'=>$item_id, ':price'=>$price, ':qty'=>$qty)
+          array(':date'=>$date, ':grn_no'=>$grn_no, ':supplier_id'=>$supplier_id, ':item_id'=>$item_id, ':amount'=>$amount, ':qty'=>$qty)
         );
 
         // Purchase Id
@@ -177,12 +151,8 @@ require '../Config/common.php';
         $payabl_balancestmt->execute();
         $payabl_balancedata = $payabl_balancestmt->fetch(PDO::FETCH_ASSOC);
 
-        if (!empty($payabl_balancedata)) {
-          $balance = $payabl_balancedata['balance'] + $amount;
-        }else {
-          $balance = $amount;
-        }
-
+        $balance = $amount;
+        
         $payablstmt = $pdo->prepare("INSERT INTO payable (date,grn_no,supplier_id,amount,purchase_id,asc_id,group_id,balance,status) VALUES (:date,:grn_no,:supplier_id,:amount,:purchase_id,:purchase_id,:grn_no,:balance,'Pending')");
         $payabldata = $payablstmt->execute(
           array(':date'=>$date, ':grn_no'=>$grn_no, ':supplier_id'=>$supplier_id, ':amount'=>$amount, ':purchase_id'=>$purchase_id, ':balance'=>$balance)
@@ -190,9 +160,9 @@ require '../Config/common.php';
 
       }else {
       // Add Cash Purchase
-        $cashstmt = $pdo->prepare("INSERT INTO cash_purchase (date,grn_no,supplier_id,item_id,price,qty) VALUES (:date,:grn_no,:supplier_id,:item_id,:price,:qty)");
+        $cashstmt = $pdo->prepare("INSERT INTO cash_purchase (date,grn_no,supplier_id,item_id,amount,qty) VALUES (:date,:grn_no,:supplier_id,:item_id,:amount,:qty)");
         $cashResult = $cashstmt->execute(
-          array(':date'=>$date, ':grn_no'=>$grn_no, ':supplier_id'=>$supplier_id, ':item_id'=>$item_id, ':price'=>$price, ':qty'=>$qty)
+          array(':date'=>$date, ':grn_no'=>$grn_no, ':supplier_id'=>$supplier_id, ':item_id'=>$item_id, ':amount'=>$amount, ':qty'=>$qty)
         );
       }
 
@@ -224,15 +194,10 @@ require '../Config/common.php';
 
 
       $id = $value['id'];
-      $deletestmt = $pdo->prepare("DELETE FROM temp_purchase WHERE id='$id'");
+      $deletestmt = $pdo->prepare("UPDATE temp_purchase SET status='purchased' WHERE id='$id'");
       $deletestmt->execute();
     }
    }
-
-
-     $selestmt = $pdo->prepare("SELECT * FROM temp_purchase ORDER BY id DESC");
-     $selestmt->execute();
-     $seleResult = $selestmt->fetch(PDO::FETCH_ASSOC);
 
     ?>
     <script>
@@ -439,7 +404,7 @@ function fetchItemIdFromName() {
               <tr>
                 <th style="width: 10px">#</th>
                 <th>Date</th>
-                <th>grn_no</th>
+                <th>GRN No</th>
                 <th>Supplier_Name</th>
                 <th>Item_Name</th>
                 <th>Price</th>
